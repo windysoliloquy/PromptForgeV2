@@ -1,0 +1,18 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local cache and scraped assets
+cache/
+
+# Packaged artifacts and shortcuts
+*.zip
+*.7z
+*.lnk
