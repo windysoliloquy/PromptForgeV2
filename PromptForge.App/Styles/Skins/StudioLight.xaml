@@ -3,6 +3,9 @@
     <Color x:Key="AppBackgroundColor">#FFF5F7FA</Color>
     <Color x:Key="CardColor">#FFFFFFFF</Color>
     <Color x:Key="BorderColor">#FFD7DEE8</Color>
+    <Color x:Key="InputBorderColor">#FFCFD8E4</Color>
+    <Color x:Key="InputBorderHoverColor">#FFB4C2D3</Color>
+    <Color x:Key="InputBorderFocusColor">#FF2E6BE6</Color>
     <Color x:Key="AccentColor">#FF2E6BE6</Color>
     <Color x:Key="AccentColorHover">#FF2558BF</Color>
     <Color x:Key="AccentSoftColor">#FFEFF4FF</Color>
@@ -10,11 +13,18 @@
     <Color x:Key="TextMutedColor">#FF5E6B7D</Color>
     <Color x:Key="InputBackgroundColor">#FFFBFCFE</Color>
     <Color x:Key="SubtleSurfaceColor">#FFF2F5F9</Color>
+    <Color x:Key="PopupSurfaceColor">#FFFFFFFF</Color>
+    <Color x:Key="PopupBorderColor">#FFD7DEE8</Color>
+    <Color x:Key="SemanticChipSurfaceColor">#FFF3F7FF</Color>
+    <Color x:Key="SemanticChipBorderColor">#FFD7E4FF</Color>
     <Color x:Key="ShadowColor">#FF1F2937</Color>
 
     <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}" />
     <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}" />
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+    <SolidColorBrush x:Key="InputBorderBrush" Color="{StaticResource InputBorderColor}" />
+    <SolidColorBrush x:Key="InputBorderHoverBrush" Color="{StaticResource InputBorderHoverColor}" />
+    <SolidColorBrush x:Key="InputBorderFocusBrush" Color="{StaticResource InputBorderFocusColor}" />
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
     <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentColorHover}" />
     <SolidColorBrush x:Key="AccentSoftBrush" Color="{StaticResource AccentSoftColor}" />
@@ -22,8 +32,12 @@
     <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}" />
     <SolidColorBrush x:Key="InputBackgroundBrush" Color="{StaticResource InputBackgroundColor}" />
     <SolidColorBrush x:Key="SubtleSurfaceBrush" Color="{StaticResource SubtleSurfaceColor}" />
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{StaticResource PopupSurfaceColor}" />
+    <SolidColorBrush x:Key="PopupBorderBrush" Color="{StaticResource PopupBorderColor}" />
+    <SolidColorBrush x:Key="SemanticChipSurfaceBrush" Color="{StaticResource SemanticChipSurfaceColor}" />
+    <SolidColorBrush x:Key="SemanticChipBorderBrush" Color="{StaticResource SemanticChipBorderColor}" />
     <SolidColorBrush x:Key="ComboBoxBackgroundBrush" Color="{StaticResource InputBackgroundColor}" />
     <SolidColorBrush x:Key="ComboBoxForegroundBrush" Color="{StaticResource TextPrimaryColor}" />
-    <SolidColorBrush x:Key="ComboBoxDropDownBackgroundBrush" Color="{StaticResource InputBackgroundColor}" />
+    <SolidColorBrush x:Key="ComboBoxDropDownBackgroundBrush" Color="{StaticResource PopupSurfaceColor}" />
     <SolidColorBrush x:Key="ComboBoxDropDownForegroundBrush" Color="{StaticResource TextPrimaryColor}" />
 </ResourceDictionary>

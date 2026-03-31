@@ -6,7 +6,7 @@
     <Grid>
         <ToggleButton x:Name="FlyoutButton"
                       Style="{DynamicResource SliderFlyoutButtonStyle}"
-                      MinHeight="78"
+                      MinHeight="84"
                       HorizontalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch">
             <Grid>
@@ -23,15 +23,11 @@
                            TextWrapping="Wrap" />
 
                 <Border Grid.Row="1"
-                        Background="{DynamicResource AccentBrush}"
-                        CornerRadius="10"
-                        Padding="8,3"
+                        Style="{DynamicResource SemanticValuePillBorderStyle}"
                         Margin="0,8,0,0"
                         HorizontalAlignment="Left">
                     <TextBlock Text="{Binding ValueText, ElementName=Root}"
-                               Foreground="White"
-                               FontSize="11"
-                               FontWeight="SemiBold" />
+                               Style="{DynamicResource SemanticValuePillTextStyle}" />
                 </Border>
 
                 <Border Grid.Row="2" Height="0" Background="Transparent" />
@@ -53,15 +49,11 @@
                                Style="{DynamicResource SectionTitleTextStyle}"
                                Margin="0,0,0,6"
                                TextWrapping="Wrap" />
-                    <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="10"
-                            Padding="8,3"
+                    <Border Style="{DynamicResource SemanticValuePillBorderStyle}"
                             Margin="0,0,0,10"
                             HorizontalAlignment="Left">
                         <TextBlock Text="{Binding ValueText, ElementName=Root}"
-                                   Foreground="White"
-                                   FontSize="11"
-                                   FontWeight="SemiBold" />
+                                   Style="{DynamicResource SemanticValuePillTextStyle}" />
                     </Border>
                     <TextBlock Text="{Binding HelperText, ElementName=Root}"
                                Style="{DynamicResource BodyMutedTextStyle}"

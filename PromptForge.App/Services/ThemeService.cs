@@ -20,6 +20,9 @@ public sealed class ThemeService : IThemeService
         "AppBackgroundColor",
         "CardColor",
         "BorderColor",
+        "InputBorderColor",
+        "InputBorderHoverColor",
+        "InputBorderFocusColor",
         "AccentColor",
         "AccentColorHover",
         "AccentSoftColor",
@@ -27,6 +30,10 @@ public sealed class ThemeService : IThemeService
         "TextMutedColor",
         "InputBackgroundColor",
         "SubtleSurfaceColor",
+        "PopupSurfaceColor",
+        "PopupBorderColor",
+        "SemanticChipSurfaceColor",
+        "SemanticChipBorderColor",
         "ShadowColor",
     };
 
@@ -42,6 +49,17 @@ public sealed class ThemeService : IThemeService
         "TextMutedBrush",
         "InputBackgroundBrush",
         "SubtleSurfaceBrush",
+        "InputBorderBrush",
+        "InputBorderHoverBrush",
+        "InputBorderFocusBrush",
+        "PopupSurfaceBrush",
+        "PopupBorderBrush",
+        "SemanticChipSurfaceBrush",
+        "SemanticChipBorderBrush",
+        "ComboBoxBackgroundBrush",
+        "ComboBoxForegroundBrush",
+        "ComboBoxDropDownBackgroundBrush",
+        "ComboBoxDropDownForegroundBrush",
     };
 
     private readonly string _settingsPath;
@@ -115,6 +133,6 @@ public sealed class ThemeService : IThemeService
         {
         }
 
-        return "Gallery Paper";
+        return "Midnight Workshop";
     }
 }

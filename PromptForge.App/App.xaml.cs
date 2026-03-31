@@ -15,11 +15,14 @@ public partial class App : Application
         var presetStorage = new PresetStorageService();
         var clipboardService = new ClipboardService();
         var themeService = new ThemeService();
+        var demoStateService = new DemoStateService();
+        var licenseService = new LicenseService();
         themeService.ApplyTheme(themeService.CurrentThemeName);
 
-        var mainWindow = new MainWindow
+        var viewModel = new MainWindowViewModel(promptBuilder, presetStorage, clipboardService, artistProfileService, themeService, demoStateService, licenseService);
+        var mainWindow = new MainWindow(licenseService)
         {
-            DataContext = new MainWindowViewModel(promptBuilder, presetStorage, clipboardService, artistProfileService, themeService)
+            DataContext = viewModel
         };
 
         MainWindow = mainWindow;

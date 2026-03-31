@@ -4,6 +4,9 @@
     <Color x:Key="AppBackgroundColor">#FF171B23</Color>
     <Color x:Key="CardColor">#FF1F2530</Color>
     <Color x:Key="BorderColor">#FF334155</Color>
+    <Color x:Key="InputBorderColor">#FF3A4558</Color>
+    <Color x:Key="InputBorderHoverColor">#FF51637D</Color>
+    <Color x:Key="InputBorderFocusColor">#FF6FB0FF</Color>
     <Color x:Key="AccentColor">#FF6FB0FF</Color>
     <Color x:Key="AccentColorHover">#FF5297EA</Color>
     <Color x:Key="AccentSoftColor">#FF263B5A</Color>
@@ -11,11 +14,18 @@
     <Color x:Key="TextMutedColor">#FFB5C0D0</Color>
     <Color x:Key="InputBackgroundColor">#FF252C39</Color>
     <Color x:Key="SubtleSurfaceColor">#FF232A36</Color>
+    <Color x:Key="PopupSurfaceColor">#FF202733</Color>
+    <Color x:Key="PopupBorderColor">#FF42526A</Color>
+    <Color x:Key="SemanticChipSurfaceColor">#FF273245</Color>
+    <Color x:Key="SemanticChipBorderColor">#FF36465E</Color>
     <Color x:Key="ShadowColor">#FF000000</Color>
 
     <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}" />
     <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}" />
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+    <SolidColorBrush x:Key="InputBorderBrush" Color="{StaticResource InputBorderColor}" />
+    <SolidColorBrush x:Key="InputBorderHoverBrush" Color="{StaticResource InputBorderHoverColor}" />
+    <SolidColorBrush x:Key="InputBorderFocusBrush" Color="{StaticResource InputBorderFocusColor}" />
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
     <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentColorHover}" />
     <SolidColorBrush x:Key="AccentSoftBrush" Color="{StaticResource AccentSoftColor}" />
@@ -23,18 +33,12 @@
     <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}" />
     <SolidColorBrush x:Key="InputBackgroundBrush" Color="{StaticResource InputBackgroundColor}" />
     <SolidColorBrush x:Key="SubtleSurfaceBrush" Color="{StaticResource SubtleSurfaceColor}" />
-    <SolidColorBrush x:Key="ComboBoxBackgroundBrush" Color="#FFF2F4F8" />
-    <SolidColorBrush x:Key="ComboBoxForegroundBrush" Color="#FF111827" />
-    <SolidColorBrush x:Key="ComboBoxDropDownBackgroundBrush" Color="#FFF2F4F8" />
-    <SolidColorBrush x:Key="ComboBoxDropDownForegroundBrush" Color="#FF111827" />
-
-    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#FFF2F4F8" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#FFF2F4F8" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.ControlLightBrushKey}" Color="#FFF8FAFC" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.ControlDarkBrushKey}" Color="#FFD4D9E2" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="#FF111827" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="#FF111827" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.GrayTextBrushKey}" Color="#FF6B7280" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FFB8D1FF" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#FF111827" />
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{StaticResource PopupSurfaceColor}" />
+    <SolidColorBrush x:Key="PopupBorderBrush" Color="{StaticResource PopupBorderColor}" />
+    <SolidColorBrush x:Key="SemanticChipSurfaceBrush" Color="{StaticResource SemanticChipSurfaceColor}" />
+    <SolidColorBrush x:Key="SemanticChipBorderBrush" Color="{StaticResource SemanticChipBorderColor}" />
+    <SolidColorBrush x:Key="ComboBoxBackgroundBrush" Color="{StaticResource InputBackgroundColor}" />
+    <SolidColorBrush x:Key="ComboBoxForegroundBrush" Color="{StaticResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="ComboBoxDropDownBackgroundBrush" Color="{StaticResource PopupSurfaceColor}" />
+    <SolidColorBrush x:Key="ComboBoxDropDownForegroundBrush" Color="{StaticResource TextPrimaryColor}" />
 </ResourceDictionary>

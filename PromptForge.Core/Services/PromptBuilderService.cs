@@ -15,24 +15,46 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     public PromptResult Build(PromptConfiguration configuration)
     {
+        var effectiveConfiguration = ApplyIntentMode(configuration);
         var phrases = new List<string>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        AddUnique(phrases, seen, BuildSubjectSection(configuration));
-        AddUnique(phrases, seen, BuildRelationshipSection(configuration));
-        foreach (var phrase in BuildStyleSection(configuration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildCompositionSection(configuration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildMoodSection(configuration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildLightingAndColorSection(configuration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildOutputSection(configuration)) AddUnique(phrases, seen, phrase);
+        AddUnique(phrases, seen, BuildSubjectSection(effectiveConfiguration));
+        AddUnique(phrases, seen, BuildRelationshipSection(effectiveConfiguration));
+        foreach (var phrase in BuildStyleSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildCompositionSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildMoodSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildLightingAndColorSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildOutputSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
 
         return new PromptResult
         {
             PositivePrompt = string.Join(", ", phrases),
-            NegativePrompt = configuration.UseNegativePrompt ? BuildNegativePrompt(configuration) : string.Empty,
+            NegativePrompt = effectiveConfiguration.UseNegativePrompt ? BuildNegativePrompt(effectiveConfiguration) : string.Empty,
         };
     }
 
+    private static PromptConfiguration ApplyIntentMode(PromptConfiguration configuration)
+    {
+        if (!IntentModeCatalog.TryGet(configuration.IntentMode, out var intentMode))
+        {
+            return configuration;
+        }
+
+        var effective = configuration.Clone();
+        effective.Whimsy = intentMode.Whimsy;
+        effective.Tension = intentMode.Tension;
+        effective.Awe = intentMode.Awe;
+        effective.Chaos = intentMode.Chaos;
+        effective.MotionEnergy = intentMode.MotionEnergy;
+        effective.AtmosphericDepth = intentMode.AtmosphericDepth;
+        effective.NarrativeDensity = intentMode.NarrativeDensity;
+        effective.Symbolism = intentMode.Symbolism;
+        effective.Saturation = intentMode.Saturation;
+        effective.Contrast = intentMode.Contrast;
+        effective.Lighting = intentMode.Lighting;
+        return effective;
+    }
     private static string BuildSubjectSection(PromptConfiguration configuration)
     {
         var subject = Clean(configuration.Subject);
@@ -151,10 +173,10 @@ public sealed class PromptBuilderService : IPromptBuilderService
             _ => string.Empty,
         };
 
-        yield return MapStylization(configuration.Stylization, configuration.ArtStyle);
-        yield return MapRealism(configuration.Realism, configuration.ArtStyle, configuration.Material);
-        yield return MapTextureDepth(configuration.TextureDepth, configuration.ArtStyle, configuration.Material);
-        yield return MapSurfaceAge(configuration.SurfaceAge, configuration.ArtStyle, configuration.Material);
+        yield return MapStylization(configuration.Stylization, configuration);
+        yield return MapRealism(configuration.Realism, configuration);
+        yield return MapTextureDepth(configuration.TextureDepth, configuration);
+        yield return MapSurfaceAge(configuration.SurfaceAge, configuration);
 
         foreach (var phrase in BuildArtistBlend(configuration))
         {
@@ -241,11 +263,11 @@ public sealed class PromptBuilderService : IPromptBuilderService
     {
         if (influence.Profile is null)
         {
-            yield return MapBand(influence.Strength, string.Empty, $"subtle influence from {influence.DisplayName}", $"stylistic cues drawn from {influence.DisplayName}", $"strong influence from {influence.DisplayName}", $"deeply informed by {influence.DisplayName}");
+            yield return SliderLanguageCatalog.ResolveArtistInfluenceDescriptor(influence.Strength, influence.DisplayName);
             yield break;
         }
 
-        yield return MapBand(influence.Strength, string.Empty, $"subtle influence from {influence.DisplayName}", $"artist-influenced sensibility drawn from {influence.DisplayName}", $"strongly shaped by {influence.DisplayName}", $"deeply informed by {influence.DisplayName}");
+        yield return SliderLanguageCatalog.ResolveArtistInfluenceDescriptor(influence.Strength, influence.DisplayName);
 
         var categories = new[]
         {
@@ -365,27 +387,27 @@ public sealed class PromptBuilderService : IPromptBuilderService
     {
         yield return Lower(configuration.CameraDistance);
         yield return Lower(configuration.CameraAngle);
-        yield return MapBackgroundComplexity(configuration.BackgroundComplexity, configuration.ArtStyle);
-        yield return MapMotionEnergy(configuration.MotionEnergy, configuration.ArtStyle);
-        yield return MapNarrativeDensity(configuration.NarrativeDensity, configuration.ArtStyle);
-        yield return MapAtmosphericDepth(configuration.AtmosphericDepth, configuration.ArtStyle);
-        yield return MapChaos(configuration.Chaos, configuration.ArtStyle);
+        yield return MapBackgroundComplexity(configuration.BackgroundComplexity, configuration);
+        yield return MapMotionEnergy(configuration.MotionEnergy, configuration);
+        yield return MapNarrativeDensity(configuration.NarrativeDensity, configuration);
+        yield return MapAtmosphericDepth(configuration.AtmosphericDepth, configuration);
+        yield return MapChaos(configuration.Chaos, configuration);
     }
 
     private static IEnumerable<string> BuildMoodSection(PromptConfiguration configuration)
     {
-        yield return MapWhimsy(configuration.Whimsy, configuration.ArtStyle);
-        yield return MapTension(configuration.Tension, configuration.ArtStyle);
-        yield return MapAwe(configuration.Awe, configuration.ArtStyle);
-        yield return MapSymbolism(configuration.Symbolism, configuration.ArtStyle);
+        yield return MapWhimsy(configuration.Whimsy, configuration);
+        yield return MapTension(configuration.Tension, configuration);
+        yield return MapAwe(configuration.Awe, configuration);
+        yield return MapSymbolism(configuration.Symbolism, configuration);
         if (configuration.Whimsy >= 70 && configuration.Tension >= 50) yield return "comedic interpersonal tension";
     }
 
     private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration)
     {
         yield return Lower(configuration.Lighting);
-        yield return MapSaturation(configuration.Saturation, configuration.ArtStyle, configuration.Material);
-        yield return MapContrast(configuration.Contrast, configuration.ArtStyle, configuration.Material);
+        yield return MapSaturation(configuration.Saturation, configuration);
+        yield return MapContrast(configuration.Contrast, configuration);
     }
 
     private static IEnumerable<string> BuildOutputSection(PromptConfiguration configuration)
@@ -394,6 +416,36 @@ public sealed class PromptBuilderService : IPromptBuilderService
         if (configuration.PrintReady) { yield return "high detail clarity"; yield return "clean edge definition"; }
         if (configuration.TransparentBackground) { yield return "isolated subject"; yield return "clean background separation"; }
     }
+
+    private static string MapStylization(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Stylization, value, configuration);
+
+    private static string MapRealism(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Realism, value, configuration);
+
+    private static string MapTextureDepth(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.TextureDepth, value, configuration);
+
+    private static string MapSurfaceAge(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.SurfaceAge, value, configuration);
+
+    private static string MapBackgroundComplexity(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.BackgroundComplexity, value, configuration);
+
+    private static string MapMotionEnergy(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.MotionEnergy, value, configuration);
+
+    private static string MapNarrativeDensity(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.NarrativeDensity, value, configuration);
+
+    private static string MapAtmosphericDepth(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.AtmosphericDepth, value, configuration);
+
+    private static string MapChaos(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Chaos, value, configuration);
+
+    private static string MapWhimsy(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Whimsy, value, configuration);
+
+    private static string MapTension(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Tension, value, configuration);
+
+    private static string MapAwe(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Awe, value, configuration);
+
+    private static string MapSymbolism(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Symbolism, value, configuration);
+
+    private static string MapSaturation(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Saturation, value, configuration);
+
+    private static string MapContrast(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Contrast, value, configuration);
 
     private static string MapStylization(int value, string artStyle) => artStyle switch
     {
@@ -902,3 +954,4 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private sealed record ArtistInfluence(string DisplayName, int Strength, ArtistProfile? Profile);
 }
+

@@ -1,6 +1,7 @@
 # Build output
 bin/
 obj/
+AppOutput/
 
 # Visual Studio
 .vs/
@@ -16,3 +17,12 @@ cache/
 *.zip
 *.7z
 *.lnk
+artifacts/
+Features List.txt
+docs/screenshots/*.png
+
+# Local signing and seller secrets
+tools/trusted-signing/metadata.json
+tools/trusted-signing/nuget.exe
+tools/trusted-signing/packages/
+tools/licensing/private/

@@ -1,0 +1,6 @@
+{
+  "Endpoint": "https://eus.codesigning.azure.net",
+  "CodeSigningAccountName": "YOUR_ARTIFACT_SIGNING_ACCOUNT_NAME",
+  "CertificateProfileName": "YOUR_CERTIFICATE_PROFILE_NAME",
+  "CorrelationId": "prompt-forge-local-signing"
+}

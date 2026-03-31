@@ -3,25 +3,42 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:PromptForge.App.Controls"
         Title="Prompt Forge"
+        Icon="Assets/PromptForge.ico"
         Height="940"
         Width="1480"
         MinHeight="820"
         MinWidth="1320"
         Background="{DynamicResource AppBackgroundBrush}">
-    <Grid Margin="18">
+    <Grid Margin="16">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="460" />
-            <ColumnDefinition Width="18" />
+            <ColumnDefinition Width="16" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Padding="0">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Margin="18">
-                    <TextBlock Text="Prompt Forge" Style="{StaticResource PageTitleTextStyle}" />
-                    <TextBlock Margin="0,6,0,10"
-                               Text="A visual prompt synthesizer for structured prompt building."
-                               Style="{StaticResource BodyMutedTextStyle}" />
+                <StackPanel Margin="16">
+                    <Border Style="{StaticResource AppHeaderBorderStyle}" Padding="16,18,16,16" Margin="0,0,0,4">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="4" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Background="{DynamicResource AccentBrush}"
+                                    CornerRadius="2"
+                                    Margin="0,2,0,2" />
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Windy Soliloquy's"
+                                           Style="{StaticResource BodyMutedTextStyle}" />
+                                <TextBlock Text="Prompt Forge" Style="{StaticResource PageTitleTextStyle}" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Text="A visual prompt synthesizer for structured prompt building."
+                                           Style="{StaticResource BodyMutedTextStyle}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     <Border Style="{StaticResource ThemeSelectorBorderStyle}">
                         <DockPanel LastChildFill="False">
                             <TextBlock Text="Skin" Style="{StaticResource ThemeSelectorLabelTextStyle}" />
@@ -31,6 +48,17 @@
                         </DockPanel>
                     </Border>
 
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Intent" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Start with a bundled direction, or switch to Custom to reveal the full manual slider structure. Artist influence always stays available as a separate layer."
+                                       Style="{StaticResource BodyMutedTextStyle}"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="Intent Mode" Style="{StaticResource FieldLabelTextStyle}" />
+                            <ComboBox ItemsSource="{Binding IntentModes}" SelectedItem="{Binding IntentMode}" Style="{StaticResource AppComboBoxStyle}" />
+                            <TextBlock Margin="0,7,0,0" Text="{Binding IntentModeSummary}" Style="{StaticResource BodyMutedTextStyle}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Subject" Style="{StaticResource SectionTitleTextStyle}" />
@@ -43,9 +71,9 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SectionCardStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
-                            <TextBlock Text="Style" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Manual Style Controls" Style="{StaticResource SectionTitleTextStyle}" />
                             <UniformGrid Columns="2" Margin="0,2,0,0">
                                 <controls:SliderFlyout Label="Stylization" Value="{Binding Stylization}" ValueText="{Binding StylizationValueText}" GuideText="{Binding StylizationGuideText}" HelperText="{Binding StylizationHelper}" />
                                 <controls:SliderFlyout Label="Realism" Value="{Binding Realism}" ValueText="{Binding RealismValueText}" GuideText="{Binding RealismGuideText}" HelperText="{Binding RealismHelper}" />
@@ -54,8 +82,16 @@
                                 <controls:SliderFlyout Label="Symbolism" Value="{Binding Symbolism}" ValueText="{Binding SymbolismValueText}" GuideText="{Binding SymbolismGuideText}" HelperText="{Binding SymbolismHelper}" />
                                 <controls:SliderFlyout Label="Surface Age" Value="{Binding SurfaceAge}" ValueText="{Binding SurfaceAgeValueText}" GuideText="{Binding SurfaceAgeGuideText}" HelperText="{Binding SurfaceAgeHelper}" />
                             </UniformGrid>
+                        </StackPanel>
+                    </Border>
 
-                            <Grid Margin="0,4,0,0">
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Artist Influence" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Artist influence stays active whether you use a bundled intent or the full custom structure."
+                                       Style="{StaticResource BodyMutedTextStyle}"
+                                       TextWrapping="Wrap" />
+                            <Grid Margin="0,2,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="12" />
@@ -70,7 +106,6 @@
                                     <ComboBox ItemsSource="{Binding ArtStyles}" SelectedItem="{Binding ArtStyle}" Style="{StaticResource AppComboBoxStyle}" />
                                 </StackPanel>
                             </Grid>
-
                             <TextBlock Text="Primary Artist Influence" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding ArtistInfluences}" SelectedItem="{Binding ArtistInfluencePrimary}" IsEditable="True" IsTextSearchEnabled="True" Style="{StaticResource AppComboBoxStyle}" />
                             <controls:SliderFlyout Label="Primary Strength" Value="{Binding InfluenceStrengthPrimary}" ValueText="{Binding InfluenceStrengthPrimaryValueText}" GuideText="{Binding InfluenceStrengthPrimaryGuideText}" HelperText="Adjusts how strongly the primary artist shapes the prompt." ButtonWidth="404" />
@@ -81,9 +116,9 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SectionCardStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
-                            <TextBlock Text="Composition" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Manual Composition" Style="{StaticResource SectionTitleTextStyle}" />
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -99,7 +134,7 @@
                                     <ComboBox ItemsSource="{Binding CameraAngles}" SelectedItem="{Binding CameraAngle}" Style="{StaticResource AppComboBoxStyle}" />
                                 </StackPanel>
                             </Grid>
-                            <UniformGrid Columns="2" Margin="0,4,0,0">
+                            <UniformGrid Columns="2" Margin="0,3,0,0">
                                 <controls:SliderFlyout Label="Background Complexity" Value="{Binding BackgroundComplexity}" ValueText="{Binding BackgroundComplexityValueText}" GuideText="{Binding BackgroundComplexityGuideText}" HelperText="{Binding BackgroundComplexityHelper}" />
                                 <controls:SliderFlyout Label="Motion Energy" Value="{Binding MotionEnergy}" ValueText="{Binding MotionEnergyValueText}" GuideText="{Binding MotionEnergyGuideText}" HelperText="{Binding MotionEnergyHelper}" />
                                 <controls:SliderFlyout Label="Atmospheric Depth" Value="{Binding AtmosphericDepth}" ValueText="{Binding AtmosphericDepthValueText}" GuideText="{Binding AtmosphericDepthGuideText}" HelperText="{Binding AtmosphericDepthHelper}" />
@@ -108,9 +143,9 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SectionCardStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
-                            <TextBlock Text="Mood" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Manual Mood" Style="{StaticResource SectionTitleTextStyle}" />
                             <UniformGrid Columns="2" Margin="0,2,0,0">
                                 <controls:SliderFlyout Label="Whimsy" Value="{Binding Whimsy}" ValueText="{Binding WhimsyValueText}" GuideText="{Binding WhimsyGuideText}" HelperText="{Binding WhimsyHelper}" />
                                 <controls:SliderFlyout Label="Tension" Value="{Binding Tension}" ValueText="{Binding TensionValueText}" GuideText="{Binding TensionGuideText}" HelperText="{Binding TensionHelper}" />
@@ -119,21 +154,21 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SectionCardStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
-                            <TextBlock Text="Lighting and Color" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Manual Lighting and Color" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Text="Lighting" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding Lightings}" SelectedItem="{Binding Lighting}" Style="{StaticResource AppComboBoxStyle}" />
-                            <UniformGrid Columns="2" Margin="0,4,0,0">
+                            <UniformGrid Columns="2" Margin="0,3,0,0">
                                 <controls:SliderFlyout Label="Saturation" Value="{Binding Saturation}" ValueText="{Binding SaturationValueText}" GuideText="{Binding SaturationGuideText}" HelperText="{Binding SaturationHelper}" />
                                 <controls:SliderFlyout Label="Contrast" Value="{Binding Contrast}" ValueText="{Binding ContrastValueText}" GuideText="{Binding ContrastGuideText}" HelperText="{Binding ContrastHelper}" />
                             </UniformGrid>
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SectionCardStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
-                            <TextBlock Text="Output" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Manual Output" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Text="Aspect Ratio" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding AspectRatios}" SelectedItem="{Binding AspectRatio}" Style="{StaticResource AppComboBoxStyle}" />
                             <CheckBox Content="Print-ready" IsChecked="{Binding PrintReady}" Style="{StaticResource AppCheckBoxStyle}" />
@@ -142,9 +177,9 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SectionCardStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
-                            <TextBlock Text="Negative Constraints" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Manual Negative Constraints" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Text="Common exclusions start enabled by default. Certain artists can relax individual constraints automatically when distortion is part of the intended look."
                                        Style="{StaticResource BodyMutedTextStyle}"
                                        TextWrapping="Wrap" />
@@ -165,45 +200,67 @@
         </Border>
 
         <DockPanel Grid.Column="2" LastChildFill="True">
-            <Border DockPanel.Dock="Bottom" Style="{StaticResource CardBorderStyle}" Padding="18,14" Margin="0,18,0,0">
+            <Border DockPanel.Dock="Bottom" Style="{StaticResource CardBorderStyle}" Padding="16,13" Margin="0,16,0,0">
                 <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource BodyMutedTextStyle}" />
             </Border>
 
-            <Border DockPanel.Dock="Bottom" Style="{StaticResource CardBorderStyle}" Padding="22" Margin="0,18,0,0">
+            <Border DockPanel.Dock="Bottom" Style="{StaticResource CardBorderStyle}" Padding="20" Margin="0,16,0,0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="14" />
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="16" />
-                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Actions and Presets" Style="{StaticResource SectionTitleTextStyle}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Actions and Presets" Style="{StaticResource SectionTitleTextStyle}" />
+                            <Border Style="{StaticResource InfoChipBorderStyle}"
+                                    Margin="0,0,0,0"
+                                    Visibility="{Binding ShowDemoModeBanner, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding DemoModeHeadline}" Style="{StaticResource ChipValueTextStyle}" Margin="0" />
+                                    <TextBlock Text="{Binding DemoModeBody}" Style="{StaticResource BodyMutedTextStyle}" TextWrapping="Wrap" Margin="0,5,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Content="{Binding VersionButtonText}"
+                                Click="OnVersionInfoClick"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Top" />
+                    </Grid>
                     <UniformGrid Grid.Row="2" Columns="3">
                         <Button Content="Copy Prompt" Command="{Binding CopyPromptCommand}" Style="{StaticResource PrimaryButtonStyle}" />
                         <Button Content="Copy Negative Prompt" Command="{Binding CopyNegativePromptCommand}" Style="{StaticResource SecondaryButtonStyle}" />
-                        <Button Content="Reset" Command="{Binding ResetCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Content="Reset" Command="{Binding ResetCommand}" Style="{StaticResource TertiaryButtonStyle}" />
                     </UniformGrid>
                     <Grid Grid.Row="4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2.2*" />
-                            <ColumnDefinition Width="18" />
+                            <ColumnDefinition Width="16" />
                             <ColumnDefinition Width="1.6*" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Preset Name" Style="{StaticResource FieldLabelTextStyle}" />
                             <TextBox Text="{Binding PresetName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
-                            <UniformGrid Columns="2" Margin="0,10,0,0">
-                                <Button Content="Save Preset" Command="{Binding SavePresetCommand}" Style="{StaticResource PrimaryButtonStyle}" />
+                            <UniformGrid Columns="2" Margin="0,8,0,0">
+                                <Button Content="Save Preset" Command="{Binding SavePresetCommand}" Style="{StaticResource EmphasisSecondaryButtonStyle}" />
                                 <Button Content="Rename Preset" Command="{Binding RenamePresetCommand}" Style="{StaticResource SecondaryButtonStyle}" />
                             </UniformGrid>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Saved Presets" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding PresetNames}" SelectedItem="{Binding SelectedPresetName}" Style="{StaticResource AppComboBoxStyle}" />
-                            <UniformGrid Columns="2" Margin="0,10,0,0">
-                                <Button Content="Load Preset" Command="{Binding LoadPresetCommand}" Style="{StaticResource PrimaryButtonStyle}" />
-                                <Button Content="Delete Preset" Command="{Binding DeletePresetCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+                            <UniformGrid Columns="2" Margin="0,8,0,0">
+                                <Button Content="Load Preset" Command="{Binding LoadPresetCommand}" Style="{StaticResource EmphasisSecondaryButtonStyle}" />
+                                <Button Content="Delete Preset" Command="{Binding DeletePresetCommand}" Style="{StaticResource TertiaryButtonStyle}" />
                             </UniformGrid>
                         </StackPanel>
                     </Grid>
@@ -212,20 +269,42 @@
 
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
-                    <Border Style="{StaticResource CardBorderStyle}" Padding="22">
+                    <Border Style="{StaticResource CardBorderStyle}" Padding="20">
                         <StackPanel>
                             <TextBlock Text="Prompt Preview" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Margin="0,4,0,14" Text="The prompt updates instantly as you adjust the controls." Style="{StaticResource BodyMutedTextStyle}" />
-                            <TextBox Text="{Binding PromptPreview, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MinHeight="260" Style="{StaticResource PromptPreviewTextBoxStyle}" />
+                            <TextBlock Margin="0,4,0,12" Text="The prompt updates instantly as you adjust the controls." Style="{StaticResource BodyMutedTextStyle}" />
+                            <TextBox Text="{Binding PromptPreview, Mode=OneWay}"
+                                     IsReadOnly="True"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     VerticalScrollBarVisibility="Auto"
+                                     MinHeight="260"
+                                     Style="{StaticResource PromptPreviewTextBoxStyle}"
+                                     Visibility="{Binding ShowInteractivePromptPreview, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <ScrollViewer x:Name="PositivePromptDemoPreviewScrollViewer"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          MinHeight="260"
+                                          Focusable="False"
+                                          ContextMenuService.IsEnabled="False"
+                                          Visibility="{Binding ShowDemoPromptPreview, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Border Style="{StaticResource PromptPreviewDisplayBorderStyle}"
+                                        Width="{Binding ViewportWidth, ElementName=PositivePromptDemoPreviewScrollViewer}"
+                                        Focusable="False"
+                                        ContextMenuService.IsEnabled="False">
+                                    <TextBlock Text="{Binding PromptPreview}"
+                                               Style="{StaticResource PromptPreviewDisplayTextStyle}" />
+                                </Border>
+                            </ScrollViewer>
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource CardBorderStyle}" Padding="22" Margin="0,18,0,0" Visibility="{Binding ShowArtistBlendSummary, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Style="{StaticResource CardBorderStyle}" Padding="20" Margin="0,16,0,0" Visibility="{Binding ShowArtistBlendSummary, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="Artist Blend Summary" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Margin="0,4,0,12" Text="{Binding ArtistBlendSummaryTitle}" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+                            <TextBlock Margin="0,4,0,10" Text="{Binding ArtistBlendSummaryTitle}" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
                             <TextBlock Text="{Binding ArtistBlendSummaryBody}" TextWrapping="Wrap" Style="{StaticResource BodyMutedTextStyle}" />
-                            <UniformGrid Margin="0,14,0,0" Columns="2">
+                            <UniformGrid Margin="0,12,0,0" Columns="2">
                                 <Border Style="{StaticResource InfoChipBorderStyle}"><StackPanel><TextBlock Text="Composition" Style="{StaticResource ChipLabelTextStyle}" /><TextBlock Text="{Binding CompositionDriver}" Style="{StaticResource ChipValueTextStyle}" TextWrapping="Wrap" /></StackPanel></Border>
                                 <Border Style="{StaticResource InfoChipBorderStyle}"><StackPanel><TextBlock Text="Palette" Style="{StaticResource ChipLabelTextStyle}" /><TextBlock Text="{Binding PaletteDriver}" Style="{StaticResource ChipValueTextStyle}" TextWrapping="Wrap" /></StackPanel></Border>
                                 <Border Style="{StaticResource InfoChipBorderStyle}"><StackPanel><TextBlock Text="Surface" Style="{StaticResource ChipLabelTextStyle}" /><TextBlock Text="{Binding SurfaceDriver}" Style="{StaticResource ChipValueTextStyle}" TextWrapping="Wrap" /></StackPanel></Border>
@@ -234,10 +313,32 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource CardBorderStyle}" Padding="22" Margin="0,18,0,0" Visibility="{Binding ShowNegativePrompt, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Style="{StaticResource CardBorderStyle}" Padding="20" Margin="0,16,0,0" Visibility="{Binding ShowNegativePrompt, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="Negative Prompt" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBox Text="{Binding NegativePromptPreview, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MinHeight="110" Style="{StaticResource PromptPreviewTextBoxStyle}" />
+                            <TextBox Text="{Binding NegativePromptPreview, Mode=OneWay}"
+                                     IsReadOnly="True"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     VerticalScrollBarVisibility="Auto"
+                                     MinHeight="110"
+                                     Style="{StaticResource PromptPreviewTextBoxStyle}"
+                                     Visibility="{Binding ShowInteractivePromptPreview, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <ScrollViewer x:Name="NegativePromptDemoPreviewScrollViewer"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          MinHeight="110"
+                                          Focusable="False"
+                                          ContextMenuService.IsEnabled="False"
+                                          Visibility="{Binding ShowDemoPromptPreview, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Border Style="{StaticResource PromptPreviewDisplayBorderStyle}"
+                                        Width="{Binding ViewportWidth, ElementName=NegativePromptDemoPreviewScrollViewer}"
+                                        Focusable="False"
+                                        ContextMenuService.IsEnabled="False">
+                                    <TextBlock Text="{Binding NegativePromptPreview}"
+                                               Style="{StaticResource PromptPreviewDisplayTextStyle}" />
+                                </Border>
+                            </ScrollViewer>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -245,3 +346,7 @@
         </DockPanel>
     </Grid>
 </Window>
+
+
+
+

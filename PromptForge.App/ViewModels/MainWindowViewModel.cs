@@ -12,8 +12,11 @@ public sealed class MainWindowViewModel : ViewModelBase
     private readonly IClipboardService _clipboardService;
     private readonly IArtistProfileService _artistProfileService;
     private readonly IThemeService _themeService;
+    private readonly IDemoStateService _demoStateService;
+    private readonly ILicenseService _licenseService;
     private bool _isApplyingConfiguration;
 
+    private string _intentMode = "Custom";
     private string _subject = string.Empty;
     private string _action = string.Empty;
     private string _relationship = string.Empty;
@@ -61,28 +64,33 @@ public sealed class MainWindowViewModel : ViewModelBase
     private string _presetName = string.Empty;
     private string? _selectedPresetName;
     private string _statusMessage = "Ready.";
+    private int _remainingDemoCopies;
 
-    public MainWindowViewModel(IPromptBuilderService promptBuilderService, IPresetStorageService presetStorageService, IClipboardService clipboardService, IArtistProfileService artistProfileService, IThemeService themeService)
+    public MainWindowViewModel(IPromptBuilderService promptBuilderService, IPresetStorageService presetStorageService, IClipboardService clipboardService, IArtistProfileService artistProfileService, IThemeService themeService, IDemoStateService demoStateService, ILicenseService licenseService)
     {
         _promptBuilderService = promptBuilderService;
         _presetStorageService = presetStorageService;
         _clipboardService = clipboardService;
         _artistProfileService = artistProfileService;
         _themeService = themeService;
+        _demoStateService = demoStateService;
+        _licenseService = licenseService;
         _selectedThemeName = themeService.CurrentThemeName;
+        _remainingDemoCopies = demoStateService.CurrentState.RemainingCopies;
 
+        IntentModes = new ObservableCollection<string>(IntentModeCatalog.Names);
         Materials = new ObservableCollection<string>(new[] { "None", "Yarn", "Paint", "Glass", "Ink", "Stone", "Metal" });
         ArtStyles = new ObservableCollection<string>(new[] { "None", "Cinematic", "Painterly", "Yarn Relief", "Stained Glass", "Surreal Symbolic", "Concept Art" });
         ArtistInfluences = new ObservableCollection<string>(artistProfileService.GetArtistNames());
         CameraDistances = new ObservableCollection<string>(new[] { "Close-up", "Medium", "Medium-wide", "Wide", "Epic wide" });
         CameraAngles = new ObservableCollection<string>(new[] { "Eye level", "Low angle", "High angle", "Overhead", "Cinematic tilt" });
-        Lightings = new ObservableCollection<string>(new[] { "Soft daylight", "Golden hour", "Dramatic studio light", "Overcast", "Moonlit", "Volumetric cinematic light" });
+        Lightings = new ObservableCollection<string>(new[] { "Soft daylight", "Golden hour", "Dramatic studio light", "Overcast", "Moonlit", "Soft glow", "Dusk haze", "Warm directional light", "Volumetric cinematic light" });
         AspectRatios = new ObservableCollection<string>(new[] { "1:1", "4:5", "16:9", "9:16" });
         PresetNames = new ObservableCollection<string>();
         Themes = new ObservableCollection<string>(themeService.AvailableThemeNames);
 
-        CopyPromptCommand = new RelayCommand(CopyPrompt);
-        CopyNegativePromptCommand = new RelayCommand(CopyNegativePrompt);
+        CopyPromptCommand = new RelayCommand(CopyPrompt, CanCopyPrompt);
+        CopyNegativePromptCommand = new RelayCommand(CopyNegativePrompt, CanCopyNegativePrompt);
         SavePresetCommand = new RelayCommand(SavePreset);
         LoadPresetCommand = new RelayCommand(LoadPreset);
         RenamePresetCommand = new RelayCommand(RenamePreset);
@@ -93,6 +101,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         RegeneratePrompt();
     }
 
+    public ObservableCollection<string> IntentModes { get; }
     public ObservableCollection<string> Materials { get; }
     public ObservableCollection<string> ArtStyles { get; }
     public ObservableCollection<string> ArtistInfluences { get; }
@@ -111,6 +120,18 @@ public sealed class MainWindowViewModel : ViewModelBase
     public RelayCommand DeletePresetCommand { get; }
     public RelayCommand ResetCommand { get; }
 
+    public string IntentMode
+    {
+        get => _intentMode;
+        set
+        {
+            if (SetAndRefresh(ref _intentMode, NormalizeIntentMode(value)))
+            {
+                OnPropertyChanged(nameof(ShowManualIntentControls));
+                OnPropertyChanged(nameof(IntentModeSummary));
+            }
+        }
+    }
     public string Subject { get => _subject; set => SetAndRefresh(ref _subject, value); }
     public string Action { get => _action; set => SetAndRefresh(ref _action, value); }
     public string Relationship { get => _relationship; set => SetAndRefresh(ref _relationship, value); }
@@ -164,7 +185,35 @@ public sealed class MainWindowViewModel : ViewModelBase
             }
         }
     }
+    public bool IsUnlocked => _licenseService.IsUnlocked;
+    public bool IsDemoMode => DemoModeOptions.IsDemoMode && !IsUnlocked;
+    public bool ShowDemoModeBanner => IsDemoMode;
+    public bool ShowInteractivePromptPreview => !IsDemoMode;
+    public bool ShowDemoPromptPreview => IsDemoMode;
+    public int MaxDemoCopies => DemoModeOptions.MaxDemoCopies;
+    public string VersionButtonText => IsDemoMode ? "Unlock Full Version" : "Version Info";
+    public int RemainingDemoCopies
+    {
+        get => _remainingDemoCopies;
+        private set
+        {
+            if (SetProperty(ref _remainingDemoCopies, value))
+            {
+                OnPropertyChanged(nameof(DemoModeHeadline));
+                OnPropertyChanged(nameof(DemoModeBody));
+                RaiseCopyCommandCanExecuteChanged();
+            }
+        }
+    }
+    public string DemoModeHeadline => RemainingDemoCopies > 0
+        ? $"Demo mode: {RemainingDemoCopies} of {MaxDemoCopies} exports remaining"
+        : "Demo mode: export limit reached";
+    public string DemoModeBody => RemainingDemoCopies > 0
+        ? "Preview stays readable, but export is limited to the copy buttons."
+        : "Preview stays visible, but copy/export is now locked until the full version is used.";
     public bool ShowNegativePrompt => UseNegativePrompt;
+    public bool ShowManualIntentControls => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase);
+    public string IntentModeSummary => BuildIntentModeSummary();
     public string InfluenceStrengthPrimaryValueText => GetInfluenceBandLabel(InfluenceStrengthPrimary);
     public string InfluenceStrengthPrimaryGuideText => InfluenceBandGuideText;
     public string InfluenceStrengthSecondaryValueText => GetInfluenceBandLabel(InfluenceStrengthSecondary);
@@ -227,6 +276,20 @@ public sealed class MainWindowViewModel : ViewModelBase
     public string? SelectedPresetName { get => _selectedPresetName; set { if (SetProperty(ref _selectedPresetName, value) && !string.IsNullOrWhiteSpace(value)) PresetName = value; } }
     public string StatusMessage { get => _statusMessage; private set => SetProperty(ref _statusMessage, value); }
 
+    public void RefreshLicenseState()
+    {
+        _licenseService.Refresh();
+        OnPropertyChanged(nameof(IsUnlocked));
+        OnPropertyChanged(nameof(IsDemoMode));
+        OnPropertyChanged(nameof(ShowDemoModeBanner));
+        OnPropertyChanged(nameof(ShowInteractivePromptPreview));
+        OnPropertyChanged(nameof(ShowDemoPromptPreview));
+        OnPropertyChanged(nameof(VersionButtonText));
+        OnPropertyChanged(nameof(DemoModeHeadline));
+        OnPropertyChanged(nameof(DemoModeBody));
+        RaiseCopyCommandCanExecuteChanged();
+    }
+
     private bool SetAndRefresh<T>(ref T field, T value)
     {
         var changed = SetProperty(ref field, value);
@@ -257,10 +320,12 @@ public sealed class MainWindowViewModel : ViewModelBase
         NegativePromptPreview = result.NegativePrompt;
         RaiseArtistBlendSummaryChanged();
         RaiseSliderHelperChanged();
+        RaiseCopyCommandCanExecuteChanged();
     }
 
     private PromptConfiguration CaptureConfiguration() => new()
     {
+        IntentMode = NormalizeIntentMode(IntentMode),
         Subject = Subject,
         Action = Action,
         Relationship = Relationship,
@@ -307,6 +372,7 @@ public sealed class MainWindowViewModel : ViewModelBase
     private void ApplyConfiguration(PromptConfiguration configuration)
     {
         _isApplyingConfiguration = true;
+        IntentMode = NormalizeIntentMode(configuration.IntentMode);
         Subject = configuration.Subject;
         Action = configuration.Action;
         Relationship = configuration.Relationship;
@@ -353,8 +419,35 @@ public sealed class MainWindowViewModel : ViewModelBase
         RegeneratePrompt();
     }
 
-    private void CopyPrompt() { if (string.IsNullOrWhiteSpace(PromptPreview)) { StatusMessage = "Nothing to copy yet."; return; } _clipboardService.SetText(PromptPreview); StatusMessage = "Main prompt copied."; }
-    private void CopyNegativePrompt() { if (!UseNegativePrompt || string.IsNullOrWhiteSpace(NegativePromptPreview)) { StatusMessage = "Negative prompt is disabled."; return; } _clipboardService.SetText(NegativePromptPreview); StatusMessage = "Negative prompt copied."; }
+    private void CopyPrompt()
+    {
+        if (string.IsNullOrWhiteSpace(PromptPreview))
+        {
+            StatusMessage = "Nothing to copy yet.";
+            return;
+        }
+
+        CopyExportText(PromptPreview, "Prompt");
+    }
+
+    private void CopyNegativePrompt()
+    {
+        if (!UseNegativePrompt || string.IsNullOrWhiteSpace(NegativePromptPreview))
+        {
+            StatusMessage = "Negative prompt is disabled.";
+            return;
+        }
+
+        try
+        {
+            _clipboardService.SetText(NegativePromptPreview);
+            StatusMessage = "Negative prompt copied.";
+        }
+        catch
+        {
+            StatusMessage = "Could not copy the negative prompt.";
+        }
+    }
     private void SavePreset() { var name = PresetName?.Trim(); if (string.IsNullOrWhiteSpace(name)) { StatusMessage = "Enter a preset name before saving."; return; } _presetStorageService.Save(name, CaptureConfiguration()); RefreshPresetNames(name); StatusMessage = $"Preset '{name}' saved."; }
     private void LoadPreset() { var name = SelectedPresetName?.Trim(); if (string.IsNullOrWhiteSpace(name)) { StatusMessage = "Select a preset to load."; return; } ApplyConfiguration(_presetStorageService.Load(name)); PresetName = name; StatusMessage = $"Preset '{name}' loaded."; }
     private void RenamePreset() { var current = SelectedPresetName?.Trim(); var target = PresetName?.Trim(); if (string.IsNullOrWhiteSpace(current)) { StatusMessage = "Select a preset to rename."; return; } if (string.IsNullOrWhiteSpace(target)) { StatusMessage = "Enter the new preset name first."; return; } _presetStorageService.Rename(current, target); RefreshPresetNames(target); StatusMessage = $"Preset renamed to '{target}'."; }
@@ -366,6 +459,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         SelectedPresetName = null;
         ApplyConfiguration(new PromptConfiguration
         {
+            IntentMode = "Custom",
             Stylization = 50,
             Realism = 50,
             TextureDepth = 35,
@@ -406,6 +500,53 @@ public sealed class MainWindowViewModel : ViewModelBase
         StatusMessage = "Controls reset to defaults.";
     }
 
+    private bool CanCopyPrompt()
+    {
+        return !IsDemoMode || RemainingDemoCopies > 0;
+    }
+
+    private bool CanCopyNegativePrompt()
+    {
+        return true;
+    }
+
+    private void CopyExportText(string text, string label)
+    {
+        if (IsDemoMode && RemainingDemoCopies <= 0)
+        {
+            StatusMessage = "Demo export limit reached. Preview remains visible.";
+            RaiseCopyCommandCanExecuteChanged();
+            return;
+        }
+
+        try
+        {
+            _clipboardService.SetText(text);
+        }
+        catch
+        {
+            StatusMessage = $"Could not copy the {label.ToLowerInvariant()}.";
+            return;
+        }
+
+        if (!IsDemoMode)
+        {
+            StatusMessage = $"{label} copied.";
+            return;
+        }
+
+        if (!_demoStateService.TryConsumeCopy(out var state))
+        {
+            StatusMessage = $"{label} copied, but the demo counter could not be updated locally.";
+            return;
+        }
+
+        RemainingDemoCopies = state.RemainingCopies;
+        StatusMessage = RemainingDemoCopies > 0
+            ? $"{label} copied. {RemainingDemoCopies} demo exports remaining."
+            : $"{label} copied. Demo export limit reached.";
+    }
+
     private void RefreshPresetNames(string? selected = null)
     {
         PresetNames.Clear();
@@ -415,7 +556,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
     private void ApplyArtistNegativeConstraintDefaults()
     {
-        var allowsDistortion = IsAnyArtistActive("Pablo Picasso", "Salvador Dal?", "Salvador Dali", "El Greco", "Amedeo Modigliani", "Francis Bacon", "Egon Schiele");
+        var allowsDistortion = IsAnyArtistActive("Pablo Picasso", "Salvador Dali", "Salvador Dalí", "El Greco", "Amedeo Modigliani", "Francis Bacon", "Egon Schiele");
         var allowsFlatComposition = IsAnyArtistActive("Pablo Picasso");
 
         SetProperty(ref _avoidClutter, true, nameof(AvoidClutter));
@@ -505,6 +646,23 @@ public sealed class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(ContrastGuideText));
     }
 
+    private void RaiseCopyCommandCanExecuteChanged()
+    {
+        CopyPromptCommand.RaiseCanExecuteChanged();
+        CopyNegativePromptCommand.RaiseCanExecuteChanged();
+    }
+
+    private string BuildIntentModeSummary()
+    {
+        return IntentModeCatalog.TryGet(IntentMode, out var intentMode)
+            ? $"Intent bundle active: {intentMode.Summary}."
+            : "Custom intent structure exposes the full manual controls for mood, composition, color, and output shaping.";
+    }
+
+    private static string NormalizeIntentMode(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "Custom" : value.Trim();
+    }
     private const string InfluenceBandGuideText = "Off  |  subtle influence  |  artist-influenced sensibility  |  strongly shaped  |  deeply informed";
 
     private static readonly Dictionary<string, SliderBandMetadata> SliderBands = new(StringComparer.Ordinal)
@@ -780,5 +938,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
     private sealed record ArtistState(string Name, int Strength);
 }
+
+
 
 

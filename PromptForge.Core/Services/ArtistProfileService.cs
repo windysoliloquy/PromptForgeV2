@@ -1,4 +1,5 @@
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using PromptForge.App.Models;
@@ -52,13 +53,14 @@ public sealed class ArtistProfileService : IArtistProfileService
 
     private static Dictionary<string, ArtistProfile> LoadProfiles()
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "Data", "artist_profiles.json");
-        if (!File.Exists(path))
+        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("PromptForge.App.Data.artist_profiles.json");
+        if (stream is null)
         {
             return new Dictionary<string, ArtistProfile>(StringComparer.OrdinalIgnoreCase);
         }
 
-        var profiles = JsonSerializer.Deserialize<List<ArtistProfile>>(File.ReadAllText(path)) ?? [];
+        using var reader = new StreamReader(stream);
+        var profiles = JsonSerializer.Deserialize<List<ArtistProfile>>(reader.ReadToEnd()) ?? [];
         return profiles
             .Select(CleanProfile)
             .GroupBy(profile => NormalizeKey(profile.Name), StringComparer.OrdinalIgnoreCase)

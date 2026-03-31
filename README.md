@@ -1,74 +1,54 @@
 # Prompt Forge
 
-Prompt Forge is a native Windows desktop app for building high-quality image prompts through structured controls instead of manual prompt writing. It is designed as a visual prompt synthesizer: fast, clean, and focused on shaping prompt language through artistic controls instead of chat-style interaction.
+Build and iterate image-generation prompts instantly through structured visual controls, without waiting on an AI chat model to write them.
 
-## Start Here
+Prompt Forge is a native Windows desktop app for creators who want faster iteration, cleaner prompt language, and more deliberate control over style, mood, composition, artist influence, and output.
 
-If you are opening the repo for the first time:
+Built specifically for image-generation prompts and image-model workflows, Prompt Forge replaces slower chat-based or hand-written prompt drafting with a guided desktop workflow that lets you shape prompts visually and see them update live.
 
-1. Open [PromptForge.sln](PromptForge.sln) in Visual Studio 2022.
-2. Run the app with Ctrl+F5.
-3. If you need help finding the built executable, read [WHERE_TO_FIND_THE_APP.md](WHERE_TO_FIND_THE_APP.md).
+For users who normally draft prompts through chat or by hand, Prompt Forge can turn a multi-step prompt-writing loop into near-instant visual iteration, often saving minutes per concept and much more across a full creative session.
 
-If the app has already been built, the executable is usually here:
+## What You Get
 
-PromptForge.App\bin\Debug\net8.0-windows\PromptForge.App.exe
-
-## What It Does
-
-Prompt Forge helps build image prompts through structured controls for:
-
-- subject, action, and scene framing
-- art style, material, and artist influence
-- composition, mood, lighting, and color
-- negative constraints and cleaner negative prompt generation
-- reusable presets saved locally as JSON
-
-## Showcase
-
-### Main Workspace
-
-![Prompt Forge main workspace](docs/screenshots/Screenshot%202026-03-28%20125121.png)
-
-The main workspace gives a clean split between left-side controls and a large live prompt preview, keeping the generation flow readable while you iterate.
-
-### Prompt and Blend View
-
-![Prompt Forge prompt blend view](docs/screenshots/Screenshot%202026-03-28%20125152.png)
-
-Artist influence blending, live preview updates, and action buttons stay visible together so prompt iteration feels fast and desktop-native instead of crowded.
-
-### Full Window Overview
-
-![Prompt Forge full interface](docs/screenshots/Screenshot%202026-03-28%20125219.png)
-
-The full layout is designed to stay light, spacious, and practical for longer prompt-building sessions.
-
-## Core Features
-
-- Light-themed WPF desktop UI
-- Live prompt preview
+- Instant live prompt iteration
+- Structured control over style, mood, composition, lighting, and color
+- Guided prompt direction with room for manual refinement
 - Dual artist influence blending
-- Artist blend summary cards
-- Negative constraints with guided exclusions
-- Copy, reset, save, load, rename, and delete preset actions
-- Local JSON preset storage in %AppData%\PromptForge\Presets
+- Guided negative prompt generation
+- Local presets for repeat workflows
+- Native Windows desktop usability for longer creative sessions
 
-## Stack
+## Creative Range
 
-- C#
-- .NET 8
-- WPF
-- MVVM
+Prompt Forge includes structured controls for style, realism, texture, symbolism, camera framing, motion, atmosphere, lighting, color, output preferences, and more.
 
-## Quick Launch
+Its built-in artist influence system helps shape:
 
-1. Open [PromptForge.sln](PromptForge.sln).
-2. Make sure PromptForge.App is the startup project.
-3. Press F5 to run with debugging, or Ctrl+F5 to run without debugging.
+- Composition
+- Palette
+- Surface character
+- Mood
 
-## Repo Notes
+Prompt Forge supports an enormous built-in prompt space, with countless meaningful combinations available before custom user style direction is even added. Once your own preferences and workflows are layered in, the creative range becomes effectively open-ended.
 
-- Generated in/ and obj/ output is no longer tracked in Git.
-- The local scrape cache is intentionally kept out of the repo.
-- If you are sharing the app with someone who is not comfortable with Git, sending the built output folder or a zip through Google Drive is completely fine.
+## Access Options
+
+### Prompt Forge Full — $19.99
+
+Includes full Prompt Forge access through the unlock-file system.
+
+Purchasers may also submit feature suggestions, and purchaser suggestions receive higher-priority consideration.
+
+### Premium Group Access — $49.99
+
+For ChatGPT Plus or Pro web users, this tier includes one year of group chat access with experienced image prompters, AI enthusiasts, and developers.
+
+This access is broader than Prompt Forge itself. Sessions are not limited to image help and are not focused on a single art project. Topics may vary widely across ChatGPT use.
+
+For easier access, the email used to contact me should match your ChatGPT Plus or Pro account email if you want to be added to the Premium group experience.
+
+Aggressive behavior toward other users may result in removal from group access without refund.
+
+## Contact
+
+WindySoliloquy@gmail.com
