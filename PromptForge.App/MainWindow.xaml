@@ -57,6 +57,197 @@
                             <TextBlock Text="Intent Mode" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding IntentModes}" SelectedItem="{Binding IntentMode}" Style="{StaticResource AppComboBoxStyle}" />
                             <TextBlock Margin="0,7,0,0" Text="{Binding IntentModeSummary}" Style="{StaticResource BodyMutedTextStyle}" TextWrapping="Wrap" />
+                            <StackPanel Margin="0,12,0,0"
+                                        Visibility="{Binding ShowCustomRandomizeControls, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Randomize all sliders"
+                                           Style="{StaticResource BodyMutedTextStyle}"
+                                           TextWrapping="Wrap" />
+                                <CheckBox Content="Exclude Artist Sliders"
+                                          IsChecked="{Binding ExcludeArtistSlidersFromRandomize}"
+                                          Style="{StaticResource AppCheckBoxStyle}"
+                                          Margin="0,8,0,0" />
+                                <Button Content="Randomize"
+                                        Command="{Binding RandomizeSlidersCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Margin="0,8,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource SectionCardStyle}"
+                            Visibility="{Binding ShowExperimentalMacroControls, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="168" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <TextBlock Text="Experimental Controls" Style="{StaticResource SectionTitleTextStyle}" />
+                                    <TextBlock Text="Macro / Guided steers the governed Experimental engine through perceptual bundles. Manual / Advanced exposes the underlying raw sliders without leaving Experimental."
+                                               Style="{StaticResource BodyMutedTextStyle}"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Mode" Style="{StaticResource FieldLabelTextStyle}" />
+                                    <ComboBox ItemsSource="{Binding ExperimentalControlModes}"
+                                              SelectedItem="{Binding ExperimentalControlMode}"
+                                              Style="{StaticResource AppComboBoxStyle}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Margin="0,12,0,0"
+                                        Visibility="{Binding IsExperimentalMacroGuidedMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Border Style="{StaticResource CardBorderStyle}"
+                                        Background="{DynamicResource SubtleSurfaceBrush}"
+                                        BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                                        Padding="12"
+                                        Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <controls:MacroPad Title="View Construction"
+                                                           HelperText="Shape composition with framing width on the horizontal axis and vantage on the vertical axis."
+                                                           HorizontalStartLabel="Intimate"
+                                                           HorizontalEndLabel="Expansive"
+                                                           VerticalLowLabel="Low vantage"
+                                                           VerticalHighLabel="High vantage"
+                                                           XValue="{Binding ViewConstructionHorizontal}"
+                                                           YValue="{Binding ViewConstructionVertical}" />
+                                        <TextBlock Text="Distance Bias" Style="{StaticResource FieldLabelTextStyle}" />
+                                        <Slider Minimum="0"
+                                                Maximum="100"
+                                                Value="{Binding ViewConstructionDistanceBias}"
+                                                Style="{StaticResource AppSliderStyle}" />
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="Close" Style="{StaticResource ChipLabelTextStyle}" />
+                                            <TextBlock Text="Distant" Style="{StaticResource ChipLabelTextStyle}" DockPanel.Dock="Right" />
+                                        </DockPanel>
+                                        <TextBlock Text="{Binding ViewConstructionMacroSummary}"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Style="{StaticResource CardBorderStyle}"
+                                        Background="{DynamicResource SubtleSurfaceBrush}"
+                                        BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                                        Padding="12"
+                                        Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <TextBlock Text="Light Atmosphere" Style="{StaticResource FieldLabelTextStyle}" Margin="0,0,0,6" />
+                                        <TextBlock Text="Choose the lighting regime, then shape it with temperature on the horizontal axis and intensity on the vertical axis."
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,0,0,10" />
+                                        <TextBlock Text="Lighting Preset" Style="{StaticResource FieldLabelTextStyle}" />
+                                        <ComboBox ItemsSource="{Binding Lightings}"
+                                                  SelectedItem="{Binding Lighting}"
+                                                  Style="{StaticResource AppComboBoxStyle}" />
+                                        <controls:MacroPad Title="Atmosphere Pad"
+                                                           HelperText="Cool to warm shapes color temperature. Soft to radiant shapes intensity with moderate color/contrast lift."
+                                                           HorizontalStartLabel="Cool"
+                                                           HorizontalEndLabel="Warm"
+                                                           VerticalLowLabel="Soft"
+                                                           VerticalHighLabel="Radiant"
+                                                           XValue="{Binding LightAtmosphereHorizontal}"
+                                                           YValue="{Binding LightAtmosphereVertical}" />
+                                        <TextBlock Text="{Binding LightAtmosphereMacroSummary}"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Style="{StaticResource CardBorderStyle}"
+                                        Background="{DynamicResource SubtleSurfaceBrush}"
+                                        BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                                        Padding="12"
+                                        Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <controls:MacroPad Title="Material / Finish"
+                                                           HelperText="Raw to polished steers finish. Sparse to dense steers detail build-up while texture depth follows behind."
+                                                           HorizontalStartLabel="Raw"
+                                                           HorizontalEndLabel="Polished"
+                                                           VerticalLowLabel="Sparse"
+                                                           VerticalHighLabel="Dense"
+                                                           XValue="{Binding MaterialFinishHorizontal}"
+                                                           YValue="{Binding MaterialFinishVertical}" />
+                                        <TextBlock Text="{Binding MaterialFinishMacroSummary}"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Style="{StaticResource CardBorderStyle}"
+                                        Background="{DynamicResource SubtleSurfaceBrush}"
+                                        BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                                        Padding="12"
+                                        Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <TextBlock Text="Scene Richness" Style="{StaticResource FieldLabelTextStyle}" Margin="0,0,0,6" />
+                                        <TextBlock Text="Build from minimal staging toward a more layered world. Environment and depth rise first, narrative follows more carefully."
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,0,0,10" />
+                                        <Slider Minimum="0"
+                                                Maximum="100"
+                                                Value="{Binding SceneRichness}"
+                                                Style="{StaticResource AppSliderStyle}" />
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="Minimal" Style="{StaticResource ChipLabelTextStyle}" />
+                                            <TextBlock Text="World-rich" Style="{StaticResource ChipLabelTextStyle}" DockPanel.Dock="Right" />
+                                        </DockPanel>
+                                        <TextBlock Text="{Binding SceneRichnessMacroSummary}"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Style="{StaticResource CardBorderStyle}"
+                                        Background="{DynamicResource SubtleSurfaceBrush}"
+                                        BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                                        Padding="12"
+                                        Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <controls:MacroPad Title="Energy / Instability"
+                                                           HelperText="Calm to kinetic drives motion. Controlled to unstable drives chaos, while tension rises from the combination."
+                                                           HorizontalStartLabel="Calm"
+                                                           HorizontalEndLabel="Kinetic"
+                                                           VerticalLowLabel="Controlled"
+                                                           VerticalHighLabel="Unstable"
+                                                           XValue="{Binding EnergyInstabilityHorizontal}"
+                                                           YValue="{Binding EnergyInstabilityVertical}" />
+                                        <TextBlock Text="{Binding EnergyInstabilityMacroSummary}"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Style="{StaticResource CardBorderStyle}"
+                                        Background="{DynamicResource SubtleSurfaceBrush}"
+                                        BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                                        Padding="12">
+                                    <StackPanel>
+                                        <controls:MacroPad Title="Tone"
+                                                           HelperText="Serious to playful steers whimsy. Grounded to mythic lifts wonder and symbolism without overriding physical scene control."
+                                                           HorizontalStartLabel="Serious"
+                                                           HorizontalEndLabel="Playful"
+                                                           VerticalLowLabel="Grounded"
+                                                           VerticalHighLabel="Mythic"
+                                                           XValue="{Binding ToneHorizontal}"
+                                                           YValue="{Binding ToneVertical}" />
+                                        <TextBlock Text="{Binding ToneMacroSummary}"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <Border Style="{StaticResource InfoChipBorderStyle}"
+                                    Margin="0,12,0,0"
+                                    Visibility="{Binding IsExperimentalManualAdvancedMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Manual / Advanced is active. The grouped raw Experimental sliders below now reflect the current macro-shaped values and remain fully editable."
+                                           Style="{StaticResource BodyMutedTextStyle}"
+                                           TextWrapping="Wrap" />
+                            </Border>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource SectionCardStyle}">
@@ -119,22 +310,10 @@
                     <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="Manual Composition" Style="{StaticResource SectionTitleTextStyle}" />
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="12" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Camera Distance" Style="{StaticResource FieldLabelTextStyle}" />
-                                    <ComboBox ItemsSource="{Binding CameraDistances}" SelectedItem="{Binding CameraDistance}" Style="{StaticResource AppComboBoxStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Camera Angle" Style="{StaticResource FieldLabelTextStyle}" />
-                                    <ComboBox ItemsSource="{Binding CameraAngles}" SelectedItem="{Binding CameraAngle}" Style="{StaticResource AppComboBoxStyle}" />
-                                </StackPanel>
-                            </Grid>
-                            <UniformGrid Columns="2" Margin="0,3,0,0">
+                            <UniformGrid Columns="2" Margin="0,2,0,0">
+                                <controls:SliderFlyout Label="Framing" Value="{Binding Framing}" ValueText="{Binding FramingValueText}" GuideText="{Binding FramingGuideText}" HelperText="{Binding FramingHelper}" />
+                                <controls:SliderFlyout Label="Camera Distance" Value="{Binding CameraDistance}" ValueText="{Binding CameraDistanceValueText}" GuideText="{Binding CameraDistanceGuideText}" HelperText="{Binding CameraDistanceHelper}" />
+                                <controls:SliderFlyout Label="Camera Angle" Value="{Binding CameraAngle}" ValueText="{Binding CameraAngleValueText}" GuideText="{Binding CameraAngleGuideText}" HelperText="{Binding CameraAngleHelper}" />
                                 <controls:SliderFlyout Label="Background Complexity" Value="{Binding BackgroundComplexity}" ValueText="{Binding BackgroundComplexityValueText}" GuideText="{Binding BackgroundComplexityGuideText}" HelperText="{Binding BackgroundComplexityHelper}" />
                                 <controls:SliderFlyout Label="Motion Energy" Value="{Binding MotionEnergy}" ValueText="{Binding MotionEnergyValueText}" GuideText="{Binding MotionEnergyGuideText}" HelperText="{Binding MotionEnergyHelper}" />
                                 <controls:SliderFlyout Label="Atmospheric Depth" Value="{Binding AtmosphericDepth}" ValueText="{Binding AtmosphericDepthValueText}" GuideText="{Binding AtmosphericDepthGuideText}" HelperText="{Binding AtmosphericDepthHelper}" />
@@ -160,8 +339,21 @@
                             <TextBlock Text="Lighting" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding Lightings}" SelectedItem="{Binding Lighting}" Style="{StaticResource AppComboBoxStyle}" />
                             <UniformGrid Columns="2" Margin="0,3,0,0">
+                                <controls:SliderFlyout Label="Temperature" Value="{Binding Temperature}" ValueText="{Binding TemperatureValueText}" GuideText="{Binding TemperatureGuideText}" HelperText="{Binding TemperatureHelper}" />
+                                <controls:SliderFlyout Label="Lighting Intensity" Value="{Binding LightingIntensity}" ValueText="{Binding LightingIntensityValueText}" GuideText="{Binding LightingIntensityGuideText}" HelperText="{Binding LightingIntensityHelper}" />
                                 <controls:SliderFlyout Label="Saturation" Value="{Binding Saturation}" ValueText="{Binding SaturationValueText}" GuideText="{Binding SaturationGuideText}" HelperText="{Binding SaturationHelper}" />
                                 <controls:SliderFlyout Label="Contrast" Value="{Binding Contrast}" ValueText="{Binding ContrastValueText}" GuideText="{Binding ContrastGuideText}" HelperText="{Binding ContrastHelper}" />
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="Manual Image Finish" Style="{StaticResource SectionTitleTextStyle}" />
+                            <UniformGrid Columns="2" Margin="0,2,0,0">
+                                <controls:SliderFlyout Label="Focus / Depth of Field" Value="{Binding FocusDepth}" ValueText="{Binding FocusDepthValueText}" GuideText="{Binding FocusDepthGuideText}" HelperText="{Binding FocusDepthHelper}" />
+                                <controls:SliderFlyout Label="Image Cleanliness" Value="{Binding ImageCleanliness}" ValueText="{Binding ImageCleanlinessValueText}" GuideText="{Binding ImageCleanlinessGuideText}" HelperText="{Binding ImageCleanlinessHelper}" />
+                                <controls:SliderFlyout Label="Detail Density" Value="{Binding DetailDensity}" ValueText="{Binding DetailDensityValueText}" GuideText="{Binding DetailDensityGuideText}" HelperText="{Binding DetailDensityHelper}" />
                             </UniformGrid>
                         </StackPanel>
                     </Border>

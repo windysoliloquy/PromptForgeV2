@@ -5,6 +5,8 @@ public sealed class PromptConfiguration
     public string Subject { get; set; } = string.Empty;
     public string Action { get; set; } = string.Empty;
     public string Relationship { get; set; } = string.Empty;
+    public int Temperature { get; set; } = 50;
+    public int LightingIntensity { get; set; } = 50;
     public int Stylization { get; set; }
     public int Realism { get; set; }
     public int TextureDepth { get; set; }
@@ -13,16 +15,20 @@ public sealed class PromptConfiguration
     public int AtmosphericDepth { get; set; }
     public int SurfaceAge { get; set; }
     public int Chaos { get; set; }
+    public int Framing { get; set; } = 50;
     public string Material { get; set; } = "None";
     public string ArtStyle { get; set; } = "None";
     public string ArtistInfluencePrimary { get; set; } = "None";
     public int InfluenceStrengthPrimary { get; set; }
     public string ArtistInfluenceSecondary { get; set; } = "None";
     public int InfluenceStrengthSecondary { get; set; }
-    public string CameraDistance { get; set; } = "Medium";
-    public string CameraAngle { get; set; } = "Eye level";
+    public int CameraDistance { get; set; } = 50;
+    public int CameraAngle { get; set; } = 50;
     public int BackgroundComplexity { get; set; }
     public int MotionEnergy { get; set; }
+    public int FocusDepth { get; set; } = 50;
+    public int ImageCleanliness { get; set; } = 55;
+    public int DetailDensity { get; set; } = 50;
     public int Whimsy { get; set; }
     public int Tension { get; set; }
     public int Awe { get; set; }
@@ -48,32 +54,38 @@ public sealed class PromptConfiguration
     {
         return new PromptConfiguration
         {
-            Subject = Subject,
-            Action = Action,
-            Relationship = Relationship,
-            Stylization = Stylization,
-            Realism = Realism,
-            TextureDepth = TextureDepth,
-            NarrativeDensity = NarrativeDensity,
-            Symbolism = Symbolism,
-            AtmosphericDepth = AtmosphericDepth,
-            SurfaceAge = SurfaceAge,
-            Chaos = Chaos,
-            Material = Material,
-            ArtStyle = ArtStyle,
-            ArtistInfluencePrimary = ArtistInfluencePrimary,
-            InfluenceStrengthPrimary = InfluenceStrengthPrimary,
-            ArtistInfluenceSecondary = ArtistInfluenceSecondary,
-            InfluenceStrengthSecondary = InfluenceStrengthSecondary,
-            CameraDistance = CameraDistance,
-            CameraAngle = CameraAngle,
-            BackgroundComplexity = BackgroundComplexity,
-            MotionEnergy = MotionEnergy,
-            Whimsy = Whimsy,
-            Tension = Tension,
-            Awe = Awe,
-            Lighting = Lighting,
-            Saturation = Saturation,
+        Subject = Subject,
+        Action = Action,
+        Relationship = Relationship,
+        Temperature = Temperature,
+        LightingIntensity = LightingIntensity,
+        Stylization = Stylization,
+        Realism = Realism,
+        TextureDepth = TextureDepth,
+        NarrativeDensity = NarrativeDensity,
+        Symbolism = Symbolism,
+        AtmosphericDepth = AtmosphericDepth,
+        SurfaceAge = SurfaceAge,
+        Chaos = Chaos,
+        Framing = Framing,
+        Material = Material,
+        ArtStyle = ArtStyle,
+        ArtistInfluencePrimary = ArtistInfluencePrimary,
+        InfluenceStrengthPrimary = InfluenceStrengthPrimary,
+        ArtistInfluenceSecondary = ArtistInfluenceSecondary,
+        InfluenceStrengthSecondary = InfluenceStrengthSecondary,
+        CameraDistance = CameraDistance,
+        CameraAngle = CameraAngle,
+        BackgroundComplexity = BackgroundComplexity,
+        MotionEnergy = MotionEnergy,
+        FocusDepth = FocusDepth,
+        ImageCleanliness = ImageCleanliness,
+        DetailDensity = DetailDensity,
+        Whimsy = Whimsy,
+        Tension = Tension,
+        Awe = Awe,
+        Lighting = Lighting,
+        Saturation = Saturation,
             Contrast = Contrast,
             AspectRatio = AspectRatio,
             PrintReady = PrintReady,

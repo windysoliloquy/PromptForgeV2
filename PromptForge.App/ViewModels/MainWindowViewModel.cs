@@ -1,11 +1,12 @@
 using System.Collections.ObjectModel;
+using System.Windows.Threading;
 using PromptForge.App.Commands;
 using PromptForge.App.Models;
 using PromptForge.App.Services;
 
 namespace PromptForge.App.ViewModels;
 
-public sealed class MainWindowViewModel : ViewModelBase
+public sealed partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IPromptBuilderService _promptBuilderService;
     private readonly IPresetStorageService _presetStorageService;
@@ -14,12 +15,15 @@ public sealed class MainWindowViewModel : ViewModelBase
     private readonly IThemeService _themeService;
     private readonly IDemoStateService _demoStateService;
     private readonly ILicenseService _licenseService;
+    private readonly DispatcherTimer _experimentalMacroRefreshTimer;
     private bool _isApplyingConfiguration;
 
     private string _intentMode = "Custom";
     private string _subject = string.Empty;
     private string _action = string.Empty;
     private string _relationship = string.Empty;
+    private int _temperature = 50;
+    private int _lightingIntensity = 50;
     private int _stylization = 50;
     private int _realism = 50;
     private int _textureDepth = 35;
@@ -28,16 +32,20 @@ public sealed class MainWindowViewModel : ViewModelBase
     private int _atmosphericDepth = 40;
     private int _surfaceAge = 20;
     private int _chaos = 20;
+    private int _framing = 50;
     private string _material = "None";
     private string _artStyle = "None";
     private string _artistInfluencePrimary = "None";
     private int _influenceStrengthPrimary = 45;
     private string _artistInfluenceSecondary = "None";
     private int _influenceStrengthSecondary = 30;
-    private string _cameraDistance = "Medium";
-    private string _cameraAngle = "Eye level";
+    private int _cameraDistance = 50;
+    private int _cameraAngle = 50;
     private int _backgroundComplexity = 40;
     private int _motionEnergy = 20;
+    private int _focusDepth = 50;
+    private int _imageCleanliness = 55;
+    private int _detailDensity = 50;
     private int _whimsy = 20;
     private int _tension = 20;
     private int _awe = 40;
@@ -58,6 +66,7 @@ public sealed class MainWindowViewModel : ViewModelBase
     private bool _avoidMessyBackground = true;
     private bool _avoidWeakMaterialDefinition = true;
     private bool _avoidBlurryDetail = true;
+    private bool _excludeArtistSlidersFromRandomize;
     private string _selectedThemeName = string.Empty;
     private string _promptPreview = string.Empty;
     private string _negativePromptPreview = string.Empty;
@@ -75,6 +84,15 @@ public sealed class MainWindowViewModel : ViewModelBase
         _themeService = themeService;
         _demoStateService = demoStateService;
         _licenseService = licenseService;
+        _experimentalMacroRefreshTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(90),
+        };
+        _experimentalMacroRefreshTimer.Tick += (_, _) =>
+        {
+            _experimentalMacroRefreshTimer.Stop();
+            RegeneratePrompt();
+        };
         _selectedThemeName = themeService.CurrentThemeName;
         _remainingDemoCopies = demoStateService.CurrentState.RemainingCopies;
 
@@ -82,8 +100,6 @@ public sealed class MainWindowViewModel : ViewModelBase
         Materials = new ObservableCollection<string>(new[] { "None", "Yarn", "Paint", "Glass", "Ink", "Stone", "Metal" });
         ArtStyles = new ObservableCollection<string>(new[] { "None", "Cinematic", "Painterly", "Yarn Relief", "Stained Glass", "Surreal Symbolic", "Concept Art" });
         ArtistInfluences = new ObservableCollection<string>(artistProfileService.GetArtistNames());
-        CameraDistances = new ObservableCollection<string>(new[] { "Close-up", "Medium", "Medium-wide", "Wide", "Epic wide" });
-        CameraAngles = new ObservableCollection<string>(new[] { "Eye level", "Low angle", "High angle", "Overhead", "Cinematic tilt" });
         Lightings = new ObservableCollection<string>(new[] { "Soft daylight", "Golden hour", "Dramatic studio light", "Overcast", "Moonlit", "Soft glow", "Dusk haze", "Warm directional light", "Volumetric cinematic light" });
         AspectRatios = new ObservableCollection<string>(new[] { "1:1", "4:5", "16:9", "9:16" });
         PresetNames = new ObservableCollection<string>();
@@ -96,8 +112,10 @@ public sealed class MainWindowViewModel : ViewModelBase
         RenamePresetCommand = new RelayCommand(RenamePreset);
         DeletePresetCommand = new RelayCommand(DeletePreset);
         ResetCommand = new RelayCommand(Reset);
+        RandomizeSlidersCommand = new RelayCommand(RandomizeSliders);
 
         RefreshPresetNames();
+        SyncExperimentalMacrosFromRaw();
         RegeneratePrompt();
     }
 
@@ -105,8 +123,6 @@ public sealed class MainWindowViewModel : ViewModelBase
     public ObservableCollection<string> Materials { get; }
     public ObservableCollection<string> ArtStyles { get; }
     public ObservableCollection<string> ArtistInfluences { get; }
-    public ObservableCollection<string> CameraDistances { get; }
-    public ObservableCollection<string> CameraAngles { get; }
     public ObservableCollection<string> Lightings { get; }
     public ObservableCollection<string> AspectRatios { get; }
     public ObservableCollection<string> PresetNames { get; }
@@ -119,6 +135,7 @@ public sealed class MainWindowViewModel : ViewModelBase
     public RelayCommand RenamePresetCommand { get; }
     public RelayCommand DeletePresetCommand { get; }
     public RelayCommand ResetCommand { get; }
+    public RelayCommand RandomizeSlidersCommand { get; }
 
     public string IntentMode
     {
@@ -127,6 +144,11 @@ public sealed class MainWindowViewModel : ViewModelBase
         {
             if (SetAndRefresh(ref _intentMode, NormalizeIntentMode(value)))
             {
+                OnPropertyChanged(nameof(IsExperimentalIntent));
+                OnPropertyChanged(nameof(ShowExperimentalMacroControls));
+                OnPropertyChanged(nameof(IsExperimentalMacroGuidedMode));
+                OnPropertyChanged(nameof(IsExperimentalManualAdvancedMode));
+                OnPropertyChanged(nameof(ShowCustomRandomizeControls));
                 OnPropertyChanged(nameof(ShowManualIntentControls));
                 OnPropertyChanged(nameof(IntentModeSummary));
             }
@@ -135,6 +157,8 @@ public sealed class MainWindowViewModel : ViewModelBase
     public string Subject { get => _subject; set => SetAndRefresh(ref _subject, value); }
     public string Action { get => _action; set => SetAndRefresh(ref _action, value); }
     public string Relationship { get => _relationship; set => SetAndRefresh(ref _relationship, value); }
+    public int Temperature { get => _temperature; set => SetAndRefresh(ref _temperature, value); }
+    public int LightingIntensity { get => _lightingIntensity; set => SetAndRefresh(ref _lightingIntensity, value); }
     public int Stylization { get => _stylization; set => SetAndRefresh(ref _stylization, value); }
     public int Realism { get => _realism; set => SetAndRefresh(ref _realism, value); }
     public int TextureDepth { get => _textureDepth; set => SetAndRefresh(ref _textureDepth, value); }
@@ -143,16 +167,20 @@ public sealed class MainWindowViewModel : ViewModelBase
     public int AtmosphericDepth { get => _atmosphericDepth; set => SetAndRefresh(ref _atmosphericDepth, value); }
     public int SurfaceAge { get => _surfaceAge; set => SetAndRefresh(ref _surfaceAge, value); }
     public int Chaos { get => _chaos; set => SetAndRefresh(ref _chaos, value); }
+    public int Framing { get => _framing; set => SetAndRefresh(ref _framing, value); }
     public string Material { get => _material; set => SetAndRefresh(ref _material, value); }
     public string ArtStyle { get => _artStyle; set => SetAndRefresh(ref _artStyle, value); }
     public string ArtistInfluencePrimary { get => _artistInfluencePrimary; set => SetArtistAndRefresh(ref _artistInfluencePrimary, value); }
     public int InfluenceStrengthPrimary { get => _influenceStrengthPrimary; set => SetArtistAndRefresh(ref _influenceStrengthPrimary, value); }
     public string ArtistInfluenceSecondary { get => _artistInfluenceSecondary; set => SetArtistAndRefresh(ref _artistInfluenceSecondary, value); }
     public int InfluenceStrengthSecondary { get => _influenceStrengthSecondary; set => SetArtistAndRefresh(ref _influenceStrengthSecondary, value); }
-    public string CameraDistance { get => _cameraDistance; set => SetAndRefresh(ref _cameraDistance, value); }
-    public string CameraAngle { get => _cameraAngle; set => SetAndRefresh(ref _cameraAngle, value); }
+    public int CameraDistance { get => _cameraDistance; set => SetAndRefresh(ref _cameraDistance, value); }
+    public int CameraAngle { get => _cameraAngle; set => SetAndRefresh(ref _cameraAngle, value); }
     public int BackgroundComplexity { get => _backgroundComplexity; set => SetAndRefresh(ref _backgroundComplexity, value); }
     public int MotionEnergy { get => _motionEnergy; set => SetAndRefresh(ref _motionEnergy, value); }
+    public int FocusDepth { get => _focusDepth; set => SetAndRefresh(ref _focusDepth, value); }
+    public int ImageCleanliness { get => _imageCleanliness; set => SetAndRefresh(ref _imageCleanliness, value); }
+    public int DetailDensity { get => _detailDensity; set => SetAndRefresh(ref _detailDensity, value); }
     public int Whimsy { get => _whimsy; set => SetAndRefresh(ref _whimsy, value); }
     public int Tension { get => _tension; set => SetAndRefresh(ref _tension, value); }
     public int Awe { get => _awe; set => SetAndRefresh(ref _awe, value); }
@@ -212,12 +240,20 @@ public sealed class MainWindowViewModel : ViewModelBase
         ? "Preview stays readable, but export is limited to the copy buttons."
         : "Preview stays visible, but copy/export is now locked until the full version is used.";
     public bool ShowNegativePrompt => UseNegativePrompt;
-    public bool ShowManualIntentControls => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase);
+    public bool ShowCustomRandomizeControls => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase);
+    public bool ExcludeArtistSlidersFromRandomize { get => _excludeArtistSlidersFromRandomize; set => SetProperty(ref _excludeArtistSlidersFromRandomize, value); }
+    public bool ShowManualIntentControls => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase) || IsExperimentalManualAdvancedMode;
     public string IntentModeSummary => BuildIntentModeSummary();
     public string InfluenceStrengthPrimaryValueText => GetInfluenceBandLabel(InfluenceStrengthPrimary);
     public string InfluenceStrengthPrimaryGuideText => InfluenceBandGuideText;
     public string InfluenceStrengthSecondaryValueText => GetInfluenceBandLabel(InfluenceStrengthSecondary);
     public string InfluenceStrengthSecondaryGuideText => InfluenceBandGuideText;
+    public string TemperatureHelper => GetSliderHelper("Temperature", Temperature);
+    public string TemperatureValueText => GetSliderBandLabel("Temperature", Temperature);
+    public string TemperatureGuideText => GetSliderBandGuide("Temperature");
+    public string LightingIntensityHelper => GetSliderHelper("LightingIntensity", LightingIntensity);
+    public string LightingIntensityValueText => GetSliderBandLabel("LightingIntensity", LightingIntensity);
+    public string LightingIntensityGuideText => GetSliderBandGuide("LightingIntensity");
     public string StylizationHelper => GetSliderHelper("Stylization", Stylization);
     public string StylizationValueText => GetSliderBandLabel("Stylization", Stylization);
     public string StylizationGuideText => GetSliderBandGuide("Stylization");
@@ -236,12 +272,30 @@ public sealed class MainWindowViewModel : ViewModelBase
     public string SurfaceAgeHelper => GetSliderHelper("SurfaceAge", SurfaceAge);
     public string SurfaceAgeValueText => GetSliderBandLabel("SurfaceAge", SurfaceAge);
     public string SurfaceAgeGuideText => GetSliderBandGuide("SurfaceAge");
+    public string FramingHelper => GetSliderHelper("Framing", Framing);
+    public string FramingValueText => GetSliderBandLabel("Framing", Framing);
+    public string FramingGuideText => GetSliderBandGuide("Framing");
+    public string CameraDistanceHelper => GetSliderHelper("CameraDistance", CameraDistance);
+    public string CameraDistanceValueText => GetSliderBandLabel("CameraDistance", CameraDistance);
+    public string CameraDistanceGuideText => GetSliderBandGuide("CameraDistance");
+    public string CameraAngleHelper => GetSliderHelper("CameraAngle", CameraAngle);
+    public string CameraAngleValueText => GetSliderBandLabel("CameraAngle", CameraAngle);
+    public string CameraAngleGuideText => GetSliderBandGuide("CameraAngle");
     public string BackgroundComplexityHelper => GetSliderHelper("BackgroundComplexity", BackgroundComplexity);
     public string BackgroundComplexityValueText => GetSliderBandLabel("BackgroundComplexity", BackgroundComplexity);
     public string BackgroundComplexityGuideText => GetSliderBandGuide("BackgroundComplexity");
     public string MotionEnergyHelper => GetSliderHelper("MotionEnergy", MotionEnergy);
     public string MotionEnergyValueText => GetSliderBandLabel("MotionEnergy", MotionEnergy);
     public string MotionEnergyGuideText => GetSliderBandGuide("MotionEnergy");
+    public string FocusDepthHelper => GetSliderHelper("FocusDepth", FocusDepth);
+    public string FocusDepthValueText => GetSliderBandLabel("FocusDepth", FocusDepth);
+    public string FocusDepthGuideText => GetSliderBandGuide("FocusDepth");
+    public string ImageCleanlinessHelper => GetSliderHelper("ImageCleanliness", ImageCleanliness);
+    public string ImageCleanlinessValueText => GetSliderBandLabel("ImageCleanliness", ImageCleanliness);
+    public string ImageCleanlinessGuideText => GetSliderBandGuide("ImageCleanliness");
+    public string DetailDensityHelper => GetSliderHelper("DetailDensity", DetailDensity);
+    public string DetailDensityValueText => GetSliderBandLabel("DetailDensity", DetailDensity);
+    public string DetailDensityGuideText => GetSliderBandGuide("DetailDensity");
     public string AtmosphericDepthHelper => GetSliderHelper("AtmosphericDepth", AtmosphericDepth);
     public string AtmosphericDepthValueText => GetSliderBandLabel("AtmosphericDepth", AtmosphericDepth);
     public string AtmosphericDepthGuideText => GetSliderBandGuide("AtmosphericDepth");
@@ -295,6 +349,11 @@ public sealed class MainWindowViewModel : ViewModelBase
         var changed = SetProperty(ref field, value);
         if (changed && !_isApplyingConfiguration)
         {
+            if (!_isApplyingExperimentalMacroState)
+            {
+                SyncExperimentalMacrosFromRaw();
+            }
+
             RegeneratePrompt();
         }
 
@@ -320,7 +379,14 @@ public sealed class MainWindowViewModel : ViewModelBase
         NegativePromptPreview = result.NegativePrompt;
         RaiseArtistBlendSummaryChanged();
         RaiseSliderHelperChanged();
+        RaiseExperimentalMacroChanged();
         RaiseCopyCommandCanExecuteChanged();
+    }
+
+    private void ScheduleExperimentalMacroRefresh()
+    {
+        _experimentalMacroRefreshTimer.Stop();
+        _experimentalMacroRefreshTimer.Start();
     }
 
     private PromptConfiguration CaptureConfiguration() => new()
@@ -329,6 +395,8 @@ public sealed class MainWindowViewModel : ViewModelBase
         Subject = Subject,
         Action = Action,
         Relationship = Relationship,
+        Temperature = Temperature,
+        LightingIntensity = LightingIntensity,
         Stylization = Stylization,
         Realism = Realism,
         TextureDepth = TextureDepth,
@@ -337,6 +405,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         AtmosphericDepth = AtmosphericDepth,
         SurfaceAge = SurfaceAge,
         Chaos = Chaos,
+        Framing = Framing,
         Material = Material,
         ArtStyle = ArtStyle,
         ArtistInfluencePrimary = ArtistInfluencePrimary,
@@ -347,6 +416,9 @@ public sealed class MainWindowViewModel : ViewModelBase
         CameraAngle = CameraAngle,
         BackgroundComplexity = BackgroundComplexity,
         MotionEnergy = MotionEnergy,
+        FocusDepth = FocusDepth,
+        ImageCleanliness = ImageCleanliness,
+        DetailDensity = DetailDensity,
         Whimsy = Whimsy,
         Tension = Tension,
         Awe = Awe,
@@ -376,6 +448,8 @@ public sealed class MainWindowViewModel : ViewModelBase
         Subject = configuration.Subject;
         Action = configuration.Action;
         Relationship = configuration.Relationship;
+        Temperature = configuration.Temperature;
+        LightingIntensity = configuration.LightingIntensity;
         Stylization = configuration.Stylization;
         Realism = configuration.Realism;
         TextureDepth = configuration.TextureDepth;
@@ -384,6 +458,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         AtmosphericDepth = configuration.AtmosphericDepth;
         SurfaceAge = configuration.SurfaceAge;
         Chaos = configuration.Chaos;
+        Framing = configuration.Framing;
         Material = configuration.Material;
         ArtStyle = configuration.ArtStyle;
         ArtistInfluencePrimary = configuration.ArtistInfluencePrimary;
@@ -394,6 +469,9 @@ public sealed class MainWindowViewModel : ViewModelBase
         CameraAngle = configuration.CameraAngle;
         BackgroundComplexity = configuration.BackgroundComplexity;
         MotionEnergy = configuration.MotionEnergy;
+        FocusDepth = configuration.FocusDepth;
+        ImageCleanliness = configuration.ImageCleanliness;
+        DetailDensity = configuration.DetailDensity;
         Whimsy = configuration.Whimsy;
         Tension = configuration.Tension;
         Awe = configuration.Awe;
@@ -415,6 +493,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         AvoidWeakMaterialDefinition = configuration.AvoidWeakMaterialDefinition;
         AvoidBlurryDetail = configuration.AvoidBlurryDetail;
         ApplyArtistNegativeConstraintDefaults();
+        SyncExperimentalMacrosFromRaw();
         _isApplyingConfiguration = false;
         RegeneratePrompt();
     }
@@ -460,6 +539,8 @@ public sealed class MainWindowViewModel : ViewModelBase
         ApplyConfiguration(new PromptConfiguration
         {
             IntentMode = "Custom",
+            Temperature = 50,
+            LightingIntensity = 50,
             Stylization = 50,
             Realism = 50,
             TextureDepth = 35,
@@ -468,16 +549,20 @@ public sealed class MainWindowViewModel : ViewModelBase
             AtmosphericDepth = 40,
             SurfaceAge = 20,
             Chaos = 20,
+            Framing = 50,
             Material = "None",
             ArtStyle = "None",
             ArtistInfluencePrimary = "None",
             InfluenceStrengthPrimary = 45,
             ArtistInfluenceSecondary = "None",
             InfluenceStrengthSecondary = 30,
-            CameraDistance = "Medium",
-            CameraAngle = "Eye level",
+            CameraDistance = 50,
+            CameraAngle = 50,
             BackgroundComplexity = 40,
             MotionEnergy = 20,
+            FocusDepth = 50,
+            ImageCleanliness = 55,
+            DetailDensity = 50,
             Whimsy = 20,
             Tension = 20,
             Awe = 40,
@@ -498,6 +583,43 @@ public sealed class MainWindowViewModel : ViewModelBase
             AvoidBlurryDetail = true,
         });
         StatusMessage = "Controls reset to defaults.";
+    }
+
+    private void RandomizeSliders()
+    {
+        var configuration = CaptureConfiguration();
+
+        configuration.Temperature = Random.Shared.Next(0, 101);
+        configuration.LightingIntensity = Random.Shared.Next(0, 101);
+        configuration.Stylization = Random.Shared.Next(0, 101);
+        configuration.Realism = Random.Shared.Next(0, 101);
+        configuration.TextureDepth = Random.Shared.Next(0, 101);
+        configuration.NarrativeDensity = Random.Shared.Next(0, 101);
+        configuration.Symbolism = Random.Shared.Next(0, 101);
+        configuration.AtmosphericDepth = Random.Shared.Next(0, 101);
+        configuration.SurfaceAge = Random.Shared.Next(0, 101);
+        configuration.Chaos = Random.Shared.Next(0, 101);
+        configuration.Framing = Random.Shared.Next(0, 101);
+        if (!ExcludeArtistSlidersFromRandomize)
+        {
+            configuration.InfluenceStrengthPrimary = Random.Shared.Next(0, 101);
+            configuration.InfluenceStrengthSecondary = Random.Shared.Next(0, 101);
+        }
+        configuration.CameraDistance = Random.Shared.Next(0, 101);
+        configuration.CameraAngle = Random.Shared.Next(0, 101);
+        configuration.BackgroundComplexity = Random.Shared.Next(0, 101);
+        configuration.MotionEnergy = Random.Shared.Next(0, 101);
+        configuration.FocusDepth = Random.Shared.Next(0, 101);
+        configuration.ImageCleanliness = Random.Shared.Next(0, 101);
+        configuration.DetailDensity = Random.Shared.Next(0, 101);
+        configuration.Whimsy = Random.Shared.Next(0, 101);
+        configuration.Tension = Random.Shared.Next(0, 101);
+        configuration.Awe = Random.Shared.Next(0, 101);
+        configuration.Saturation = Random.Shared.Next(0, 101);
+        configuration.Contrast = Random.Shared.Next(0, 101);
+
+        ApplyConfiguration(configuration);
+        StatusMessage = "All slider values randomized.";
     }
 
     private bool CanCopyPrompt()
@@ -599,6 +721,12 @@ public sealed class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(InfluenceStrengthPrimaryGuideText));
         OnPropertyChanged(nameof(InfluenceStrengthSecondaryValueText));
         OnPropertyChanged(nameof(InfluenceStrengthSecondaryGuideText));
+        OnPropertyChanged(nameof(TemperatureHelper));
+        OnPropertyChanged(nameof(TemperatureValueText));
+        OnPropertyChanged(nameof(TemperatureGuideText));
+        OnPropertyChanged(nameof(LightingIntensityHelper));
+        OnPropertyChanged(nameof(LightingIntensityValueText));
+        OnPropertyChanged(nameof(LightingIntensityGuideText));
         OnPropertyChanged(nameof(StylizationHelper));
         OnPropertyChanged(nameof(StylizationValueText));
         OnPropertyChanged(nameof(StylizationGuideText));
@@ -617,12 +745,30 @@ public sealed class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(SurfaceAgeHelper));
         OnPropertyChanged(nameof(SurfaceAgeValueText));
         OnPropertyChanged(nameof(SurfaceAgeGuideText));
+        OnPropertyChanged(nameof(FramingHelper));
+        OnPropertyChanged(nameof(FramingValueText));
+        OnPropertyChanged(nameof(FramingGuideText));
+        OnPropertyChanged(nameof(CameraDistanceHelper));
+        OnPropertyChanged(nameof(CameraDistanceValueText));
+        OnPropertyChanged(nameof(CameraDistanceGuideText));
+        OnPropertyChanged(nameof(CameraAngleHelper));
+        OnPropertyChanged(nameof(CameraAngleValueText));
+        OnPropertyChanged(nameof(CameraAngleGuideText));
         OnPropertyChanged(nameof(BackgroundComplexityHelper));
         OnPropertyChanged(nameof(BackgroundComplexityValueText));
         OnPropertyChanged(nameof(BackgroundComplexityGuideText));
         OnPropertyChanged(nameof(MotionEnergyHelper));
         OnPropertyChanged(nameof(MotionEnergyValueText));
         OnPropertyChanged(nameof(MotionEnergyGuideText));
+        OnPropertyChanged(nameof(FocusDepthHelper));
+        OnPropertyChanged(nameof(FocusDepthValueText));
+        OnPropertyChanged(nameof(FocusDepthGuideText));
+        OnPropertyChanged(nameof(ImageCleanlinessHelper));
+        OnPropertyChanged(nameof(ImageCleanlinessValueText));
+        OnPropertyChanged(nameof(ImageCleanlinessGuideText));
+        OnPropertyChanged(nameof(DetailDensityHelper));
+        OnPropertyChanged(nameof(DetailDensityValueText));
+        OnPropertyChanged(nameof(DetailDensityGuideText));
         OnPropertyChanged(nameof(AtmosphericDepthHelper));
         OnPropertyChanged(nameof(AtmosphericDepthValueText));
         OnPropertyChanged(nameof(AtmosphericDepthGuideText));
@@ -654,6 +800,11 @@ public sealed class MainWindowViewModel : ViewModelBase
 
     private string BuildIntentModeSummary()
     {
+        if (IntentModeCatalog.IsExperimental(IntentMode))
+        {
+            return "Experimental governance is active: slider phrases are orchestrated through the isolated prototype layer instead of the standard intent path.";
+        }
+
         return IntentModeCatalog.TryGet(IntentMode, out var intentMode)
             ? $"Intent bundle active: {intentMode.Summary}."
             : "Custom intent structure exposes the full manual controls for mood, composition, color, and output shaping.";
@@ -667,14 +818,22 @@ public sealed class MainWindowViewModel : ViewModelBase
 
     private static readonly Dictionary<string, SliderBandMetadata> SliderBands = new(StringComparer.Ordinal)
     {
+        ["Temperature"] = new("Cool", "Mild cool", "Neutral", "Warm", "Hot"),
+        ["LightingIntensity"] = new("Dim", "Soft", "Balanced", "Bright", "Radiant"),
         ["Stylization"] = new("Grounded", "Light", "Stylized", "Strong", "Maximal"),
         ["Realism"] = new("Off", "Loose", "Moderate", "High", "Strong"),
         ["TextureDepth"] = new("Minimal", "Light", "Clear", "Rich", "Deep"),
         ["NarrativeDensity"] = new("Simple", "Light", "Layered", "Dense", "World-rich"),
         ["Symbolism"] = new("Literal", "Subtle", "Suggestive", "Allegoric", "Mythic"),
         ["SurfaceAge"] = new("Fresh", "Soft wear", "Weathered", "Aged", "Time-worn"),
+        ["Framing"] = new("Intimate", "Tight", "Balanced", "Open", "Expansive"),
+        ["CameraDistance"] = new("Extreme close", "Close", "Mid", "Far", "Distant"),
+        ["CameraAngle"] = new("Low", "Slight low", "Eye level", "Slight high", "High"),
         ["BackgroundComplexity"] = new("Minimal", "Restrained", "Supporting", "Rich", "Layered"),
         ["MotionEnergy"] = new("Still", "Gentle", "Active", "Dynamic", "Kinetic"),
+        ["FocusDepth"] = new("Deep focus", "Mostly deep", "Balanced", "Selective", "Very shallow"),
+        ["ImageCleanliness"] = new("Raw", "Slight grit", "Balanced", "Clean", "Polished"),
+        ["DetailDensity"] = new("Sparse", "Light", "Moderate", "Rich", "Dense"),
         ["AtmosphericDepth"] = new("Flat", "Light", "Air-filled", "Luminous", "Deep"),
         ["Chaos"] = new("Controlled", "Restless", "Volatile", "Orchestrated", "Unstable"),
         ["Whimsy"] = new("Serious", "Subtle", "Playful", "Strong", "Bold"),
@@ -803,14 +962,22 @@ public sealed class MainWindowViewModel : ViewModelBase
 
         string phrase = key switch
         {
+            "Temperature" => MapBand(value, "cool color temperature", "slightly cool balance", "neutral temperature balance", "warm color temperature", "heated warm cast"),
+            "LightingIntensity" => MapBand(value, "dim lighting", "soft lighting", "balanced lighting", "bright scene lighting", "radiant luminous lighting"),
             "Stylization" => MapBand(value, "grounded visual treatment", "light stylization", "stylized rendering", "strong stylization", "highly stylized visual language"),
             "Realism" => MapBand(value, "omit explicit realism", "loosely realistic", "moderately realistic", "high visual realism", "strongly realistic rendering"),
             "TextureDepth" => MapBand(value, "minimal added texture", "light surface texture", "clear material texture", "rich tactile surface detail", "deeply worked tactile relief"),
             "NarrativeDensity" => MapBand(value, "simple single-read image", "light narrative layering", "layered storytelling cues", "dense implied story", "world-rich narrative density"),
             "Symbolism" => MapBand(value, "mostly literal", "subtle symbolic cues", "suggestive symbolic motifs", "pronounced allegory", "mythic symbolic charge"),
             "SurfaceAge" => MapBand(value, "freshly finished surfaces", "subtle patina", "gentle weathering", "aged surface character", "time-worn patina"),
+            "Framing" => MapBand(value, "intimate framing", "tight framing", "balanced framing", "open framing", "expansive framing"),
+            "CameraDistance" => MapBand(value, "extreme close view", "close view", "mid-distance view", "wider distant view", "far-set distant view"),
+            "CameraAngle" => MapBand(value, "low angle view", "slightly low angle", "eye-level view", "slightly high angle", "high angle view"),
             "BackgroundComplexity" => MapBand(value, "minimal background", "restrained background", "supporting environment", "rich environmental detail", "densely layered environment"),
             "MotionEnergy" => MapBand(value, "still composition", "gentle motion", "active scene energy", "dynamic motion", "high kinetic energy"),
+            "FocusDepth" => MapBand(value, "deep focus clarity", "mostly deep focus", "balanced focus depth", "selective focus falloff", "very shallow depth of field"),
+            "ImageCleanliness" => MapBand(value, "raw visual finish", "slight visual grit", "balanced finish", "clean visual finish", "polished visual finish"),
+            "DetailDensity" => MapBand(value, "sparse detail treatment", "light detail presence", "moderate detail density", "rich fine detail", "dense detail layering"),
             "AtmosphericDepth" => MapBand(value, "limited atmospheric depth", "slight recession", "air-filled spatial depth", "luminous depth layering", "deep atmospheric perspective"),
             "Chaos" => MapBand(value, "controlled composition", "restless tension", "volatile energy", "orchestrated chaos", "high visual instability"),
             "Whimsy" => MapBand(value, "serious tone", "subtle whimsy", "playful tone", "strong whimsical energy", "bold comedic whimsy"),
@@ -859,9 +1026,17 @@ public sealed class MainWindowViewModel : ViewModelBase
         "BackgroundComplexity" => ContributionArea.Composition,
         "MotionEnergy" => ContributionArea.Composition,
         "Chaos" => ContributionArea.Composition,
+        "Framing" => ContributionArea.Composition,
+        "CameraDistance" => ContributionArea.Composition,
+        "CameraAngle" => ContributionArea.Composition,
+        "FocusDepth" => ContributionArea.Composition,
         "Realism" => ContributionArea.Surface,
         "TextureDepth" => ContributionArea.Surface,
         "SurfaceAge" => ContributionArea.Surface,
+        "ImageCleanliness" => ContributionArea.Surface,
+        "DetailDensity" => ContributionArea.Surface,
+        "Temperature" => ContributionArea.Palette,
+        "LightingIntensity" => ContributionArea.Palette,
         "Saturation" => ContributionArea.Palette,
         "Contrast" => ContributionArea.Palette,
         "Symbolism" => ContributionArea.Mood,

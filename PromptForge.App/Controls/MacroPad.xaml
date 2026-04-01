@@ -1,0 +1,89 @@
+<UserControl x:Class="PromptForge.App.Controls.MacroPad"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinHeight="214">
+    <StackPanel>
+        <TextBlock Text="{Binding Title, ElementName=Root}"
+                   Style="{StaticResource FieldLabelTextStyle}"
+                   Margin="0,0,0,6" />
+        <TextBlock Text="{Binding HelperText, ElementName=Root}"
+                   Style="{StaticResource BodyMutedTextStyle}"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,10" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       Grid.Column="1"
+                       Text="{Binding VerticalHighLabel, ElementName=Root}"
+                       Style="{StaticResource ChipLabelTextStyle}"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="1"
+                       Grid.Column="0"
+                       Text="{Binding HorizontalStartLabel, ElementName=Root}"
+                       Style="{StaticResource ChipLabelTextStyle}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0" />
+
+            <Border Grid.Row="1"
+                    Grid.Column="1"
+                    Background="{DynamicResource InputBackgroundBrush}"
+                    BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Height="170"
+                    Width="170"
+                    MouseLeftButtonUp="OnSurfaceMouseLeftButtonUp">
+                <Canvas x:Name="SurfaceCanvas"
+                        SizeChanged="OnSurfaceSizeChanged">
+                    <Line X1="0"
+                          Y1="85"
+                          X2="170"
+                          Y2="85"
+                          Stroke="{DynamicResource BorderBrush}"
+                          StrokeThickness="1"
+                          StrokeDashArray="2 3" />
+                    <Line X1="85"
+                          Y1="0"
+                          X2="85"
+                          Y2="170"
+                          Stroke="{DynamicResource BorderBrush}"
+                          StrokeThickness="1"
+                          StrokeDashArray="2 3" />
+                    <Ellipse x:Name="Marker"
+                             Width="18"
+                             Height="18"
+                             Fill="{DynamicResource AccentBrush}"
+                             Stroke="White"
+                             StrokeThickness="2" />
+                </Canvas>
+            </Border>
+
+            <TextBlock Grid.Row="1"
+                       Grid.Column="2"
+                       Text="{Binding HorizontalEndLabel, ElementName=Root}"
+                       Style="{StaticResource ChipLabelTextStyle}"
+                       VerticalAlignment="Center"
+                       Margin="10,0,0,0" />
+
+            <TextBlock Grid.Row="2"
+                       Grid.Column="1"
+                       Text="{Binding VerticalLowLabel, ElementName=Root}"
+                       Style="{StaticResource ChipLabelTextStyle}"
+                       HorizontalAlignment="Center"
+                       Margin="0,8,0,0" />
+        </Grid>
+    </StackPanel>
+</UserControl>

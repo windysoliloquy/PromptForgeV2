@@ -5,14 +5,20 @@ namespace PromptForge.App.Services;
 internal static class SliderLanguageCatalog
 {
     public const string ArtistInfluenceStrength = "ArtistInfluenceStrength";
+    public const string Temperature = "Temperature";
+    public const string LightingIntensity = "LightingIntensity";
     public const string Stylization = "Stylization";
     public const string Realism = "Realism";
     public const string TextureDepth = "TextureDepth";
     public const string NarrativeDensity = "NarrativeDensity";
     public const string Symbolism = "Symbolism";
     public const string SurfaceAge = "SurfaceAge";
+    public const string Framing = "Framing";
     public const string BackgroundComplexity = "BackgroundComplexity";
     public const string MotionEnergy = "MotionEnergy";
+    public const string FocusDepth = "FocusDepth";
+    public const string ImageCleanliness = "ImageCleanliness";
+    public const string DetailDensity = "DetailDensity";
     public const string AtmosphericDepth = "AtmosphericDepth";
     public const string Chaos = "Chaos";
     public const string Whimsy = "Whimsy";
@@ -20,6 +26,8 @@ internal static class SliderLanguageCatalog
     public const string Awe = "Awe";
     public const string Saturation = "Saturation";
     public const string Contrast = "Contrast";
+    public const string CameraDistance = "CameraDistance";
+    public const string CameraAngle = "CameraAngle";
 
     private static readonly IReadOnlyDictionary<string, BundlePhrasePreference> BundlePhrasePreferences =
         new Dictionary<string, BundlePhrasePreference>(StringComparer.OrdinalIgnoreCase)
@@ -243,6 +251,34 @@ internal static class SliderLanguageCatalog
                 [],
                 ["descriptive phrase", "finishing clause"],
                 "Keep the descriptor singular and let the artist profile phrases carry most of the specificity."),
+            [Temperature] = new(
+                "Controls overall color temperature / perceived warmth versus coolness.",
+                [
+                    Band("Cool", "cool color temperature"),
+                    Band("Mild cool", "slightly cool balance"),
+                    Band("Neutral", "neutral temperature balance"),
+                    Band("Warm", "warm color temperature"),
+                    Band("Hot", "heated warm cast"),
+                ],
+                [],
+                [],
+                [],
+                ["descriptive phrase"],
+                "Use once in palette or lighting clause."),
+            [LightingIntensity] = new(
+                "Controls how forceful or subdued the scene lighting feels.",
+                [
+                    Band("Dim", "dim lighting"),
+                    Band("Soft", "soft lighting"),
+                    Band("Balanced", "balanced lighting"),
+                    Band("Bright", "bright scene lighting"),
+                    Band("Radiant", "radiant luminous lighting"),
+                ],
+                [],
+                [],
+                [],
+                ["descriptive phrase"],
+                "Keep single mention to avoid redundancy with named lighting."),
             [Stylization] = new(
                 "Controls how grounded or interpretive the overall visual language feels.",
                 [
@@ -483,6 +519,48 @@ internal static class SliderLanguageCatalog
                 [],
                 ["mood clause", "descriptive phrase"],
                 "Symbolism can dominate quickly. Keep the selected phrase concise so it supports rather than replaces the subject."),
+            [Framing] = new(
+                "Controls how tight or expansive the composition framing feels.",
+                [
+                    Band("intimate framing", "intimate framing"),
+                    Band("tight framing", "tight framing"),
+                    Band("balanced framing", "balanced framing"),
+                    Band("open framing", "open framing"),
+                    Band("expansive framing", "expansive framing"),
+                ],
+                [],
+                [],
+                [],
+                ["compositional clause"],
+                "Use once; complements camera distance."),
+            [CameraDistance] = new(
+                "Controls subject distance from the viewer.",
+                [
+                    Band("extreme close view", "extreme close view"),
+                    Band("close view", "close view"),
+                    Band("mid-distance view", "mid-distance view"),
+                    Band("wider distant view", "wider distant view"),
+                    Band("far-set distant view", "far-set distant view"),
+                ],
+                [],
+                [],
+                [],
+                ["compositional clause"],
+                "Pair with framing; avoid repeating distance elsewhere."),
+            [CameraAngle] = new(
+                "Controls camera vantage / elevation bias.",
+                [
+                    Band("low angle view", "low angle view"),
+                    Band("slightly low angle", "slightly low angle"),
+                    Band("eye-level view", "eye-level view"),
+                    Band("slightly high angle", "slightly high angle"),
+                    Band("high angle view", "high angle view"),
+                ],
+                [],
+                [],
+                [],
+                ["compositional clause"],
+                "Single mention; avoid stacking with subject wording."),
             [SurfaceAge] = new(
                 "Controls how newly finished or time-worn the described surfaces feel.",
                 [
@@ -595,6 +673,48 @@ internal static class SliderLanguageCatalog
                 [],
                 ["compositional clause", "mood clause"],
                 "Chaos should describe instability, not clutter. Let Background Complexity handle how full the frame is."),
+            [FocusDepth] = new(
+                "Controls whether the image feels broadly resolved or selectively focused.",
+                [
+                    Band("deep focus clarity", "deep focus clarity"),
+                    Band("mostly deep focus", "mostly deep focus"),
+                    Band("balanced focus depth", "balanced focus depth"),
+                    Band("selective focus falloff", "selective focus falloff"),
+                    Band("very shallow depth of field", "very shallow depth of field"),
+                ],
+                [],
+                [],
+                [],
+                ["focus clause", "surface clarity phrase"],
+                "Mention once; pairs with composition phrases."),
+            [ImageCleanliness] = new(
+                "Controls how clean/polished vs gritty/imperfect the image feels.",
+                [
+                    Band("raw visual finish", "raw visual finish"),
+                    Band("slight visual grit", "slight visual grit"),
+                    Band("balanced finish", "balanced finish"),
+                    Band("clean visual finish", "clean visual finish"),
+                    Band("polished visual finish", "polished visual finish"),
+                ],
+                [],
+                [],
+                [],
+                ["surface treatment clause"],
+                "Avoid duplicating with texture depth phrasing."),
+            [DetailDensity] = new(
+                "Controls how much fine visual information is packed into the image overall.",
+                [
+                    Band("sparse detail treatment", "sparse detail treatment"),
+                    Band("light detail presence", "light detail presence"),
+                    Band("moderate detail density", "moderate detail density"),
+                    Band("rich fine detail", "rich fine detail"),
+                    Band("dense detail layering", "dense detail layering"),
+                ],
+                [],
+                [],
+                [],
+                ["surface treatment clause"],
+                "Keep single mention; avoid overlap with background complexity."),
             [Whimsy] = new(
                 "Controls how serious, playful, or outright comedic the prompt tone feels.",
                 [

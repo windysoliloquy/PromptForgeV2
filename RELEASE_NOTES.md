@@ -1,6 +1,6 @@
 # Release Notes
 
-## Prompt Forge 3.0
+## Prompt Forge 3.1
 
 Prompt Forge is a native Windows desktop app for building and iterating image-generation prompts through structured visual controls instead of slow chat-based drafting.
 

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using PromptForge.App.Models;
 
@@ -15,23 +16,108 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     public PromptResult Build(PromptConfiguration configuration)
     {
+        if (IntentModeCatalog.IsExperimental(configuration.IntentMode))
+        {
+            try
+            {
+                return BuildExperimentalPrompt(configuration);
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine($"Experimental prompt governance failed. Falling back to standard prompt assembly. {exception}");
+                return BuildStandardPrompt(configuration);
+            }
+        }
+
         var effectiveConfiguration = ApplyIntentMode(configuration);
+        return BuildStandardPrompt(effectiveConfiguration);
+    }
+
+    private PromptResult BuildStandardPrompt(PromptConfiguration configuration)
+    {
         var phrases = new List<string>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        AddUnique(phrases, seen, BuildSubjectSection(effectiveConfiguration));
-        AddUnique(phrases, seen, BuildRelationshipSection(effectiveConfiguration));
-        foreach (var phrase in BuildStyleSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildCompositionSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildMoodSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildLightingAndColorSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildOutputSection(effectiveConfiguration)) AddUnique(phrases, seen, phrase);
+        AddUnique(phrases, seen, BuildSubjectSection(configuration));
+        AddUnique(phrases, seen, BuildRelationshipSection(configuration));
+        foreach (var phrase in BuildStyleSection(configuration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildCompositionSection(configuration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildMoodSection(configuration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildLightingAndColorSection(configuration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildImageFinishSection(configuration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildOutputSection(configuration)) AddUnique(phrases, seen, phrase);
 
         return new PromptResult
         {
             PositivePrompt = string.Join(", ", phrases),
-            NegativePrompt = effectiveConfiguration.UseNegativePrompt ? BuildNegativePrompt(effectiveConfiguration) : string.Empty,
+            NegativePrompt = configuration.UseNegativePrompt ? BuildNegativePrompt(configuration) : string.Empty,
         };
+    }
+
+    private PromptResult BuildExperimentalPrompt(PromptConfiguration configuration)
+    {
+        var phrases = new List<string>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        AddUnique(phrases, seen, BuildSubjectSection(configuration));
+        AddUnique(phrases, seen, BuildRelationshipSection(configuration));
+
+        foreach (var phrase in BuildExperimentalUngovernedStyleSection(configuration))
+        {
+            AddUnique(phrases, seen, phrase);
+        }
+
+        foreach (var phrase in ExperimentalPromptGovernanceService.BuildGovernedFragments(configuration))
+        {
+            AddUnique(phrases, seen, phrase);
+        }
+
+        foreach (var phrase in BuildOutputSection(configuration))
+        {
+            AddUnique(phrases, seen, phrase);
+        }
+
+        return new PromptResult
+        {
+            PositivePrompt = string.Join(", ", phrases),
+            NegativePrompt = configuration.UseNegativePrompt ? BuildNegativePrompt(configuration) : string.Empty,
+        };
+    }
+
+    private IEnumerable<string> BuildExperimentalUngovernedStyleSection(PromptConfiguration configuration)
+    {
+        yield return configuration.ArtStyle switch
+        {
+            "Cinematic" => "cinematic visual language",
+            "Painterly" => "painterly image treatment",
+            "Yarn Relief" => "rendered as a complete yarn relief composition",
+            "Stained Glass" => "stained glass-inspired design language",
+            "Surreal Symbolic" => "surreal symbolic imagery",
+            "Concept Art" => "concept art presentation",
+            _ => string.Empty,
+        };
+
+        yield return configuration.Material switch
+        {
+            "Yarn" => "yarn-built material presence",
+            "Paint" => "paint-rich surface treatment",
+            "Glass" => "glass-crafted surfaces",
+            "Ink" => "ink-defined mark making",
+            "Stone" => "stone-hewn form language",
+            "Metal" => "metallic surface character",
+            _ => string.Empty,
+        };
+
+        foreach (var phrase in BuildArtistBlend(configuration))
+        {
+            yield return phrase;
+        }
+
+        if (configuration.Material == "Yarn" && configuration.TextureDepth >= 70)
+        {
+            yield return "visible fiber structure";
+            yield return "layered textile depth";
+        }
     }
 
     private static PromptConfiguration ApplyIntentMode(PromptConfiguration configuration)
@@ -55,6 +141,7 @@ public sealed class PromptBuilderService : IPromptBuilderService
         effective.Lighting = intentMode.Lighting;
         return effective;
     }
+
     private static string BuildSubjectSection(PromptConfiguration configuration)
     {
         var subject = Clean(configuration.Subject);
@@ -385,13 +472,15 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private static IEnumerable<string> BuildCompositionSection(PromptConfiguration configuration)
     {
-        yield return Lower(configuration.CameraDistance);
-        yield return Lower(configuration.CameraAngle);
+        yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Framing, configuration.Framing, configuration);
+        yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.CameraDistance, configuration.CameraDistance, configuration);
+        yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.CameraAngle, configuration.CameraAngle, configuration);
         yield return MapBackgroundComplexity(configuration.BackgroundComplexity, configuration);
         yield return MapMotionEnergy(configuration.MotionEnergy, configuration);
         yield return MapNarrativeDensity(configuration.NarrativeDensity, configuration);
         yield return MapAtmosphericDepth(configuration.AtmosphericDepth, configuration);
         yield return MapChaos(configuration.Chaos, configuration);
+        yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.FocusDepth, configuration.FocusDepth, configuration);
     }
 
     private static IEnumerable<string> BuildMoodSection(PromptConfiguration configuration)
@@ -405,9 +494,18 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration)
     {
+        yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Temperature, configuration.Temperature, configuration);
+        yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.LightingIntensity, configuration.LightingIntensity, configuration);
         yield return Lower(configuration.Lighting);
         yield return MapSaturation(configuration.Saturation, configuration);
         yield return MapContrast(configuration.Contrast, configuration);
+    }
+
+    private static IEnumerable<string> BuildImageFinishSection(PromptConfiguration configuration)
+    {
+        yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.ImageCleanliness, configuration.ImageCleanliness, configuration);
+        yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.DetailDensity, configuration.DetailDensity, configuration);
+        yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.FocusDepth, configuration.FocusDepth, configuration);
     }
 
     private static IEnumerable<string> BuildOutputSection(PromptConfiguration configuration)

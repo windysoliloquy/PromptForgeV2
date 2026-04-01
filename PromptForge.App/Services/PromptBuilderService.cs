@@ -24,6 +24,7 @@ public sealed class PromptBuilderService : IPromptBuilderService
         foreach (var phrase in BuildCompositionSection(configuration)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildMoodSection(configuration)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildLightingAndColorSection(configuration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildImageFinishSection(configuration)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildOutputSection(configuration)) AddUnique(phrases, seen, phrase);
 
         return new PromptResult
@@ -363,8 +364,9 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private static IEnumerable<string> BuildCompositionSection(PromptConfiguration configuration)
     {
-        yield return Lower(configuration.CameraDistance);
-        yield return Lower(configuration.CameraAngle);
+        yield return MapFraming(configuration.Framing, configuration.ArtStyle);
+        yield return MapCameraDistance(configuration.CameraDistance, configuration.ArtStyle);
+        yield return MapCameraAngle(configuration.CameraAngle, configuration.ArtStyle);
         yield return MapBackgroundComplexity(configuration.BackgroundComplexity, configuration.ArtStyle);
         yield return MapMotionEnergy(configuration.MotionEnergy, configuration.ArtStyle);
         yield return MapNarrativeDensity(configuration.NarrativeDensity, configuration.ArtStyle);
@@ -383,9 +385,18 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration)
     {
+        yield return MapTemperature(configuration.Temperature, configuration.ArtStyle, configuration.Material);
+        yield return MapLightingIntensity(configuration.LightingIntensity, configuration.ArtStyle, configuration.Material);
         yield return Lower(configuration.Lighting);
         yield return MapSaturation(configuration.Saturation, configuration.ArtStyle, configuration.Material);
         yield return MapContrast(configuration.Contrast, configuration.ArtStyle, configuration.Material);
+    }
+
+    private static IEnumerable<string> BuildImageFinishSection(PromptConfiguration configuration)
+    {
+        yield return MapImageCleanliness(configuration.ImageCleanliness, configuration.ArtStyle, configuration.Material);
+        yield return MapDetailDensity(configuration.DetailDensity, configuration.ArtStyle, configuration.Material);
+        yield return MapFocusDepth(configuration.FocusDepth, configuration.ArtStyle);
     }
 
     private static IEnumerable<string> BuildOutputSection(PromptConfiguration configuration)
@@ -393,6 +404,16 @@ public sealed class PromptBuilderService : IPromptBuilderService
         yield return $"aspect ratio {configuration.AspectRatio}";
         if (configuration.PrintReady) { yield return "high detail clarity"; yield return "clean edge definition"; }
         if (configuration.TransparentBackground) { yield return "isolated subject"; yield return "clean background separation"; }
+    }
+
+    private static string MapTemperature(int value, string artStyle, string material)
+    {
+        return MapBand(value, "cool color temperature", "slightly cool balance", "neutral temperature balance", "warm color temperature", "heated warm cast");
+    }
+
+    private static string MapLightingIntensity(int value, string artStyle, string material)
+    {
+        return MapBand(value, "dim lighting", "soft lighting", "balanced lighting", "bright scene lighting", "radiant luminous lighting");
     }
 
     private static string MapStylization(int value, string artStyle) => artStyle switch
@@ -640,6 +661,21 @@ public sealed class PromptBuilderService : IPromptBuilderService
         };
     }
 
+    private static string MapFraming(int value, string artStyle)
+    {
+        return MapBand(value, "intimate framing", "tight framing", "balanced framing", "open framing", "expansive framing");
+    }
+
+    private static string MapCameraDistance(int value, string artStyle)
+    {
+        return MapBand(value, "extreme close view", "close view", "mid-distance view", "wider distant view", "far-set distant view");
+    }
+
+    private static string MapCameraAngle(int value, string artStyle)
+    {
+        return MapBand(value, "low angle view", "slightly low angle", "eye-level view", "slightly high angle", "high angle view");
+    }
+
     private static string MapBackgroundComplexity(int value, string artStyle) => artStyle switch
     {
         "Cinematic" => MapBand(value, "minimal background", "restrained set dressing", "supporting production detail", "rich environmental staging", "densely layered cinematic environment"),
@@ -722,6 +758,21 @@ public sealed class PromptBuilderService : IPromptBuilderService
         "Concept Art" => MapBand(value, string.Empty, "subtle worldbuilding motifs", "suggestive symbolic design cues", "pronounced allegorical design motifs", "mythic symbolic worldbuilding"),
         _ => MapBand(value, string.Empty, "subtle symbolic cues", "suggestive symbolic motifs", "pronounced allegorical symbolism", "mythic symbolic charge"),
     };
+
+    private static string MapFocusDepth(int value, string artStyle)
+    {
+        return MapBand(value, "deep focus clarity", "mostly deep focus", "balanced focus depth", "selective focus falloff", "very shallow depth of field");
+    }
+
+    private static string MapImageCleanliness(int value, string artStyle, string material)
+    {
+        return MapBand(value, "raw visual finish", "slight visual grit", "balanced finish", "clean visual finish", "polished visual finish");
+    }
+
+    private static string MapDetailDensity(int value, string artStyle, string material)
+    {
+        return MapBand(value, "sparse detail treatment", "light detail presence", "moderate detail density", "rich fine detail", "dense detail layering");
+    }
 
     private static string MapSaturation(int value, string artStyle, string material)
     {
