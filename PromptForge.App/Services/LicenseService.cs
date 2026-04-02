@@ -21,7 +21,7 @@ public sealed class LicenseService : ILicenseService
     {
         var appDataDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "PromptForgeLocal");
+            DemoModeOptions.LicenseStateDirectoryName);
 
         Directory.CreateDirectory(appDataDirectory);
         _statePath = Path.Combine(appDataDirectory, "license-state.json");

@@ -119,10 +119,18 @@ public sealed class DemoStateService : IDemoStateService
     private static DemoState NormalizeState(DemoState state)
     {
         var maxCopies = DemoModeOptions.MaxDemoCopies;
+        var priorMaxCopies = state.MaxCopies <= 0 ? maxCopies : state.MaxCopies;
+        var normalizedRemainingCopies = Math.Clamp(state.RemainingCopies, 0, priorMaxCopies);
+
+        if (priorMaxCopies < maxCopies)
+        {
+            normalizedRemainingCopies = Math.Min(maxCopies, normalizedRemainingCopies + (maxCopies - priorMaxCopies));
+        }
+
         return new DemoState
         {
             MaxCopies = maxCopies,
-            RemainingCopies = Math.Clamp(state.RemainingCopies, 0, maxCopies),
+            RemainingCopies = normalizedRemainingCopies,
         };
     }
 }

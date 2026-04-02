@@ -5,6 +5,7 @@ namespace PromptForge.App.Services;
 public static class IntentModeCatalog
 {
     public const string ExperimentalName = "Experimental";
+    public const string VintageBendName = "Vintage Bend";
 
     private static readonly IReadOnlyDictionary<string, IntentModeDefinition> Definitions =
         new Dictionary<string, IntentModeDefinition>(StringComparer.OrdinalIgnoreCase)
@@ -182,6 +183,7 @@ public static class IntentModeCatalog
     public static IReadOnlyList<string> Names { get; } = new[]
     {
         "Custom",
+        VintageBendName,
         ExperimentalName,
         "Playful Chaos",
         "Sacred Stillness",
@@ -200,6 +202,11 @@ public static class IntentModeCatalog
     public static bool IsExperimental(string? intentMode)
     {
         return string.Equals(intentMode, ExperimentalName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsVintageBend(string? intentMode)
+    {
+        return string.Equals(intentMode, VintageBendName, StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool TryGet(string? intentMode, out IntentModeDefinition definition)

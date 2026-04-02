@@ -56,6 +56,7 @@ public sealed class ThemeService : IThemeService
         "PopupBorderBrush",
         "SemanticChipSurfaceBrush",
         "SemanticChipBorderBrush",
+        "SliderFlyoutCollapseCamouflageBrush",
         "ComboBoxBackgroundBrush",
         "ComboBoxForegroundBrush",
         "ComboBoxDropDownBackgroundBrush",

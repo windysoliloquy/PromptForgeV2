@@ -1,38 +1,84 @@
 <UserControl x:Class="PromptForge.App.Controls.SliderFlyout"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              x:Name="Root"
              HorizontalAlignment="Stretch">
+    <UserControl.Resources>
+        <Duration x:Key="SliderButtonPressDuration">0:0:0.08</Duration>
+        <Duration x:Key="SliderButtonCollapseDuration">0:0:0.09</Duration>
+        <Duration x:Key="SliderButtonReturnDuration">0:0:1.0</Duration>
+        <Duration x:Key="SliderButtonHoldUntilPopupReadyDuration">0:0:1.16</Duration>
+        <Duration x:Key="SliderButtonReturnRevealDuration">0:0:0.05</Duration>
+        <Duration x:Key="ButtonGlowRiseDuration">0:0:0.12</Duration>
+        <Duration x:Key="ButtonGlowFadeDuration">0:0:0.24</Duration>
+        <Duration x:Key="PopupEdgeTraceDuration">0:0:0.09</Duration>
+        <Duration x:Key="PopupGlowHoldDuration">0:0:0.16</Duration>
+        <Duration x:Key="PopupGlowFadeDuration">0:0:0.26</Duration>
+        <sys:Double x:Key="SliderButtonPressScale">0.94</sys:Double>
+        <sys:Double x:Key="SliderButtonCollapseScaleX">0.28</sys:Double>
+        <sys:Double x:Key="SliderButtonCollapseScaleY">0.1</sys:Double>
+        <sys:Double x:Key="SliderButtonCollapsedOpacity">0</sys:Double>
+        <sys:Double x:Key="SliderButtonReturnStartOpacity">0.01</sys:Double>
+        <sys:Double x:Key="SliderButtonReturnRevealThreshold">0.82</sys:Double>
+        <sys:Double x:Key="SliderPopupGlowPeakOpacity">0.95</sys:Double>
+        <sys:Double x:Key="SliderPopupGlowRestOpacity">0.28</sys:Double>
+        <sys:Double x:Key="SliderButtonGlowPeakOpacity">0.88</sys:Double>
+        <sys:Double x:Key="SliderEdgeTraceThickness">1.5</sys:Double>
+    </UserControl.Resources>
     <Grid>
-        <ToggleButton x:Name="FlyoutButton"
-                      Style="{DynamicResource SliderFlyoutButtonStyle}"
-                      MinHeight="84"
-                      HorizontalAlignment="Stretch"
-                      HorizontalContentAlignment="Stretch">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+        <Grid>
+            <ToggleButton x:Name="FlyoutButton"
+                          Style="{DynamicResource SliderFlyoutButtonStyle}"
+                          MinHeight="84"
+                          HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch"
+                          RenderTransformOrigin="0.5,0.5"
+                          Checked="FlyoutButton_OnChecked">
+                <ToggleButton.RenderTransform>
+                    <ScaleTransform x:Name="FlyoutButtonScaleTransform"
+                                    ScaleX="1"
+                                    ScaleY="1" />
+                </ToggleButton.RenderTransform>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0"
-                           Text="{Binding Label, ElementName=Root}"
-                           Style="{DynamicResource BodyTextStyle}"
-                           FontWeight="SemiBold"
-                           TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="0"
+                               Text="{Binding Label, ElementName=Root}"
+                               Style="{DynamicResource BodyTextStyle}"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
 
-                <Border Grid.Row="1"
-                        Style="{DynamicResource SemanticValuePillBorderStyle}"
-                        Margin="0,8,0,0"
-                        HorizontalAlignment="Left">
-                    <TextBlock Text="{Binding ValueText, ElementName=Root}"
-                               Style="{DynamicResource SemanticValuePillTextStyle}" />
-                </Border>
+                    <Border Grid.Row="1"
+                            Style="{DynamicResource SemanticValuePillBorderStyle}"
+                            Margin="0,8,0,0"
+                            HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding ValueText, ElementName=Root}"
+                                   Style="{DynamicResource SemanticValuePillTextStyle}" />
+                    </Border>
 
-                <Border Grid.Row="2" Height="0" Background="Transparent" />
-            </Grid>
-        </ToggleButton>
+                    <Border Grid.Row="2" Height="0" Background="Transparent" />
+                </Grid>
+            </ToggleButton>
+
+            <Border x:Name="ButtonGlowOverlay"
+                    IsHitTestVisible="False"
+                    Opacity="0"
+                    CornerRadius="14"
+                    BorderThickness="1.5"
+                    BorderBrush="{StaticResource SliderFlyoutGlowPeakBrush}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="18"
+                                      ShadowDepth="0"
+                                      Opacity="0"
+                                      Color="#FFDFA43A" />
+                </Border.Effect>
+            </Border>
+        </Grid>
 
         <Popup x:Name="FlyoutPopup"
                PlacementTarget="{Binding ElementName=FlyoutButton}"
@@ -40,37 +86,95 @@
                AllowsTransparency="True"
                StaysOpen="False"
                PopupAnimation="Fade"
+               Opened="FlyoutPopup_OnOpened"
+               Closed="FlyoutPopup_OnClosed"
                IsOpen="{Binding IsChecked, ElementName=FlyoutButton, Mode=TwoWay}">
-            <Border Style="{DynamicResource SliderFlyoutPopupBorderStyle}"
-                    Width="300"
-                    Margin="0,8,0,0">
-                <StackPanel>
-                    <TextBlock Text="{Binding Label, ElementName=Root}"
-                               Style="{DynamicResource SectionTitleTextStyle}"
-                               Margin="0,0,0,6"
-                               TextWrapping="Wrap" />
-                    <Border Style="{DynamicResource SemanticValuePillBorderStyle}"
-                            Margin="0,0,0,10"
-                            HorizontalAlignment="Left">
-                        <TextBlock Text="{Binding ValueText, ElementName=Root}"
-                                   Style="{DynamicResource SemanticValuePillTextStyle}" />
+            <Grid Width="300"
+                  Margin="0,8,0,0">
+                <Border x:Name="PopupBaseBorder"
+                        Style="{DynamicResource SliderFlyoutPopupBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Label, ElementName=Root}"
+                                   Style="{DynamicResource SectionTitleTextStyle}"
+                                   Margin="0,0,0,6"
+                                   TextWrapping="Wrap" />
+                        <Border Style="{DynamicResource SemanticValuePillBorderStyle}"
+                                Margin="0,0,0,10"
+                                HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding ValueText, ElementName=Root}"
+                                       Style="{DynamicResource SemanticValuePillTextStyle}" />
+                        </Border>
+                        <TextBlock Text="{Binding HelperText, ElementName=Root}"
+                                   Style="{DynamicResource BodyMutedTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12" />
+                        <Slider Minimum="{Binding Minimum, ElementName=Root}"
+                                Maximum="{Binding Maximum, ElementName=Root}"
+                                Value="{Binding Value, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                TickFrequency="1"
+                                IsSnapToTickEnabled="False"
+                                Style="{DynamicResource AppSliderStyle}" />
+                        <TextBlock Margin="0,8,0,0"
+                                   Text="{Binding GuideText, ElementName=Root}"
+                                   Style="{DynamicResource BodyMutedTextStyle}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Grid x:Name="PopupGlowOverlay"
+                      IsHitTestVisible="False"
+                      ClipToBounds="True"
+                      Opacity="0">
+                    <Border x:Name="PopupGlowBorder"
+                            CornerRadius="16"
+                            BorderThickness="1.5"
+                            BorderBrush="{StaticResource SliderFlyoutGlowPeakBrush}">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="20"
+                                              ShadowDepth="0"
+                                              Opacity="0"
+                                              Color="#FFDFA43A" />
+                        </Border.Effect>
                     </Border>
-                    <TextBlock Text="{Binding HelperText, ElementName=Root}"
-                               Style="{DynamicResource BodyMutedTextStyle}"
-                               TextWrapping="Wrap"
-                               Margin="0,0,0,12" />
-                    <Slider Minimum="{Binding Minimum, ElementName=Root}"
-                            Maximum="{Binding Maximum, ElementName=Root}"
-                            Value="{Binding Value, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            TickFrequency="1"
-                            IsSnapToTickEnabled="False"
-                            Style="{DynamicResource AppSliderStyle}" />
-                    <TextBlock Margin="0,8,0,0"
-                               Text="{Binding GuideText, ElementName=Root}"
-                               Style="{DynamicResource BodyMutedTextStyle}"
-                               TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
+
+                    <Rectangle x:Name="TopEdgeTrace"
+                               Height="{StaticResource SliderEdgeTraceThickness}"
+                               RadiusX="1"
+                               RadiusY="1"
+                               Fill="{StaticResource SliderFlyoutGlowPeakBrush}"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Top"
+                               Width="0"
+                               Margin="14,0,14,0" />
+                    <Rectangle x:Name="RightEdgeTrace"
+                               Width="{StaticResource SliderEdgeTraceThickness}"
+                               RadiusX="1"
+                               RadiusY="1"
+                               Fill="{StaticResource SliderFlyoutGlowPeakBrush}"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Top"
+                               Height="0"
+                               Margin="0,14,0,14" />
+                    <Rectangle x:Name="BottomEdgeTrace"
+                               Height="{StaticResource SliderEdgeTraceThickness}"
+                               RadiusX="1"
+                               RadiusY="1"
+                               Fill="{StaticResource SliderFlyoutGlowPeakBrush}"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Bottom"
+                               Width="0"
+                               Margin="14,0,14,0" />
+                    <Rectangle x:Name="LeftEdgeTrace"
+                               Width="{StaticResource SliderEdgeTraceThickness}"
+                               RadiusX="1"
+                               RadiusY="1"
+                               Fill="{StaticResource SliderFlyoutGlowPeakBrush}"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Bottom"
+                               Height="0"
+                               Margin="0,14,0,14" />
+                </Grid>
+            </Grid>
         </Popup>
     </Grid>
 </UserControl>

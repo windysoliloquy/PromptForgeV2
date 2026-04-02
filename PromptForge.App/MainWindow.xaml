@@ -1,6 +1,7 @@
 <Window x:Class="PromptForge.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:controls="clr-namespace:PromptForge.App.Controls"
         Title="Prompt Forge"
         Icon="Assets/PromptForge.ico"
@@ -9,7 +10,292 @@
         MinHeight="820"
         MinWidth="1320"
         Background="{DynamicResource AppBackgroundBrush}">
-    <Grid Margin="16">
+    <Window.Resources>
+        <sys:Double x:Key="ForgeButtonPressScale">0.9</sys:Double>
+        <sys:Double x:Key="ForgeButtonCollapseScaleX">0.72</sys:Double>
+        <sys:Double x:Key="ForgeButtonCollapseScaleY">0.06</sys:Double>
+        <sys:Double x:Key="ForgeButtonCollapsedOpacity">0.04</sys:Double>
+        <sys:Double x:Key="ForgeReducedMotionButtonPressScale">0.94</sys:Double>
+        <sys:Double x:Key="ForgeReducedMotionButtonCollapseScaleX">0.88</sys:Double>
+        <sys:Double x:Key="ForgeReducedMotionButtonCollapseScaleY">0.52</sys:Double>
+        <sys:Double x:Key="ForgeReducedMotionButtonCollapsedOpacity">0.18</sys:Double>
+        <sys:Double x:Key="ForgeBorderRestOpacity">0.16</sys:Double>
+        <sys:Double x:Key="ForgeBorderPeakOpacity">1</sys:Double>
+        <sys:Double x:Key="ForgeReducedMotionBorderPeakOpacity">0.82</sys:Double>
+
+        <Color x:Key="ForgeBorderRestColor">#33F3C66B</Color>
+        <Color x:Key="ForgeBorderActiveColor">#FFDFA43A</Color>
+        <Color x:Key="ForgeBorderPeakColor">#FFF6D98C</Color>
+        <Color x:Key="ForgeSuccessPeakColor">#FFF6D17A</Color>
+        <Color x:Key="ForgeSuccessRestColor">#00F6D17A</Color>
+
+        <Duration x:Key="ForgeButtonPressDuration">0:0:0.09</Duration>
+        <Duration x:Key="ForgeButtonCollapseDuration">0:0:0.08</Duration>
+        <Duration x:Key="ForgeButtonReturnDuration">0:0:0.12</Duration>
+        <Duration x:Key="ForgeReducedMotionButtonPressDuration">0:0:0.08</Duration>
+        <Duration x:Key="ForgeReducedMotionButtonCollapseDuration">0:0:0.08</Duration>
+        <Duration x:Key="ForgeReducedMotionButtonReturnDuration">0:0:0.1</Duration>
+        <Duration x:Key="ForgeBorderBuildDuration">0:0:0.09</Duration>
+        <Duration x:Key="ForgeBorderPeakDuration">0:0:0.12</Duration>
+        <Duration x:Key="ForgeBorderFadeDuration">0:0:0.22</Duration>
+        <Duration x:Key="ForgeBorderOpacityRiseDuration">0:0:0.08</Duration>
+        <Duration x:Key="ForgeBorderOpacityFadeDuration">0:0:0.28</Duration>
+        <Duration x:Key="ForgeReducedMotionBorderRiseDuration">0:0:0.05</Duration>
+        <Duration x:Key="ForgeReducedMotionBorderFadeDuration">0:0:0.18</Duration>
+        <Duration x:Key="ForgeSuccessFadeInDuration">0:0:0.08</Duration>
+        <Duration x:Key="ForgeSuccessFadeOutDuration">0:0:0.2</Duration>
+        <Duration x:Key="ForgeReducedMotionSuccessFadeInDuration">0:0:0.05</Duration>
+        <Duration x:Key="ForgeReducedMotionSuccessFadeOutDuration">0:0:0.16</Duration>
+
+        <sys:TimeSpan x:Key="ForgeButtonCollapseBegin">0:0:0.08</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeButtonReturnBegin">0:0:0.24</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeBorderIgnitionBegin">0:0:0.12</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeBorderPeakBegin">0:0:0.21</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeBorderFadeBegin">0:0:0.35</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeBorderOpacityFadeBegin">0:0:0.24</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeSuccessBegin">0:0:0.29</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeSuccessFadeBegin">0:0:0.95</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeReducedMotionBorderBegin">0:0:0.03</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeReducedMotionButtonCollapseBegin">0:0:0.06</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeReducedMotionButtonReturnBegin">0:0:0.16</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeReducedMotionBorderFadeBegin">0:0:0.18</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeReducedMotionSuccessBegin">0:0:0.22</sys:TimeSpan>
+        <sys:TimeSpan x:Key="ForgeReducedMotionSuccessFadeBegin">0:0:0.8</sys:TimeSpan>
+        <Storyboard x:Key="CopyPromptBorderStoryboard">
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleX"
+                             From="1"
+                             To="{StaticResource ForgeButtonPressScale}"
+                             Duration="{StaticResource ForgeButtonPressDuration}"
+                             />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleY"
+                             From="1"
+                             To="{StaticResource ForgeButtonPressScale}"
+                             Duration="{StaticResource ForgeButtonPressDuration}"
+                             />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleX"
+                             To="{StaticResource ForgeButtonCollapseScaleX}"
+                             BeginTime="{StaticResource ForgeButtonCollapseBegin}"
+                             Duration="{StaticResource ForgeButtonCollapseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleY"
+                             To="{StaticResource ForgeButtonCollapseScaleY}"
+                             BeginTime="{StaticResource ForgeButtonCollapseBegin}"
+                             Duration="{StaticResource ForgeButtonCollapseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButton"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeButtonCollapsedOpacity}"
+                             BeginTime="{StaticResource ForgeButtonCollapseBegin}"
+                             Duration="{StaticResource ForgeButtonCollapseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleX"
+                             To="1"
+                             BeginTime="{StaticResource ForgeButtonReturnBegin}"
+                             Duration="{StaticResource ForgeButtonReturnDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleY"
+                             To="1"
+                             BeginTime="{StaticResource ForgeButtonReturnBegin}"
+                             Duration="{StaticResource ForgeButtonReturnDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButton"
+                             Storyboard.TargetProperty="Opacity"
+                             To="1"
+                             BeginTime="{StaticResource ForgeButtonReturnBegin}"
+                             Duration="{StaticResource ForgeButtonReturnDuration}" />
+
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderActiveColor}"
+                            BeginTime="{StaticResource ForgeBorderIgnitionBegin}"
+                            Duration="{StaticResource ForgeBorderBuildDuration}" />
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderPeakColor}"
+                            BeginTime="{StaticResource ForgeBorderPeakBegin}"
+                            Duration="{StaticResource ForgeBorderPeakDuration}" />
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderRestColor}"
+                            BeginTime="{StaticResource ForgeBorderFadeBegin}"
+                            Duration="{StaticResource ForgeBorderFadeDuration}" />
+
+            <DoubleAnimation Storyboard.TargetName="ActionsCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeBorderPeakOpacity}"
+                             BeginTime="{StaticResource ForgeBorderIgnitionBegin}"
+                             Duration="{StaticResource ForgeBorderOpacityRiseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="ActionsCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeBorderRestOpacity}"
+                             BeginTime="{StaticResource ForgeBorderOpacityFadeBegin}"
+                             Duration="{StaticResource ForgeBorderOpacityFadeDuration}" />
+
+
+            <DoubleAnimation Storyboard.TargetName="CopyPromptSuccessText"
+                             Storyboard.TargetProperty="Opacity"
+                             To="1"
+                             BeginTime="{StaticResource ForgeSuccessBegin}"
+                             Duration="{StaticResource ForgeSuccessFadeInDuration}" />
+            <ColorAnimation Storyboard.TargetName="ForgeSuccessBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeSuccessPeakColor}"
+                            BeginTime="{StaticResource ForgeSuccessBegin}"
+                            Duration="{StaticResource ForgeSuccessFadeInDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptSuccessText"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0"
+                             BeginTime="{StaticResource ForgeSuccessFadeBegin}"
+                             Duration="{StaticResource ForgeSuccessFadeOutDuration}" />
+            <ColorAnimation Storyboard.TargetName="ForgeSuccessBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeSuccessRestColor}"
+                            BeginTime="{StaticResource ForgeSuccessFadeBegin}"
+                            Duration="{StaticResource ForgeSuccessFadeOutDuration}" />
+        </Storyboard>
+
+        <Storyboard x:Key="ActionCardBorderGlowStoryboard">
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderActiveColor}"
+                            BeginTime="{StaticResource ForgeBorderIgnitionBegin}"
+                            Duration="{StaticResource ForgeBorderBuildDuration}" />
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderPeakColor}"
+                            BeginTime="{StaticResource ForgeBorderPeakBegin}"
+                            Duration="{StaticResource ForgeBorderPeakDuration}" />
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderRestColor}"
+                            BeginTime="{StaticResource ForgeBorderFadeBegin}"
+                            Duration="{StaticResource ForgeBorderFadeDuration}" />
+
+            <DoubleAnimation Storyboard.TargetName="ActionsCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeBorderPeakOpacity}"
+                             BeginTime="{StaticResource ForgeBorderIgnitionBegin}"
+                             Duration="{StaticResource ForgeBorderOpacityRiseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="ActionsCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeBorderRestOpacity}"
+                             BeginTime="{StaticResource ForgeBorderOpacityFadeBegin}"
+                             Duration="{StaticResource ForgeBorderOpacityFadeDuration}" />
+        </Storyboard>
+
+        <Storyboard x:Key="CopyPromptReducedMotionStoryboard">
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleX"
+                             From="1"
+                             To="{StaticResource ForgeReducedMotionButtonPressScale}"
+                             Duration="{StaticResource ForgeReducedMotionButtonPressDuration}"
+                             />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleY"
+                             From="1"
+                             To="{StaticResource ForgeReducedMotionButtonPressScale}"
+                             Duration="{StaticResource ForgeReducedMotionButtonPressDuration}"
+                             />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleX"
+                             To="{StaticResource ForgeReducedMotionButtonCollapseScaleX}"
+                             BeginTime="{StaticResource ForgeReducedMotionButtonCollapseBegin}"
+                             Duration="{StaticResource ForgeReducedMotionButtonCollapseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleY"
+                             To="{StaticResource ForgeReducedMotionButtonCollapseScaleY}"
+                             BeginTime="{StaticResource ForgeReducedMotionButtonCollapseBegin}"
+                             Duration="{StaticResource ForgeReducedMotionButtonCollapseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButton"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeReducedMotionButtonCollapsedOpacity}"
+                             BeginTime="{StaticResource ForgeReducedMotionButtonCollapseBegin}"
+                             Duration="{StaticResource ForgeReducedMotionButtonCollapseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleX"
+                             To="1"
+                             BeginTime="{StaticResource ForgeReducedMotionButtonReturnBegin}"
+                             Duration="{StaticResource ForgeReducedMotionButtonReturnDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButtonScale"
+                             Storyboard.TargetProperty="ScaleY"
+                             To="1"
+                             BeginTime="{StaticResource ForgeReducedMotionButtonReturnBegin}"
+                             Duration="{StaticResource ForgeReducedMotionButtonReturnDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptButton"
+                             Storyboard.TargetProperty="Opacity"
+                             To="1"
+                             BeginTime="{StaticResource ForgeReducedMotionButtonReturnBegin}"
+                             Duration="{StaticResource ForgeReducedMotionButtonReturnDuration}" />
+
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderPeakColor}"
+                            BeginTime="{StaticResource ForgeReducedMotionBorderBegin}"
+                            Duration="{StaticResource ForgeButtonPressDuration}" />
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderRestColor}"
+                            BeginTime="{StaticResource ForgeReducedMotionBorderFadeBegin}"
+                            Duration="{StaticResource ForgeReducedMotionBorderFadeDuration}" />
+            <DoubleAnimation Storyboard.TargetName="ActionsCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeReducedMotionBorderPeakOpacity}"
+                             BeginTime="{StaticResource ForgeReducedMotionBorderBegin}"
+                             Duration="{StaticResource ForgeReducedMotionBorderRiseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="ActionsCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeBorderRestOpacity}"
+                             BeginTime="{StaticResource ForgeReducedMotionBorderFadeBegin}"
+                             Duration="{StaticResource ForgeReducedMotionBorderFadeDuration}" />
+
+
+            <DoubleAnimation Storyboard.TargetName="CopyPromptSuccessText"
+                             Storyboard.TargetProperty="Opacity"
+                             To="1"
+                             BeginTime="{StaticResource ForgeReducedMotionSuccessBegin}"
+                             Duration="{StaticResource ForgeReducedMotionSuccessFadeInDuration}" />
+            <ColorAnimation Storyboard.TargetName="ForgeSuccessBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeSuccessPeakColor}"
+                            BeginTime="{StaticResource ForgeReducedMotionSuccessBegin}"
+                            Duration="{StaticResource ForgeReducedMotionSuccessFadeInDuration}" />
+            <DoubleAnimation Storyboard.TargetName="CopyPromptSuccessText"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0"
+                             BeginTime="{StaticResource ForgeReducedMotionSuccessFadeBegin}"
+                             Duration="{StaticResource ForgeReducedMotionSuccessFadeOutDuration}" />
+            <ColorAnimation Storyboard.TargetName="ForgeSuccessBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeSuccessRestColor}"
+                            BeginTime="{StaticResource ForgeReducedMotionSuccessFadeBegin}"
+                            Duration="{StaticResource ForgeReducedMotionSuccessFadeOutDuration}" />
+        </Storyboard>
+
+        <Storyboard x:Key="ActionCardBorderGlowReducedMotionStoryboard">
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderPeakColor}"
+                            BeginTime="{StaticResource ForgeReducedMotionBorderBegin}"
+                            Duration="{StaticResource ForgeButtonPressDuration}" />
+            <ColorAnimation Storyboard.TargetName="ActionsCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="{StaticResource ForgeBorderRestColor}"
+                            BeginTime="{StaticResource ForgeReducedMotionBorderFadeBegin}"
+                            Duration="{StaticResource ForgeReducedMotionBorderFadeDuration}" />
+            <DoubleAnimation Storyboard.TargetName="ActionsCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeReducedMotionBorderPeakOpacity}"
+                             BeginTime="{StaticResource ForgeReducedMotionBorderBegin}"
+                             Duration="{StaticResource ForgeReducedMotionBorderRiseDuration}" />
+            <DoubleAnimation Storyboard.TargetName="ActionsCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="{StaticResource ForgeBorderRestOpacity}"
+                             BeginTime="{StaticResource ForgeReducedMotionBorderFadeBegin}"
+                             Duration="{StaticResource ForgeReducedMotionBorderFadeDuration}" />
+        </Storyboard>
+    </Window.Resources>
+    <Grid x:Name="RootLayout" Margin="16">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="460" />
             <ColumnDefinition Width="16" />
@@ -51,11 +337,13 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Intent" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="Start with a bundled direction, or switch to Custom to reveal the full manual slider structure. Artist influence always stays available as a separate layer."
+                            <TextBlock Text="Start with a bundled direction, or switch to Custom or Vintage Bend to reveal the full manual slider structure. Artist influence always stays available as a separate layer."
                                        Style="{StaticResource BodyMutedTextStyle}"
                                        TextWrapping="Wrap" />
                             <TextBlock Text="Intent Mode" Style="{StaticResource FieldLabelTextStyle}" />
-                            <ComboBox ItemsSource="{Binding IntentModes}" SelectedItem="{Binding IntentMode}" Style="{StaticResource AppComboBoxStyle}" />
+                            <ComboBox ItemsSource="{Binding IntentModes}"
+                                      SelectedIndex="{Binding IntentModeSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Style="{StaticResource AppComboBoxStyle}" />
                             <TextBlock Margin="0,7,0,0" Text="{Binding IntentModeSummary}" Style="{StaticResource BodyMutedTextStyle}" TextWrapping="Wrap" />
                             <StackPanel Margin="0,12,0,0"
                                         Visibility="{Binding ShowCustomRandomizeControls, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -265,6 +553,11 @@
                     <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="Manual Style Controls" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Vintage Bend uses these same controls, but the prompt language resolves through the dedicated documentary pack."
+                                       Style="{StaticResource BodyMutedTextStyle}"
+                                       TextWrapping="Wrap"
+                                       Visibility="{Binding IsVintageBendIntent, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                       Margin="0,0,0,6" />
                             <UniformGrid Columns="2" Margin="0,2,0,0">
                                 <controls:SliderFlyout Label="Stylization" Value="{Binding Stylization}" ValueText="{Binding StylizationValueText}" GuideText="{Binding StylizationGuideText}" HelperText="{Binding StylizationHelper}" />
                                 <controls:SliderFlyout Label="Realism" Value="{Binding Realism}" ValueText="{Binding RealismValueText}" GuideText="{Binding RealismGuideText}" HelperText="{Binding RealismHelper}" />
@@ -282,6 +575,33 @@
                             <TextBlock Text="Artist influence stays active whether you use a bundled intent or the full custom structure."
                                        Style="{StaticResource BodyMutedTextStyle}"
                                        TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Right"
+                                        Margin="0,6,0,0"
+                                        Visibility="{Binding ShowArtistPairGuidanceIcon, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Button Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="0"
+                                        Cursor="Hand"
+                                        ToolTip="{Binding ArtistPairGuidanceTooltip}"
+                                        Focusable="True"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        ToolTipService.InitialShowDelay="10">
+                                    <Border Width="24"
+                                            Height="24"
+                                            CornerRadius="12"
+                                            BorderThickness="1"
+                                            BorderBrush="{DynamicResource TextPrimaryBrush}"
+                                            Background="{DynamicResource AppBackgroundBrush}">
+                                        <TextBlock Text="i"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" />
+                                    </Border>
+                                </Button>
+                            </StackPanel>
                             <Grid Margin="0,2,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -298,11 +618,69 @@
                                 </StackPanel>
                             </Grid>
                             <TextBlock Text="Primary Artist Influence" Style="{StaticResource FieldLabelTextStyle}" />
-                            <ComboBox ItemsSource="{Binding ArtistInfluences}" SelectedItem="{Binding ArtistInfluencePrimary}" IsEditable="True" IsTextSearchEnabled="True" Style="{StaticResource AppComboBoxStyle}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{Binding ArtistInfluences}"
+                                          SelectedItem="{Binding ArtistInfluencePrimary}"
+                                          Text="{Binding ArtistInfluencePrimary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"
+                                          Style="{StaticResource AppComboBoxStyle}" />
+                                <Button Grid.Column="1"
+                                        Content="Edit phrase"
+                                        Command="{Binding EditPrimaryArtistPhraseCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Margin="10,0,0,0"
+                                        Padding="12,7"
+                                        VerticalAlignment="Center"
+                                        ToolTip="Edit the phrase wrapped around the primary artist name." />
+                            </Grid>
                             <controls:SliderFlyout Label="Primary Strength" Value="{Binding InfluenceStrengthPrimary}" ValueText="{Binding InfluenceStrengthPrimaryValueText}" GuideText="{Binding InfluenceStrengthPrimaryGuideText}" HelperText="Adjusts how strongly the primary artist shapes the prompt." ButtonWidth="404" />
 
-                            <TextBlock Text="Secondary Artist Influence" Style="{StaticResource FieldLabelTextStyle}" />
-                            <ComboBox ItemsSource="{Binding ArtistInfluences}" SelectedItem="{Binding ArtistInfluenceSecondary}" IsEditable="True" IsTextSearchEnabled="True" Style="{StaticResource AppComboBoxStyle}" />
+                            <Grid Margin="0,6,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Secondary Artist Influence" Style="{StaticResource FieldLabelTextStyle}" />
+                                <Button Grid.Column="1"
+                                        Content="⇅"
+                                        Command="{Binding SwapArtistInfluencesCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Width="42"
+                                        Height="34"
+                                        Padding="0"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Margin="10,0,0,0"
+                                        VerticalAlignment="Center"
+                                        ToolTip="Swap the selected primary and secondary artists while keeping each slot's phrase wrapper and strength in place." />
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{Binding ArtistInfluences}"
+                                          SelectedItem="{Binding ArtistInfluenceSecondary}"
+                                          Text="{Binding ArtistInfluenceSecondary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"
+                                          Style="{StaticResource AppComboBoxStyle}" />
+                                <Button Grid.Column="1"
+                                        Content="Edit phrase"
+                                        Command="{Binding EditSecondaryArtistPhraseCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Margin="10,0,0,0"
+                                        Padding="12,7"
+                                        VerticalAlignment="Center"
+                                        ToolTip="Edit the phrase wrapped around the secondary artist name." />
+                            </Grid>
                             <controls:SliderFlyout Label="Secondary Strength" Value="{Binding InfluenceStrengthSecondary}" ValueText="{Binding InfluenceStrengthSecondaryValueText}" GuideText="{Binding InfluenceStrengthSecondaryGuideText}" HelperText="Adjusts how strongly the secondary artist accents the prompt." ButtonWidth="404" />
                         </StackPanel>
                     </Border>
@@ -397,7 +775,7 @@
             </Border>
 
             <Border DockPanel.Dock="Bottom" Style="{StaticResource CardBorderStyle}" Padding="20" Margin="0,16,0,0">
-                <Grid>
+                <Grid x:Name="ActionsCardRoot">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="12" />
@@ -429,8 +807,50 @@
                                 VerticalAlignment="Top" />
                     </Grid>
                     <UniformGrid Grid.Row="2" Columns="3">
-                        <Button Content="Copy Prompt" Command="{Binding CopyPromptCommand}" Style="{StaticResource PrimaryButtonStyle}" />
-                        <Button Content="Copy Negative Prompt" Command="{Binding CopyNegativePromptCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+                        <Grid Margin="0,18,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="CopyPromptButton"
+                                    Grid.Column="0"
+                                    Command="{Binding CopyPromptCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    RenderTransformOrigin="0.5,0.5"
+                                    Opacity="1">
+                                <Button.RenderTransform>
+                                    <ScaleTransform x:Name="CopyPromptButtonScale" ScaleX="1" ScaleY="1" />
+                                </Button.RenderTransform>
+                                <TextBlock Text="Copy Prompt"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Button>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding CopyPromptRemainingText}"
+                                       Style="{StaticResource BodyMutedTextStyle}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"
+                                       Visibility="{Binding ShowDemoModeBanner, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <TextBlock x:Name="CopyPromptSuccessText"
+                                       Text="Forged"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Top"
+                                       Margin="0,-20,10,0"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Opacity="0"
+                                       IsHitTestVisible="False">
+                                <TextBlock.Foreground>
+                                    <SolidColorBrush x:Name="ForgeSuccessBrush" Color="{StaticResource ForgeSuccessRestColor}" />
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                        </Grid>
+                        <Button x:Name="CopyNegativePromptButton"
+                                Content="Copy Negative Prompt"
+                                Command="{Binding CopyNegativePromptCommand}"
+                                Click="OnActionCardButtonClick"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                RenderTransformOrigin="0.5,0.5" />
                         <Button Content="Reset" Command="{Binding ResetCommand}" Style="{StaticResource TertiaryButtonStyle}" />
                     </UniformGrid>
                     <Grid Grid.Row="4">
@@ -443,18 +863,54 @@
                             <TextBlock Text="Preset Name" Style="{StaticResource FieldLabelTextStyle}" />
                             <TextBox Text="{Binding PresetName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
                             <UniformGrid Columns="2" Margin="0,8,0,0">
-                                <Button Content="Save Preset" Command="{Binding SavePresetCommand}" Style="{StaticResource EmphasisSecondaryButtonStyle}" />
-                                <Button Content="Rename Preset" Command="{Binding RenamePresetCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+                                <Button x:Name="SavePresetButton"
+                                        Content="Save Preset"
+                                        Command="{Binding SavePresetCommand}"
+                                        Click="OnActionCardButtonClick"
+                                        Style="{StaticResource EmphasisSecondaryButtonStyle}"
+                                        RenderTransformOrigin="0.5,0.5" />
+                                <Button x:Name="RenamePresetButton"
+                                        Content="Rename Preset"
+                                        Command="{Binding RenamePresetCommand}"
+                                        Click="OnActionCardButtonClick"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        RenderTransformOrigin="0.5,0.5" />
                             </UniformGrid>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Saved Presets" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding PresetNames}" SelectedItem="{Binding SelectedPresetName}" Style="{StaticResource AppComboBoxStyle}" />
                             <UniformGrid Columns="2" Margin="0,8,0,0">
-                                <Button Content="Load Preset" Command="{Binding LoadPresetCommand}" Style="{StaticResource EmphasisSecondaryButtonStyle}" />
-                                <Button Content="Delete Preset" Command="{Binding DeletePresetCommand}" Style="{StaticResource TertiaryButtonStyle}" />
+                                <Button x:Name="LoadPresetButton"
+                                        Content="Load Preset"
+                                        Command="{Binding LoadPresetCommand}"
+                                        Click="OnActionCardButtonClick"
+                                        Style="{StaticResource EmphasisSecondaryButtonStyle}"
+                                        RenderTransformOrigin="0.5,0.5" />
+                                <Button x:Name="DeletePresetButton"
+                                        Content="Delete Preset"
+                                        Command="{Binding DeletePresetCommand}"
+                                        Click="OnActionCardButtonClick"
+                                        Style="{StaticResource TertiaryButtonStyle}"
+                                        RenderTransformOrigin="0.5,0.5" />
                             </UniformGrid>
                         </StackPanel>
+                    </Grid>
+
+                    <Grid x:Name="ActionsCardOverlay"
+                          Grid.RowSpan="5"
+                          IsHitTestVisible="False"
+                          Panel.ZIndex="10"
+                          ClipToBounds="True">
+                        <Border x:Name="ActionsCardBorderOverlay"
+                                Margin="-1"
+                                BorderThickness="1.5"
+                                CornerRadius="18"
+                                Opacity="{StaticResource ForgeBorderRestOpacity}">
+                            <Border.BorderBrush>
+                                <SolidColorBrush x:Name="ActionsCardBorderOverlayBrush" Color="{StaticResource ForgeBorderRestColor}" />
+                            </Border.BorderBrush>
+                        </Border>
                     </Grid>
                 </Grid>
             </Border>
@@ -462,33 +918,73 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
                     <Border Style="{StaticResource CardBorderStyle}" Padding="20">
-                        <StackPanel>
-                            <TextBlock Text="Prompt Preview" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Margin="0,4,0,12" Text="The prompt updates instantly as you adjust the controls." Style="{StaticResource BodyMutedTextStyle}" />
-                            <TextBox Text="{Binding PromptPreview, Mode=OneWay}"
-                                     IsReadOnly="True"
-                                     TextWrapping="Wrap"
-                                     AcceptsReturn="True"
-                                     VerticalScrollBarVisibility="Auto"
-                                     MinHeight="260"
-                                     Style="{StaticResource PromptPreviewTextBoxStyle}"
-                                     Visibility="{Binding ShowInteractivePromptPreview, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <ScrollViewer x:Name="PositivePromptDemoPreviewScrollViewer"
-                                          VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Disabled"
-                                          MinHeight="260"
-                                          Focusable="False"
-                                          ContextMenuService.IsEnabled="False"
-                                          Visibility="{Binding ShowDemoPromptPreview, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Border Style="{StaticResource PromptPreviewDisplayBorderStyle}"
-                                        Width="{Binding ViewportWidth, ElementName=PositivePromptDemoPreviewScrollViewer}"
-                                        Focusable="False"
-                                        ContextMenuService.IsEnabled="False">
-                                    <TextBlock Text="{Binding PromptPreview}"
-                                               Style="{StaticResource PromptPreviewDisplayTextStyle}" />
-                                </Border>
-                            </ScrollViewer>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="230" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Prompt Preview" Style="{StaticResource SectionTitleTextStyle}" />
+                                <TextBlock Margin="0,4,0,12" Text="The prompt updates instantly as you adjust the controls." Style="{StaticResource BodyMutedTextStyle}" />
+                                <TextBox Text="{Binding PromptPreview, Mode=OneWay}"
+                                         IsReadOnly="True"
+                                         TextWrapping="Wrap"
+                                         AcceptsReturn="True"
+                                         VerticalScrollBarVisibility="Auto"
+                                         MinHeight="260"
+                                         Style="{StaticResource PromptPreviewTextBoxStyle}"
+                                         Visibility="{Binding ShowInteractivePromptPreview, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <ScrollViewer x:Name="PositivePromptDemoPreviewScrollViewer"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled"
+                                              MinHeight="260"
+                                              Focusable="False"
+                                              ContextMenuService.IsEnabled="False"
+                                              Visibility="{Binding ShowDemoPromptPreview, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Border Style="{StaticResource PromptPreviewDisplayBorderStyle}"
+                                            Width="{Binding ViewportWidth, ElementName=PositivePromptDemoPreviewScrollViewer}"
+                                            Focusable="False"
+                                            ContextMenuService.IsEnabled="False">
+                                        <TextBlock Text="{Binding PromptPreview}"
+                                                   Style="{StaticResource PromptPreviewDisplayTextStyle}" />
+                                    </Border>
+                                </ScrollViewer>
+                            </StackPanel>
+
+                            <Border Grid.Column="2"
+                                    Padding="14"
+                                    CornerRadius="18"
+                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource AccentBrush}"
+                                    Background="{DynamicResource SubtleSurfaceBrush}"
+                                    VerticalAlignment="Stretch"
+                                    Visibility="{Binding ShowVintageBendModifierPanel, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="Vintage Bend Modifiers" Style="{StaticResource FieldLabelTextStyle}" />
+                                    <TextBlock Text="Compact semantic world-state modifiers for the Vintage Bend pack."
+                                               Margin="0,4,0,10"
+                                               Style="{StaticResource BodyMutedTextStyle}"
+                                               TextWrapping="Wrap" />
+                                    <CheckBox Content="Eastern Bloc / GDR"
+                                              IsChecked="{Binding VintageBendEasternBlocGdr}"
+                                              Style="{StaticResource AppCheckBoxStyle}" />
+                                    <CheckBox Content="Thriller Undertone"
+                                              IsChecked="{Binding VintageBendThrillerUndertone}"
+                                              Style="{StaticResource AppCheckBoxStyle}" />
+                                    <CheckBox Content="Institutional Austerity"
+                                              IsChecked="{Binding VintageBendInstitutionalAusterity}"
+                                              Style="{StaticResource AppCheckBoxStyle}" />
+                                    <CheckBox Content="Surveillance-State Atmosphere"
+                                              IsChecked="{Binding VintageBendSurveillanceStateAtmosphere}"
+                                              Style="{StaticResource AppCheckBoxStyle}" />
+                                    <CheckBox Content="Period Artifacts"
+                                              IsChecked="{Binding VintageBendPeriodArtifacts}"
+                                              Style="{StaticResource AppCheckBoxStyle}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
                     </Border>
 
                     <Border Style="{StaticResource CardBorderStyle}" Padding="20" Margin="0,16,0,0" Visibility="{Binding ShowArtistBlendSummary, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -536,6 +1032,135 @@
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
+        <Grid Panel.ZIndex="50"
+              Grid.ColumnSpan="3"
+              Background="#78081216"
+              Visibility="{Binding IsArtistPhraseEditorOpen, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <Popup x:Name="ArtistPhraseEditorPopup"
+               Placement="Relative"
+               PlacementTarget="{Binding ElementName=RootLayout}"
+               AllowsTransparency="True"
+               PopupAnimation="Fade"
+               StaysOpen="True"
+               IsOpen="{Binding IsArtistPhraseEditorOpen, Mode=OneWay}"
+               Opened="OnArtistPhraseEditorPopupOpened"
+               Closed="OnArtistPhraseEditorPopupClosed">
+            <Border x:Name="ArtistPhraseEditorPopupCard"
+                    Width="560"
+                    MaxWidth="560"
+                    Padding="20"
+                    Style="{StaticResource CardBorderStyle}"
+                    SnapsToDevicePixels="True">
+                <StackPanel>
+                    <Border x:Name="ArtistPhraseEditorDragHandle"
+                            Background="{DynamicResource SubtleSurfaceBrush}"
+                            BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="12,10"
+                            Margin="0,0,0,14"
+                            Cursor="SizeAll"
+                            MouseLeftButtonDown="OnArtistPhraseEditorDragHandleMouseLeftButtonDown"
+                            MouseMove="OnArtistPhraseEditorDragHandleMouseMove"
+                            MouseLeftButtonUp="OnArtistPhraseEditorDragHandleMouseLeftButtonUp">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{Binding ArtistPhraseEditorTitle}" Style="{StaticResource SectionTitleTextStyle}" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Text="Drag this header to move the editor. Save applies only to this artist slot."
+                                           Style="{StaticResource BodyMutedTextStyle}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Text="Drag"
+                                       Style="{StaticResource ChipLabelTextStyle}" />
+                        </Grid>
+                    </Border>
+
+                    <TextBlock Text="Prefix" Style="{StaticResource FieldLabelTextStyle}" />
+                    <TextBox Text="{Binding ArtistPhraseEditorPrefix, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource AppTextBoxStyle}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MinHeight="72" />
+
+                    <TextBlock Text="Artist" Style="{StaticResource FieldLabelTextStyle}" />
+                    <Border Style="{StaticResource InfoChipBorderStyle}" Padding="12" Margin="0,0,0,4">
+                        <TextBlock Text="{Binding ArtistPhraseEditorArtistName}"
+                                   Style="{StaticResource ChipValueTextStyle}"
+                                   TextWrapping="Wrap" />
+                    </Border>
+
+                    <TextBlock Text="Suffix" Style="{StaticResource FieldLabelTextStyle}" />
+                    <TextBox Text="{Binding ArtistPhraseEditorSuffix, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource AppTextBoxStyle}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MinHeight="72" />
+
+                    <TextBlock Text="Preview" Style="{StaticResource FieldLabelTextStyle}" />
+                    <Border Style="{StaticResource InfoChipBorderStyle}" Padding="12">
+                        <TextBlock Text="{Binding ArtistPhraseEditorPreview}"
+                                   Style="{StaticResource BodyMutedTextStyle}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   TextWrapping="Wrap" />
+                    </Border>
+
+                    <TextBlock Margin="0,10,0,0"
+                               Text="Generated reference"
+                               Style="{StaticResource FieldLabelTextStyle}" />
+                    <TextBlock Text="{Binding ArtistPhraseEditorGeneratedPhrase}"
+                               Style="{StaticResource BodyMutedTextStyle}"
+                               TextWrapping="Wrap" />
+
+                    <ItemsControl ItemsSource="{Binding ArtistPhraseQuickInsertGroups}" Margin="0,14,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding Title}" Style="{StaticResource FieldLabelTextStyle}" />
+                                    <ItemsControl ItemsSource="{Binding Inserts}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Content="{Binding Label}"
+                                                        Command="{Binding DataContext.InsertArtistPhraseQuickInsertCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        Margin="0,0,8,8"
+                                                        Padding="10,6"
+                                                        ToolTip="{Binding Fragment}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <UniformGrid Columns="3" Margin="0,16,0,0">
+                        <Button Content="Save"
+                                Command="{Binding SaveArtistPhraseEditorCommand}"
+                                Style="{StaticResource EmphasisSecondaryButtonStyle}" />
+                        <Button Content="Reset to Generated"
+                                Command="{Binding ResetArtistPhraseEditorCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Content="Cancel"
+                                Command="{Binding CancelArtistPhraseEditorCommand}"
+                                Style="{StaticResource TertiaryButtonStyle}" />
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+        </Popup>
     </Grid>
 </Window>
 

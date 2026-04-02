@@ -37,6 +37,7 @@
     <SolidColorBrush x:Key="PopupBorderBrush" Color="{StaticResource PopupBorderColor}" />
     <SolidColorBrush x:Key="SemanticChipSurfaceBrush" Color="{StaticResource SemanticChipSurfaceColor}" />
     <SolidColorBrush x:Key="SemanticChipBorderBrush" Color="{StaticResource SemanticChipBorderColor}" />
+    <SolidColorBrush x:Key="SliderFlyoutCollapseCamouflageBrush" Color="{StaticResource CardColor}" />
     <SolidColorBrush x:Key="ComboBoxBackgroundBrush" Color="{StaticResource InputBackgroundColor}" />
     <SolidColorBrush x:Key="ComboBoxForegroundBrush" Color="{StaticResource TextPrimaryColor}" />
     <SolidColorBrush x:Key="ComboBoxDropDownBackgroundBrush" Color="{StaticResource PopupSurfaceColor}" />

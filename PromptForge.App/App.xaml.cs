@@ -11,6 +11,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         var artistProfileService = new ArtistProfileService();
+        var artistPairGuidanceService = new ArtistPairGuidanceService();
         var promptBuilder = new PromptBuilderService(artistProfileService);
         var presetStorage = new PresetStorageService();
         var clipboardService = new ClipboardService();
@@ -19,7 +20,7 @@ public partial class App : Application
         var licenseService = new LicenseService();
         themeService.ApplyTheme(themeService.CurrentThemeName);
 
-        var viewModel = new MainWindowViewModel(promptBuilder, presetStorage, clipboardService, artistProfileService, themeService, demoStateService, licenseService);
+        var viewModel = new MainWindowViewModel(promptBuilder, presetStorage, clipboardService, artistProfileService, artistPairGuidanceService, themeService, demoStateService, licenseService);
         var mainWindow = new MainWindow(licenseService)
         {
             DataContext = viewModel

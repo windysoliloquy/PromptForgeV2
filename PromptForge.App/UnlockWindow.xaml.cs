@@ -7,6 +7,7 @@ namespace PromptForge.App;
 
 public partial class UnlockWindow : Window
 {
+    private const string CommunityShowcaseUrl = "https://community.openai.com/t/april-2026-chatgpt-api-image-gallery-prompt-tips-and-help-generative-art-theme-spring-new-beginnings/1378298/13";
     private readonly ILicenseService _licenseService;
     private readonly Action _onLicenseStateChanged;
 
@@ -30,6 +31,21 @@ public partial class UnlockWindow : Window
         catch
         {
             MessageBox.Show(this, "Prompt Forge could not open your default mail client.", "Prompt Forge", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+    private void OnCommunityLinkClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(CommunityShowcaseUrl)
+            {
+                UseShellExecute = true,
+            });
+        }
+        catch
+        {
+            MessageBox.Show(this, "Prompt Forge could not open the community showcase link.", "Prompt Forge", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 

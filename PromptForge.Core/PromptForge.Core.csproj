@@ -11,6 +11,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Data\artist_profiles.json" />
     <EmbeddedResource Include="Data\promptforge-license-public.pem" />
+    <EmbeddedResource Include="Data\prompt_forge_artist_pair_matrix.json" />
   </ItemGroup>
 </Project>
 

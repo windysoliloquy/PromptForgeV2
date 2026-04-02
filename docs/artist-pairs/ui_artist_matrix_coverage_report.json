@@ -1,0 +1,805 @@
+{
+  "generated_at_utc": "2026-04-02T11:03:39.099783+00:00",
+  "ui_artist_count": 107,
+  "ui_artist_count_excluding_none": 106,
+  "current_matrix_source_count": 83,
+  "current_matrix_pair_count": 3403,
+  "legacy_matrix_source_file": "artist_influences_normalized.json",
+  "legacy_matrix_source_file_present_in_repo": false,
+  "ui_artists": [
+    {
+      "artist_key": "adolph_von_menzel",
+      "display_name": "Adolph von Menzel",
+      "source_name": "Adolph von Menzel"
+    },
+    {
+      "artist_key": "albrecht_durer",
+      "display_name": "Albrecht Dürer",
+      "source_name": "Albrecht DÃ¼rer"
+    },
+    {
+      "artist_key": "alexandre_cabanel",
+      "display_name": "Alexandre Cabanel",
+      "source_name": "Alexandre Cabanel"
+    },
+    {
+      "artist_key": "alphonse_mucha",
+      "display_name": "Alphonse Mucha",
+      "source_name": "Alphonse Mucha"
+    },
+    {
+      "artist_key": "amedeo_modigliani",
+      "display_name": "Amedeo Modigliani",
+      "source_name": "Amedeo Modigliani"
+    },
+    {
+      "artist_key": "andersen_brendekilde",
+      "display_name": "Andersen Brendekilde",
+      "source_name": "Andersen Brendekilde"
+    },
+    {
+      "artist_key": "arnold_bocklin",
+      "display_name": "Arnold Böcklin",
+      "source_name": "Arnold Böcklin"
+    },
+    {
+      "artist_key": "artemisia_gentileschi",
+      "display_name": "Artemisia Gentileschi",
+      "source_name": "Artemisia Gentileschi"
+    },
+    {
+      "artist_key": "arthur_rackham",
+      "display_name": "Arthur Rackham",
+      "source_name": "Arthur Rackham"
+    },
+    {
+      "artist_key": "bartolome_esteban_murillo",
+      "display_name": "Bartolomé Esteban Murillo",
+      "source_name": "BartolomÃ© Esteban Murillo"
+    },
+    {
+      "artist_key": "briton_riviere",
+      "display_name": "Briton Rivière",
+      "source_name": "Briton RiviÃ¨re"
+    },
+    {
+      "artist_key": "camille_pissarro",
+      "display_name": "Camille Pissarro",
+      "source_name": "Camille Pissarro"
+    },
+    {
+      "artist_key": "caravaggio",
+      "display_name": "Caravaggio",
+      "source_name": "Caravaggio"
+    },
+    {
+      "artist_key": "carl_spitzweg",
+      "display_name": "Carl Spitzweg",
+      "source_name": "Carl Spitzweg"
+    },
+    {
+      "artist_key": "caspar_david_friedrich",
+      "display_name": "Caspar David Friedrich",
+      "source_name": "Caspar David Friedrich"
+    },
+    {
+      "artist_key": "charles_amable_lenoir",
+      "display_name": "Charles-Amable Lenoir",
+      "source_name": "Charles-Amable Lenoir"
+    },
+    {
+      "artist_key": "childe_hassam",
+      "display_name": "Childe Hassam",
+      "source_name": "Childe Hassam"
+    },
+    {
+      "artist_key": "claude_monet",
+      "display_name": "Claude Monet",
+      "source_name": "Claude Monet"
+    },
+    {
+      "artist_key": "diego_velazquez",
+      "display_name": "Diego Velázquez",
+      "source_name": "Diego VelÃ¡zquez"
+    },
+    {
+      "artist_key": "edgar_degas",
+      "display_name": "Edgar Degas",
+      "source_name": "Edgar Degas"
+    },
+    {
+      "artist_key": "edmund_leighton",
+      "display_name": "Edmund Leighton",
+      "source_name": "Edmund Leighton"
+    },
+    {
+      "artist_key": "edouard_manet",
+      "display_name": "Édouard Manet",
+      "source_name": "Édouard Manet"
+    },
+    {
+      "artist_key": "edvard_munch",
+      "display_name": "Edvard Munch",
+      "source_name": "Edvard Munch"
+    },
+    {
+      "artist_key": "edward_hopper",
+      "display_name": "Edward Hopper",
+      "source_name": "Edward Hopper"
+    },
+    {
+      "artist_key": "egon_schiele",
+      "display_name": "Egon Schiele",
+      "source_name": "Egon Schiele"
+    },
+    {
+      "artist_key": "emanuel_leutze",
+      "display_name": "Emanuel Leutze",
+      "source_name": "Emanuel Leutze"
+    },
+    {
+      "artist_key": "eugene_delacroix",
+      "display_name": "Eugène Delacroix",
+      "source_name": "EugÃ¨ne Delacroix"
+    },
+    {
+      "artist_key": "francesco_hayez",
+      "display_name": "Francesco Hayez",
+      "source_name": "Francesco Hayez"
+    },
+    {
+      "artist_key": "francisco_goya",
+      "display_name": "Francisco Goya",
+      "source_name": "Francisco Goya"
+    },
+    {
+      "artist_key": "franz_marc",
+      "display_name": "Franz Marc",
+      "source_name": "Franz Marc"
+    },
+    {
+      "artist_key": "frederic_bazille",
+      "display_name": "Frédéric Bazille",
+      "source_name": "FrÃ©dÃ©ric Bazille"
+    },
+    {
+      "artist_key": "frederic_leighton",
+      "display_name": "Frederic Leighton",
+      "source_name": "Frederic Leighton"
+    },
+    {
+      "artist_key": "georges_de_la_tour",
+      "display_name": "Georges de La Tour",
+      "source_name": "Georges de La Tour"
+    },
+    {
+      "artist_key": "georges_seurat",
+      "display_name": "Georges Seurat",
+      "source_name": "Georges Seurat"
+    },
+    {
+      "artist_key": "gilbert_stuart",
+      "display_name": "Gilbert Stuart",
+      "source_name": "Gilbert Stuart"
+    },
+    {
+      "artist_key": "giuseppe_arcimboldo",
+      "display_name": "Giuseppe Arcimboldo",
+      "source_name": "Giuseppe Arcimboldo"
+    },
+    {
+      "artist_key": "grant_wood",
+      "display_name": "Grant Wood",
+      "source_name": "Grant Wood"
+    },
+    {
+      "artist_key": "guido_reni",
+      "display_name": "Guido Reni",
+      "source_name": "Guido Reni"
+    },
+    {
+      "artist_key": "gustav_dore",
+      "display_name": "Gustav Doré",
+      "source_name": "Gustav Doré"
+    },
+    {
+      "artist_key": "gustav_klimt",
+      "display_name": "Gustav Klimt",
+      "source_name": "Gustav Klimt"
+    },
+    {
+      "artist_key": "gustave_caillebotte",
+      "display_name": "Gustave Caillebotte",
+      "source_name": "Gustave Caillebotte"
+    },
+    {
+      "artist_key": "gustave_courbet",
+      "display_name": "Gustave Courbet",
+      "source_name": "Gustave Courbet"
+    },
+    {
+      "artist_key": "hans_holbein_the_younger",
+      "display_name": "Hans Holbein the Younger",
+      "source_name": "Hans Holbein the Younger"
+    },
+    {
+      "artist_key": "henri_de_toulouse_lautrec",
+      "display_name": "Henri de Toulouse-Lautrec",
+      "source_name": "Henri de Toulouse-Lautrec"
+    },
+    {
+      "artist_key": "henri_matisse",
+      "display_name": "Henri Matisse",
+      "source_name": "Henri Matisse"
+    },
+    {
+      "artist_key": "henri_rousseau",
+      "display_name": "Henri Rousseau",
+      "source_name": "Henri Rousseau"
+    },
+    {
+      "artist_key": "herbert_draper",
+      "display_name": "Herbert Draper",
+      "source_name": "Herbert Draper"
+    },
+    {
+      "artist_key": "hokusai",
+      "display_name": "Hokusai",
+      "source_name": "Hokusai"
+    },
+    {
+      "artist_key": "ivan_aivazovsky",
+      "display_name": "Ivan Aivazovsky",
+      "source_name": "Ivan Aivazovsky"
+    },
+    {
+      "artist_key": "j_c_leyendecker",
+      "display_name": "J. C. Leyendecker",
+      "source_name": "J. C. Leyendecker"
+    },
+    {
+      "artist_key": "jacques_louis_david",
+      "display_name": "Jacques-Louis David",
+      "source_name": "Jacques-Louis David"
+    },
+    {
+      "artist_key": "james_abbott_mcneill_whistler",
+      "display_name": "James Abbott McNeill Whistler",
+      "source_name": "James Abbott McNeill Whistler"
+    },
+    {
+      "artist_key": "jean_auguste_dominique_ingres",
+      "display_name": "Jean-Auguste-Dominique Ingres",
+      "source_name": "Jean-Auguste-Dominique Ingres"
+    },
+    {
+      "artist_key": "jean_baptiste_simeon_chardin",
+      "display_name": "Jean-Baptiste-Siméon Chardin",
+      "source_name": "Jean-Baptiste-Siméon Chardin"
+    },
+    {
+      "artist_key": "jean_francois_millet",
+      "display_name": "Jean-François Millet",
+      "source_name": "Jean-FranÃ§ois Millet"
+    },
+    {
+      "artist_key": "jean_honore_fragonard",
+      "display_name": "Jean-Honoré Fragonard",
+      "source_name": "Jean-HonorÃ© Fragonard"
+    },
+    {
+      "artist_key": "jean_leon_gerome",
+      "display_name": "Jean-Léon Gérôme",
+      "source_name": "Jean-Léon Gérôme"
+    },
+    {
+      "artist_key": "joaquin_sorolla",
+      "display_name": "Joaquín Sorolla",
+      "source_name": "JoaquÃ­n Sorolla"
+    },
+    {
+      "artist_key": "johannes_vermeer",
+      "display_name": "Johannes Vermeer",
+      "source_name": "Johannes Vermeer"
+    },
+    {
+      "artist_key": "john_atkinson_grimshaw",
+      "display_name": "John Atkinson Grimshaw",
+      "source_name": "John Atkinson Grimshaw"
+    },
+    {
+      "artist_key": "john_collier",
+      "display_name": "John Collier",
+      "source_name": "John Collier"
+    },
+    {
+      "artist_key": "john_everett_millais",
+      "display_name": "John Everett Millais",
+      "source_name": "John Everett Millais"
+    },
+    {
+      "artist_key": "john_singer_sargent",
+      "display_name": "John Singer Sargent",
+      "source_name": "John Singer Sargent"
+    },
+    {
+      "artist_key": "john_william_godward",
+      "display_name": "John William Godward",
+      "source_name": "John William Godward"
+    },
+    {
+      "artist_key": "john_william_waterhouse",
+      "display_name": "John William Waterhouse",
+      "source_name": "John William Waterhouse"
+    },
+    {
+      "artist_key": "joseph_mallord_william_turner",
+      "display_name": "Joseph Mallord William Turner",
+      "source_name": "Joseph Mallord William Turner"
+    },
+    {
+      "artist_key": "jules_breton",
+      "display_name": "Jules Breton",
+      "source_name": "Jules Breton"
+    },
+    {
+      "artist_key": "jules_cyrille_cave",
+      "display_name": "Jules-Cyrille Cavé",
+      "source_name": "Jules-Cyrille CavÃ©"
+    },
+    {
+      "artist_key": "jules_lefebvre",
+      "display_name": "Jules Lefebvre",
+      "source_name": "Jules Lefebvre"
+    },
+    {
+      "artist_key": "kay_nielsen",
+      "display_name": "Kay Nielsen",
+      "source_name": "Kay Nielsen"
+    },
+    {
+      "artist_key": "lawrence_alma_tadema",
+      "display_name": "Lawrence Alma-Tadema",
+      "source_name": "Lawrence Alma-Tadema"
+    },
+    {
+      "artist_key": "leon_bonnat",
+      "display_name": "Léon Bonnat",
+      "source_name": "LÃ©on Bonnat"
+    },
+    {
+      "artist_key": "leonardo_da_vinci",
+      "display_name": "Leonardo da Vinci",
+      "source_name": "Leonardo da Vinci"
+    },
+    {
+      "artist_key": "lionel_royer",
+      "display_name": "Lionel Royer",
+      "source_name": "Lionel Royer"
+    },
+    {
+      "artist_key": "louis_jean_francois_lagrenee",
+      "display_name": "Louis Jean François Lagrenée",
+      "source_name": "Louis Jean FranÃ§ois LagrenÃ©e"
+    },
+    {
+      "artist_key": "louis_leopold_boilly",
+      "display_name": "Louis-Léopold Boilly",
+      "source_name": "Louis-LÃ©opold Boilly"
+    },
+    {
+      "artist_key": "mary_cassatt",
+      "display_name": "Mary Cassatt",
+      "source_name": "Mary Cassatt"
+    },
+    {
+      "artist_key": "michelangelo_buonarroti",
+      "display_name": "Michelangelo Buonarroti",
+      "source_name": "Michelangelo Buonarroti"
+    },
+    {
+      "artist_key": "n_c_wyeth",
+      "display_name": "N. C. Wyeth",
+      "source_name": "N. C. Wyeth"
+    },
+    {
+      "artist_key": "norman_rockwell",
+      "display_name": "Norman Rockwell",
+      "source_name": "Norman Rockwell"
+    },
+    {
+      "artist_key": "odilon_redon",
+      "display_name": "Odilon Redon",
+      "source_name": "Odilon Redon"
+    },
+    {
+      "artist_key": "pablo_picasso",
+      "display_name": "Pablo Picasso",
+      "source_name": "Pablo Picasso"
+    },
+    {
+      "artist_key": "paul_cezanne",
+      "display_name": "Paul Cézanne",
+      "source_name": "Paul CÃ©zanne"
+    },
+    {
+      "artist_key": "paul_delaroche",
+      "display_name": "Paul Delaroche",
+      "source_name": "Paul Delaroche"
+    },
+    {
+      "artist_key": "paul_gauguin",
+      "display_name": "Paul Gauguin",
+      "source_name": "Paul Gauguin"
+    },
+    {
+      "artist_key": "paul_klee",
+      "display_name": "Paul Klee",
+      "source_name": "Paul Klee"
+    },
+    {
+      "artist_key": "paul_signac",
+      "display_name": "Paul Signac",
+      "source_name": "Paul Signac"
+    },
+    {
+      "artist_key": "peter_paul_rubens",
+      "display_name": "Peter Paul Rubens",
+      "source_name": "Peter Paul Rubens"
+    },
+    {
+      "artist_key": "pierre_auguste_cot",
+      "display_name": "Pierre-Auguste Cot",
+      "source_name": "Pierre-Auguste Cot"
+    },
+    {
+      "artist_key": "pierre_auguste_renoir",
+      "display_name": "Pierre-Auguste Renoir",
+      "source_name": "Pierre-Auguste Renoir"
+    },
+    {
+      "artist_key": "piet_mondrian",
+      "display_name": "Piet Mondrian",
+      "source_name": "Piet Mondrian"
+    },
+    {
+      "artist_key": "pieter_bruegel_the_elder",
+      "display_name": "Pieter Bruegel the Elder",
+      "source_name": "Pieter Bruegel the Elder"
+    },
+    {
+      "artist_key": "rachel_ruysch",
+      "display_name": "Rachel Ruysch",
+      "source_name": "Rachel Ruysch"
+    },
+    {
+      "artist_key": "raphael",
+      "display_name": "Raphael",
+      "source_name": "Raphael"
+    },
+    {
+      "artist_key": "rembrandt_van_rijn",
+      "display_name": "Rembrandt van Rijn",
+      "source_name": "Rembrandt van Rijn"
+    },
+    {
+      "artist_key": "salvador_dali",
+      "display_name": "Salvador Dalí",
+      "source_name": "Salvador Dalí"
+    },
+    {
+      "artist_key": "sandro_botticelli",
+      "display_name": "Sandro Botticelli",
+      "source_name": "Sandro Botticelli"
+    },
+    {
+      "artist_key": "tamara_de_lempicka",
+      "display_name": "Tamara de Lempicka",
+      "source_name": "Tamara de Lempicka"
+    },
+    {
+      "artist_key": "theodore_gericault",
+      "display_name": "Théodore Géricault",
+      "source_name": "ThÃ©odore GÃ©ricault"
+    },
+    {
+      "artist_key": "thomas_cole",
+      "display_name": "Thomas Cole",
+      "source_name": "Thomas Cole"
+    },
+    {
+      "artist_key": "utagawa_hiroshige",
+      "display_name": "Utagawa Hiroshige",
+      "source_name": "Utagawa Hiroshige"
+    },
+    {
+      "artist_key": "vassily_kandinsky",
+      "display_name": "Vassily Kandinsky",
+      "source_name": "Vassily Kandinsky"
+    },
+    {
+      "artist_key": "vincent_van_gogh",
+      "display_name": "Vincent Van Gogh",
+      "source_name": "Vincent Van Gogh"
+    },
+    {
+      "artist_key": "william_adolphe_bouguereau",
+      "display_name": "William-Adolphe Bouguereau",
+      "source_name": "William-Adolphe Bouguereau"
+    },
+    {
+      "artist_key": "william_blake",
+      "display_name": "William Blake",
+      "source_name": "William Blake"
+    },
+    {
+      "artist_key": "winslow_homer",
+      "display_name": "Winslow Homer",
+      "source_name": "Winslow Homer"
+    }
+  ],
+  "artists_in_ui_not_in_matrix_source": [
+    {
+      "artist_key": "francisco_goya",
+      "display_name": "Francisco Goya",
+      "source_name": "Francisco Goya"
+    },
+    {
+      "artist_key": "franz_marc",
+      "display_name": "Franz Marc",
+      "source_name": "Franz Marc"
+    },
+    {
+      "artist_key": "frederic_leighton",
+      "display_name": "Frederic Leighton",
+      "source_name": "Frederic Leighton"
+    },
+    {
+      "artist_key": "georges_de_la_tour",
+      "display_name": "Georges de La Tour",
+      "source_name": "Georges de La Tour"
+    },
+    {
+      "artist_key": "georges_seurat",
+      "display_name": "Georges Seurat",
+      "source_name": "Georges Seurat"
+    },
+    {
+      "artist_key": "gilbert_stuart",
+      "display_name": "Gilbert Stuart",
+      "source_name": "Gilbert Stuart"
+    },
+    {
+      "artist_key": "giuseppe_arcimboldo",
+      "display_name": "Giuseppe Arcimboldo",
+      "source_name": "Giuseppe Arcimboldo"
+    },
+    {
+      "artist_key": "grant_wood",
+      "display_name": "Grant Wood",
+      "source_name": "Grant Wood"
+    },
+    {
+      "artist_key": "guido_reni",
+      "display_name": "Guido Reni",
+      "source_name": "Guido Reni"
+    },
+    {
+      "artist_key": "gustav_dore",
+      "display_name": "Gustav Doré",
+      "source_name": "Gustav Doré"
+    },
+    {
+      "artist_key": "gustave_caillebotte",
+      "display_name": "Gustave Caillebotte",
+      "source_name": "Gustave Caillebotte"
+    },
+    {
+      "artist_key": "gustave_courbet",
+      "display_name": "Gustave Courbet",
+      "source_name": "Gustave Courbet"
+    },
+    {
+      "artist_key": "henri_de_toulouse_lautrec",
+      "display_name": "Henri de Toulouse-Lautrec",
+      "source_name": "Henri de Toulouse-Lautrec"
+    },
+    {
+      "artist_key": "herbert_draper",
+      "display_name": "Herbert Draper",
+      "source_name": "Herbert Draper"
+    },
+    {
+      "artist_key": "j_c_leyendecker",
+      "display_name": "J. C. Leyendecker",
+      "source_name": "J. C. Leyendecker"
+    },
+    {
+      "artist_key": "james_abbott_mcneill_whistler",
+      "display_name": "James Abbott McNeill Whistler",
+      "source_name": "James Abbott McNeill Whistler"
+    },
+    {
+      "artist_key": "jean_baptiste_simeon_chardin",
+      "display_name": "Jean-Baptiste-Siméon Chardin",
+      "source_name": "Jean-Baptiste-Siméon Chardin"
+    },
+    {
+      "artist_key": "jean_francois_millet",
+      "display_name": "Jean-François Millet",
+      "source_name": "Jean-FranÃ§ois Millet"
+    },
+    {
+      "artist_key": "jean_honore_fragonard",
+      "display_name": "Jean-Honoré Fragonard",
+      "source_name": "Jean-HonorÃ© Fragonard"
+    },
+    {
+      "artist_key": "joaquin_sorolla",
+      "display_name": "Joaquín Sorolla",
+      "source_name": "JoaquÃ­n Sorolla"
+    },
+    {
+      "artist_key": "johannes_vermeer",
+      "display_name": "Johannes Vermeer",
+      "source_name": "Johannes Vermeer"
+    },
+    {
+      "artist_key": "john_atkinson_grimshaw",
+      "display_name": "John Atkinson Grimshaw",
+      "source_name": "John Atkinson Grimshaw"
+    },
+    {
+      "artist_key": "john_collier",
+      "display_name": "John Collier",
+      "source_name": "John Collier"
+    },
+    {
+      "artist_key": "john_everett_millais",
+      "display_name": "John Everett Millais",
+      "source_name": "John Everett Millais"
+    },
+    {
+      "artist_key": "john_singer_sargent",
+      "display_name": "John Singer Sargent",
+      "source_name": "John Singer Sargent"
+    },
+    {
+      "artist_key": "john_william_godward",
+      "display_name": "John William Godward",
+      "source_name": "John William Godward"
+    },
+    {
+      "artist_key": "joseph_mallord_william_turner",
+      "display_name": "Joseph Mallord William Turner",
+      "source_name": "Joseph Mallord William Turner"
+    },
+    {
+      "artist_key": "jules_breton",
+      "display_name": "Jules Breton",
+      "source_name": "Jules Breton"
+    },
+    {
+      "artist_key": "jules_cyrille_cave",
+      "display_name": "Jules-Cyrille Cavé",
+      "source_name": "Jules-Cyrille CavÃ©"
+    },
+    {
+      "artist_key": "jules_lefebvre",
+      "display_name": "Jules Lefebvre",
+      "source_name": "Jules Lefebvre"
+    },
+    {
+      "artist_key": "kay_nielsen",
+      "display_name": "Kay Nielsen",
+      "source_name": "Kay Nielsen"
+    },
+    {
+      "artist_key": "lawrence_alma_tadema",
+      "display_name": "Lawrence Alma-Tadema",
+      "source_name": "Lawrence Alma-Tadema"
+    },
+    {
+      "artist_key": "leon_bonnat",
+      "display_name": "Léon Bonnat",
+      "source_name": "LÃ©on Bonnat"
+    },
+    {
+      "artist_key": "lionel_royer",
+      "display_name": "Lionel Royer",
+      "source_name": "Lionel Royer"
+    },
+    {
+      "artist_key": "louis_jean_francois_lagrenee",
+      "display_name": "Louis Jean François Lagrenée",
+      "source_name": "Louis Jean FranÃ§ois LagrenÃ©e"
+    },
+    {
+      "artist_key": "louis_leopold_boilly",
+      "display_name": "Louis-Léopold Boilly",
+      "source_name": "Louis-LÃ©opold Boilly"
+    },
+    {
+      "artist_key": "michelangelo_buonarroti",
+      "display_name": "Michelangelo Buonarroti",
+      "source_name": "Michelangelo Buonarroti"
+    }
+  ],
+  "artists_in_matrix_source_not_in_ui": [
+    {
+      "artist_key": "frank_frazetta",
+      "matrix_display_name": "Frank Frazetta"
+    },
+    {
+      "artist_key": "henry_fuseli",
+      "matrix_display_name": "Henry Fuseli"
+    },
+    {
+      "artist_key": "hieronymus_bosch",
+      "matrix_display_name": "Hieronymus Bosch"
+    },
+    {
+      "artist_key": "honore_daumier",
+      "matrix_display_name": "Honore Daumier"
+    },
+    {
+      "artist_key": "howard_pyle",
+      "matrix_display_name": "Howard Pyle"
+    },
+    {
+      "artist_key": "j_m_w_turner",
+      "matrix_display_name": "J.M.W. Turner"
+    },
+    {
+      "artist_key": "jasper_johns",
+      "matrix_display_name": "Jasper Johns"
+    },
+    {
+      "artist_key": "jose_guadalupe_posada",
+      "matrix_display_name": "José Guadalupe Posada"
+    },
+    {
+      "artist_key": "katsushika_hokusai",
+      "matrix_display_name": "Katsushika Hokusai"
+    },
+    {
+      "artist_key": "lucian_freud",
+      "matrix_display_name": "Lucian Freud"
+    },
+    {
+      "artist_key": "marc_chagall",
+      "matrix_display_name": "Marc Chagall"
+    },
+    {
+      "artist_key": "matthias_grunewald",
+      "matrix_display_name": "Matthias Grünewald"
+    },
+    {
+      "artist_key": "maurits_cornelis_escher",
+      "matrix_display_name": "Maurits Cornelis Escher"
+    },
+    {
+      "artist_key": "michelangelo",
+      "matrix_display_name": "Michelangelo"
+    }
+  ],
+  "name_mismatches_and_aliases": [
+    {
+      "artist_key": "n_c_wyeth",
+      "ui_display_name": "N. C. Wyeth",
+      "ui_source_name": "N. C. Wyeth",
+      "matrix_display_name": "N.C. Wyeth",
+      "issues": [
+        "display-name mismatch"
+      ]
+    }
+  ],
+  "encoding_mismatch_examples": [],
+  "joaquin_sorolla": {
+    "artist_key": "joaquin_sorolla",
+    "display_name": "Joaquín Sorolla",
+    "source_name": "JoaquÃ­n Sorolla",
+    "defined_in": "C:\\Users\\windy\\OneDrive\\Desktop\\codex\\Prompt Forge\\PromptForge.Core\\Data\\artist_profiles.json",
+    "present_in_matrix": false
+  }
+}

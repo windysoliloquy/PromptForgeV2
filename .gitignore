@@ -12,6 +12,10 @@ __pycache__/
 
 # Local cache and scraped assets
 cache/
+.appdata/
+.dotnet-home/
+.localappdata/
+.nuget/
 
 # Packaged artifacts and shortcuts
 *.zip

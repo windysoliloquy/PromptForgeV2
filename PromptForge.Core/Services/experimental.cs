@@ -1727,7 +1727,6 @@ internal static class ExperimentalPromptGovernanceService
                 .Replace(" with a playful edge", ", playful at the edges", StringComparison.OrdinalIgnoreCase)
                 .Replace(" with a symbolic undertone", " with symbolic undertone", StringComparison.OrdinalIgnoreCase)
                 .Replace(" with a lightly mythic undertone", " with lightly mythic undertone", StringComparison.OrdinalIgnoreCase)
-                .Replace(" with a sense of wonder", " with wonder-tinged scale", StringComparison.OrdinalIgnoreCase)
                 .Replace(" with a clean finish", " with clean finish", StringComparison.OrdinalIgnoreCase)
                 .Replace(" with a polished finish", " with polished finish", StringComparison.OrdinalIgnoreCase)
                 .Replace(" with a balanced finish", " with balanced finish", StringComparison.OrdinalIgnoreCase)
@@ -2557,6 +2556,11 @@ internal static class ExperimentalPromptGovernanceService
             return carrier.Text;
         }
 
+        if (IsWonderTintFamily(qualifier) && ContainsWonderTintFamily(carrier.Text))
+        {
+            return carrier.Text;
+        }
+
         if (IsPhysicalTint(sliderKey) && carrier.Group == AssemblyGroup.RenderingIdentity)
         {
             return carrier.Text.Contains(" with ", StringComparison.OrdinalIgnoreCase)
@@ -2976,10 +2980,10 @@ internal static class ExperimentalPromptGovernanceService
     {
         return phrase switch
         {
-            var value when value.Contains("grandeur", StringComparison.OrdinalIgnoreCase) => "wonder-tinged scale",
-            var value when value.Contains("wonder", StringComparison.OrdinalIgnoreCase) => "a wonder-tinged edge",
+            var value when value.Contains("grandeur", StringComparison.OrdinalIgnoreCase) => "reverent scale",
+            var value when value.Contains("wonder", StringComparison.OrdinalIgnoreCase) => "a reverent lift",
             var value when value.Contains("awe", StringComparison.OrdinalIgnoreCase) => "a sense of wonder",
-            _ => "a wonder-tinged edge",
+            _ => string.Empty,
         };
     }
 
@@ -3811,6 +3815,18 @@ internal static class ExperimentalPromptGovernanceService
             .Replace("finish finish", "finish", StringComparison.OrdinalIgnoreCase)
             .Replace("color contrast color", "color contrast", StringComparison.OrdinalIgnoreCase)
             .Replace("symbolic undertone undertone", "symbolic undertone", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsWonderTintFamily(string text)
+    {
+        return text.Contains("wonder-tinged", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("sense of wonder", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ContainsWonderTintFamily(string text)
+    {
+        return text.Contains("wonder-tinged", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("sense of wonder", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void CleanupSemanticEcho(List<ClauseUnit> clauses, string firstKey, string secondKey)

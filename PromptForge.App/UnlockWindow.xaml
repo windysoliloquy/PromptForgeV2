@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Prompt Forge Version Info"
         Width="760"
-        Height="960"
+        Height="1040"
         MinWidth="760"
-        MinHeight="960"
+        MinHeight="1040"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="{DynamicResource AppBackgroundBrush}">
@@ -28,6 +28,12 @@
             </StackPanel>
 
             <StackPanel Grid.Row="1" Margin="0,16,0,16">
+                <Border Style="{StaticResource InfoChipBorderStyle}" Margin="0,0,0,12">
+                    <TextBlock Style="{StaticResource BodyMutedTextStyle}" TextWrapping="Wrap">
+                        <Hyperlink Click="OnCommunityLinkClick">COME JOIN US AND SHARE YOUR CREATIONS AT THIS LINK!!</Hyperlink>
+                    </TextBlock>
+                </Border>
+
                 <Border Style="{StaticResource InfoChipBorderStyle}" Margin="0,0,0,12">
                     <StackPanel>
                         <TextBlock Text="Purchase Options" Style="{StaticResource FieldLabelTextStyle}" />

@@ -21,8 +21,10 @@ public sealed class PromptConfiguration
     public string ArtStyle { get; set; } = "None";
     public string ArtistInfluencePrimary { get; set; } = "None";
     public int InfluenceStrengthPrimary { get; set; }
+    public ArtistPhraseOverride PrimaryArtistPhraseOverride { get; set; } = new();
     public string ArtistInfluenceSecondary { get; set; } = "None";
     public int InfluenceStrengthSecondary { get; set; }
+    public ArtistPhraseOverride SecondaryArtistPhraseOverride { get; set; } = new();
     public int CameraDistance { get; set; } = 50;
     public int CameraAngle { get; set; } = 50;
     public int BackgroundComplexity { get; set; }
@@ -50,6 +52,11 @@ public sealed class PromptConfiguration
     public bool AvoidMessyBackground { get; set; } = true;
     public bool AvoidWeakMaterialDefinition { get; set; } = true;
     public bool AvoidBlurryDetail { get; set; } = true;
+    public bool VintageBendEasternBlocGdr { get; set; }
+    public bool VintageBendThrillerUndertone { get; set; }
+    public bool VintageBendInstitutionalAusterity { get; set; }
+    public bool VintageBendSurveillanceStateAtmosphere { get; set; }
+    public bool VintageBendPeriodArtifacts { get; set; }
 
     public PromptConfiguration Clone()
     {
@@ -74,8 +81,10 @@ public sealed class PromptConfiguration
         ArtStyle = ArtStyle,
         ArtistInfluencePrimary = ArtistInfluencePrimary,
         InfluenceStrengthPrimary = InfluenceStrengthPrimary,
+        PrimaryArtistPhraseOverride = PrimaryArtistPhraseOverride.Clone(),
         ArtistInfluenceSecondary = ArtistInfluenceSecondary,
         InfluenceStrengthSecondary = InfluenceStrengthSecondary,
+        SecondaryArtistPhraseOverride = SecondaryArtistPhraseOverride.Clone(),
         CameraDistance = CameraDistance,
         CameraAngle = CameraAngle,
         BackgroundComplexity = BackgroundComplexity,
@@ -103,6 +112,11 @@ public sealed class PromptConfiguration
             AvoidMessyBackground = AvoidMessyBackground,
             AvoidWeakMaterialDefinition = AvoidWeakMaterialDefinition,
             AvoidBlurryDetail = AvoidBlurryDetail,
+            VintageBendEasternBlocGdr = VintageBendEasternBlocGdr,
+            VintageBendThrillerUndertone = VintageBendThrillerUndertone,
+            VintageBendInstitutionalAusterity = VintageBendInstitutionalAusterity,
+            VintageBendSurveillanceStateAtmosphere = VintageBendSurveillanceStateAtmosphere,
+            VintageBendPeriodArtifacts = VintageBendPeriodArtifacts,
         };
     }
 }

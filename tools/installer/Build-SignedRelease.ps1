@@ -46,12 +46,57 @@ if (-not $MetadataPath) {
     $MetadataPath = Join-Path $repoRoot 'tools\trusted-signing\metadata.json'
 }
 
-function Get-InnoSetupCompilerPath {
+function Get-PowerShellExePath {
     $candidates = @(
+        (Join-Path $PSHOME 'powershell.exe'),
+        (Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe')
+    ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
+
+    if ($candidates.Count -gt 0) {
+        return $candidates[0]
+    }
+
+    throw 'powershell.exe was not found.'
+}
+
+function Get-DotNetExePath {
+    $command = Get-Command 'dotnet' -ErrorAction SilentlyContinue
+    if ($command) {
+        return $command.Source
+    }
+
+    throw 'dotnet was not found in PATH.'
+}
+
+function Invoke-NativeProcess {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$FilePath,
+
+        [string[]]$ArgumentList = @(),
+
+        [string]$FailureMessage
+    )
+
+    $resolvedFilePath = (Resolve-Path -LiteralPath $FilePath).Path
+    & $resolvedFilePath @ArgumentList
+    if ($LASTEXITCODE -ne 0) {
+        if ([string]::IsNullOrWhiteSpace($FailureMessage)) {
+            throw "Process '$resolvedFilePath' failed with exit code $LASTEXITCODE."
+        }
+
+        throw ($FailureMessage -f $LASTEXITCODE)
+    }
+}
+
+function Get-InnoSetupCompilerPath {
+    $actualLocalAppData = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
+    $candidates = @(@(
         (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'),
         (Join-Path $env:ProgramFiles 'Inno Setup 6\ISCC.exe'),
+        (Join-Path $actualLocalAppData 'Programs\Inno Setup 6\ISCC.exe'),
         (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe')
-    ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
+    ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) })
 
     if ($candidates.Count -gt 0) {
         return $candidates[0]
@@ -86,10 +131,13 @@ function Invoke-Signing {
     }
 
     Write-Host "Signing $TargetPath"
-    & powershell -ExecutionPolicy Bypass -File $signScript -TargetPath $TargetPath -MetadataPath $MetadataPath
-    if ($LASTEXITCODE -ne 0) {
-        throw "Signing failed for '$TargetPath' with exit code $LASTEXITCODE."
-    }
+    $powerShellExePath = Get-PowerShellExePath
+    Invoke-NativeProcess -FilePath $powerShellExePath -ArgumentList @(
+        '-ExecutionPolicy', 'Bypass',
+        '-File', $signScript,
+        '-TargetPath', $TargetPath,
+        '-MetadataPath', $MetadataPath
+    ) -FailureMessage "Signing failed for '$TargetPath' with exit code {0}."
 }
 
 $appVersion = Get-AppVersion
@@ -102,10 +150,8 @@ $binaryTargets = @(
 
 if (-not $SkipBuild) {
     Write-Host "Building solution ($Configuration)..."
-    & dotnet build $solutionPath -c $Configuration
-    if ($LASTEXITCODE -ne 0) {
-        throw "dotnet build failed with exit code $LASTEXITCODE."
-    }
+    $dotNetExePath = Get-DotNetExePath
+    Invoke-NativeProcess -FilePath $dotNetExePath -ArgumentList @('build', $solutionPath, '-c', $Configuration) -FailureMessage 'dotnet build failed with exit code {0}.'
 }
 
 if (-not (Test-Path -LiteralPath $SourceDir)) {
@@ -122,9 +168,31 @@ New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 $isccPath = Get-InnoSetupCompilerPath
 
 Write-Host 'Building installer...'
-& $isccPath "/DSourceDir=$SourceDir" "/DOutputDir=$OutputDir" "/DAppVersion=$appVersion" "/DSetupBaseName=$setupBaseName" $issPath
-if ($LASTEXITCODE -ne 0) {
-    throw "Installer build failed with exit code $LASTEXITCODE."
+$isccArguments = @(
+    "/DSourceDir=$SourceDir",
+    "/DOutputDir=$OutputDir",
+    "/DAppVersion=$appVersion",
+    "/DSetupBaseName=$setupBaseName",
+    $issPath
+)
+$quotedIsccArguments = ($isccArguments | ForEach-Object {
+    if ($_ -match '\s') { '"{0}"' -f $_ } else { $_ }
+}) -join ' '
+$cmdExePath = Join-Path $env:WINDIR 'System32\cmd.exe'
+$tempBatchPath = Join-Path ([System.IO.Path]::GetTempPath()) ("prompt-forge-iscc-{0}.cmd" -f [guid]::NewGuid().ToString('N'))
+@(
+    '@echo off',
+    ('"{0}" {1}' -f $isccPath, $quotedIsccArguments)
+) | Set-Content -LiteralPath $tempBatchPath -Encoding ASCII
+
+try {
+    & $cmdExePath /c $tempBatchPath
+    if ($LASTEXITCODE -ne 0) {
+        throw "Installer build failed with exit code $LASTEXITCODE."
+    }
+}
+finally {
+    Remove-Item -LiteralPath $tempBatchPath -Force -ErrorAction SilentlyContinue
 }
 
 $installerPath = Join-Path $OutputDir "$setupBaseName.exe"

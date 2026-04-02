@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Threading;
 using PromptForge.App.Commands;
 using PromptForge.App.Models;
@@ -12,11 +15,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly IPresetStorageService _presetStorageService;
     private readonly IClipboardService _clipboardService;
     private readonly IArtistProfileService _artistProfileService;
+    private readonly IArtistPairGuidanceService _artistPairGuidanceService;
     private readonly IThemeService _themeService;
     private readonly IDemoStateService _demoStateService;
     private readonly ILicenseService _licenseService;
     private readonly DispatcherTimer _experimentalMacroRefreshTimer;
     private bool _isApplyingConfiguration;
+    private bool _suspendArtistOverrideReset;
 
     private string _intentMode = "Custom";
     private string _subject = string.Empty;
@@ -37,8 +42,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private string _artStyle = "None";
     private string _artistInfluencePrimary = "None";
     private int _influenceStrengthPrimary = 45;
+    private ArtistPhraseOverride _primaryArtistPhraseOverride = new();
     private string _artistInfluenceSecondary = "None";
     private int _influenceStrengthSecondary = 30;
+    private ArtistPhraseOverride _secondaryArtistPhraseOverride = new();
     private int _cameraDistance = 50;
     private int _cameraAngle = 50;
     private int _backgroundComplexity = 40;
@@ -66,7 +73,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private bool _avoidMessyBackground = true;
     private bool _avoidWeakMaterialDefinition = true;
     private bool _avoidBlurryDetail = true;
-    private bool _excludeArtistSlidersFromRandomize;
+    private bool _vintageBendEasternBlocGdr;
+    private bool _vintageBendThrillerUndertone;
+    private bool _vintageBendInstitutionalAusterity;
+    private bool _vintageBendSurveillanceStateAtmosphere;
+    private bool _vintageBendPeriodArtifacts;
+    private bool _excludeArtistSlidersFromRandomize = true;
     private string _selectedThemeName = string.Empty;
     private string _promptPreview = string.Empty;
     private string _negativePromptPreview = string.Empty;
@@ -74,13 +86,27 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private string? _selectedPresetName;
     private string _statusMessage = "Ready.";
     private int _remainingDemoCopies;
+    private long _copyPromptFeedbackTick;
+    private string? _artistPairGuidanceTooltip;
+    private bool _isArtistPhraseEditorOpen;
+    private bool _isEditingPrimaryArtistPhrase;
+    private string _artistPhraseEditorPrefix = string.Empty;
+    private string _artistPhraseEditorArtistName = string.Empty;
+    private string _artistPhraseEditorSuffix = string.Empty;
+    private string _artistPhraseEditorGeneratedPhrase = string.Empty;
+    private IReadOnlyList<ArtistPhraseQuickInsertGroup> _artistPhraseQuickInsertGroups = Array.Empty<ArtistPhraseQuickInsertGroup>();
+    private ArtistPairLookupResult? _currentArtistPairLookup;
+    private IReadOnlyList<ArtistPhraseSuffixRoleGroup> _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
+    private string _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
+    private string _artistPhraseEditorStructuredSuffixTrailingText = string.Empty;
 
-    public MainWindowViewModel(IPromptBuilderService promptBuilderService, IPresetStorageService presetStorageService, IClipboardService clipboardService, IArtistProfileService artistProfileService, IThemeService themeService, IDemoStateService demoStateService, ILicenseService licenseService)
+    public MainWindowViewModel(IPromptBuilderService promptBuilderService, IPresetStorageService presetStorageService, IClipboardService clipboardService, IArtistProfileService artistProfileService, IArtistPairGuidanceService artistPairGuidanceService, IThemeService themeService, IDemoStateService demoStateService, ILicenseService licenseService)
     {
         _promptBuilderService = promptBuilderService;
         _presetStorageService = presetStorageService;
         _clipboardService = clipboardService;
         _artistProfileService = artistProfileService;
+        _artistPairGuidanceService = artistPairGuidanceService;
         _themeService = themeService;
         _demoStateService = demoStateService;
         _licenseService = licenseService;
@@ -111,12 +137,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         LoadPresetCommand = new RelayCommand(LoadPreset);
         RenamePresetCommand = new RelayCommand(RenamePreset);
         DeletePresetCommand = new RelayCommand(DeletePreset);
+        EditPrimaryArtistPhraseCommand = new RelayCommand(OpenPrimaryArtistPhraseEditor, () => CanEditPrimaryArtistPhrase);
+        EditSecondaryArtistPhraseCommand = new RelayCommand(OpenSecondaryArtistPhraseEditor, () => CanEditSecondaryArtistPhrase);
+        SwapArtistInfluencesCommand = new RelayCommand(SwapArtistInfluences, () => CanSwapArtistInfluences);
+        InsertArtistPhraseQuickInsertCommand = new RelayCommand(InsertArtistPhraseQuickInsert, parameter => parameter is ArtistPhraseQuickInsert);
+        SaveArtistPhraseEditorCommand = new RelayCommand(SaveArtistPhraseEditor, () => IsArtistPhraseEditorOpen && !string.IsNullOrWhiteSpace(ArtistPhraseEditorArtistName));
+        ResetArtistPhraseEditorCommand = new RelayCommand(ResetArtistPhraseEditorToGenerated, () => IsArtistPhraseEditorOpen);
+        CancelArtistPhraseEditorCommand = new RelayCommand(CancelArtistPhraseEditor, () => IsArtistPhraseEditorOpen);
         ResetCommand = new RelayCommand(Reset);
         RandomizeSlidersCommand = new RelayCommand(RandomizeSliders);
 
         RefreshPresetNames();
         SyncExperimentalMacrosFromRaw();
         RegeneratePrompt();
+        RefreshArtistPairGuidance();
     }
 
     public ObservableCollection<string> IntentModes { get; }
@@ -128,12 +162,117 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<string> PresetNames { get; }
     public ObservableCollection<string> Themes { get; }
 
+    public long CopyPromptFeedbackTick
+    {
+        get => _copyPromptFeedbackTick;
+        private set => SetProperty(ref _copyPromptFeedbackTick, value);
+    }
+
+    public string? ArtistPairGuidanceTooltip
+    {
+        get => _artistPairGuidanceTooltip;
+        private set
+        {
+            if (SetProperty(ref _artistPairGuidanceTooltip, value))
+            {
+                OnPropertyChanged(nameof(ShowArtistPairGuidanceIcon));
+            }
+        }
+    }
+
+    public bool ShowArtistPairGuidanceIcon => !string.IsNullOrWhiteSpace(ArtistPairGuidanceTooltip);
+    public bool IsArtistPhraseEditorOpen
+    {
+        get => _isArtistPhraseEditorOpen;
+        private set
+        {
+            if (SetProperty(ref _isArtistPhraseEditorOpen, value))
+            {
+                SaveArtistPhraseEditorCommand.RaiseCanExecuteChanged();
+                ResetArtistPhraseEditorCommand.RaiseCanExecuteChanged();
+                CancelArtistPhraseEditorCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public string ArtistPhraseEditorTitle => _isEditingPrimaryArtistPhrase
+        ? "Edit Primary Artist Phrase"
+        : "Edit Secondary Artist Phrase";
+
+    public string ArtistPhraseEditorPrefix
+    {
+        get => _artistPhraseEditorPrefix;
+        set
+        {
+            if (SetProperty(ref _artistPhraseEditorPrefix, value))
+            {
+                OnPropertyChanged(nameof(ArtistPhraseEditorPreview));
+            }
+        }
+    }
+
+    public string ArtistPhraseEditorArtistName
+    {
+        get => _artistPhraseEditorArtistName;
+        private set
+        {
+            if (SetProperty(ref _artistPhraseEditorArtistName, value))
+            {
+                OnPropertyChanged(nameof(ArtistPhraseEditorPreview));
+                SaveArtistPhraseEditorCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public string ArtistPhraseEditorSuffix
+    {
+        get => _artistPhraseEditorSuffix;
+        set
+        {
+            if (SetProperty(ref _artistPhraseEditorSuffix, value))
+            {
+                if (!string.Equals(value, _artistPhraseEditorStructuredSuffixLastRendered, StringComparison.Ordinal))
+                {
+                    _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
+                    _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
+                    _artistPhraseEditorStructuredSuffixTrailingText = value?.Trim() ?? string.Empty;
+                }
+
+                OnPropertyChanged(nameof(ArtistPhraseEditorPreview));
+            }
+        }
+    }
+
+    public string ArtistPhraseEditorGeneratedPhrase
+    {
+        get => _artistPhraseEditorGeneratedPhrase;
+        private set => SetProperty(ref _artistPhraseEditorGeneratedPhrase, value);
+    }
+
+    public string ArtistPhraseEditorPreview => ArtistPhraseComposer.Combine(ArtistPhraseEditorPrefix, ArtistPhraseEditorArtistName, ArtistPhraseEditorSuffix);
+    public IReadOnlyList<ArtistPhraseQuickInsertGroup> ArtistPhraseQuickInsertGroups
+    {
+        get => _artistPhraseQuickInsertGroups;
+        private set => SetProperty(ref _artistPhraseQuickInsertGroups, value);
+    }
+    public bool CanEditPrimaryArtistPhrase => TryGetArtistPhraseSlotState(isPrimary: true, out _);
+    public bool CanEditSecondaryArtistPhrase => TryGetArtistPhraseSlotState(isPrimary: false, out _);
+    public bool CanSwapArtistInfluences
+        => HasSelectedArtistValue(ArtistInfluencePrimary) || HasSelectedArtistValue(ArtistInfluenceSecondary);
+
     public RelayCommand CopyPromptCommand { get; }
     public RelayCommand CopyNegativePromptCommand { get; }
     public RelayCommand SavePresetCommand { get; }
     public RelayCommand LoadPresetCommand { get; }
     public RelayCommand RenamePresetCommand { get; }
     public RelayCommand DeletePresetCommand { get; }
+    public RelayCommand EditPrimaryArtistPhraseCommand { get; }
+    public RelayCommand EditSecondaryArtistPhraseCommand { get; }
+    public RelayCommand SwapArtistInfluencesCommand { get; }
+    public RelayCommand InsertArtistPhraseQuickInsertCommand { get; }
+    public RelayCommand SaveArtistPhraseEditorCommand { get; }
+    public RelayCommand ResetArtistPhraseEditorCommand { get; }
+    public RelayCommand CancelArtistPhraseEditorCommand { get; }
     public RelayCommand ResetCommand { get; }
     public RelayCommand RandomizeSlidersCommand { get; }
 
@@ -144,13 +283,33 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         {
             if (SetAndRefresh(ref _intentMode, NormalizeIntentMode(value)))
             {
+                OnPropertyChanged(nameof(IntentModeSelectedIndex));
                 OnPropertyChanged(nameof(IsExperimentalIntent));
                 OnPropertyChanged(nameof(ShowExperimentalMacroControls));
                 OnPropertyChanged(nameof(IsExperimentalMacroGuidedMode));
                 OnPropertyChanged(nameof(IsExperimentalManualAdvancedMode));
                 OnPropertyChanged(nameof(ShowCustomRandomizeControls));
                 OnPropertyChanged(nameof(ShowManualIntentControls));
+                OnPropertyChanged(nameof(IsVintageBendIntent));
+                OnPropertyChanged(nameof(ShowVintageBendModifierPanel));
                 OnPropertyChanged(nameof(IntentModeSummary));
+            }
+        }
+    }
+    public int IntentModeSelectedIndex
+    {
+        get => GetIntentModeSelectedIndex();
+        set
+        {
+            if (value < 0 || value >= IntentModes.Count)
+            {
+                return;
+            }
+
+            var selectedMode = IntentModes[value];
+            if (!string.Equals(IntentMode, selectedMode, StringComparison.OrdinalIgnoreCase))
+            {
+                IntentMode = selectedMode;
             }
         }
     }
@@ -170,10 +329,55 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public int Framing { get => _framing; set => SetAndRefresh(ref _framing, value); }
     public string Material { get => _material; set => SetAndRefresh(ref _material, value); }
     public string ArtStyle { get => _artStyle; set => SetAndRefresh(ref _artStyle, value); }
-    public string ArtistInfluencePrimary { get => _artistInfluencePrimary; set => SetArtistAndRefresh(ref _artistInfluencePrimary, value); }
-    public int InfluenceStrengthPrimary { get => _influenceStrengthPrimary; set => SetArtistAndRefresh(ref _influenceStrengthPrimary, value); }
-    public string ArtistInfluenceSecondary { get => _artistInfluenceSecondary; set => SetArtistAndRefresh(ref _artistInfluenceSecondary, value); }
-    public int InfluenceStrengthSecondary { get => _influenceStrengthSecondary; set => SetArtistAndRefresh(ref _influenceStrengthSecondary, value); }
+    public string ArtistInfluencePrimary
+    {
+        get => _artistInfluencePrimary;
+        set
+        {
+            if (SetArtistAndRefresh(ref _artistInfluencePrimary, value))
+            {
+                HandleArtistSelectionChanged(isPrimary: true);
+                RefreshArtistPairGuidance();
+            }
+        }
+    }
+
+    public int InfluenceStrengthPrimary
+    {
+        get => _influenceStrengthPrimary;
+        set
+        {
+            if (SetArtistAndRefresh(ref _influenceStrengthPrimary, value))
+            {
+                RefreshArtistPairGuidance();
+            }
+        }
+    }
+
+    public string ArtistInfluenceSecondary
+    {
+        get => _artistInfluenceSecondary;
+        set
+        {
+            if (SetArtistAndRefresh(ref _artistInfluenceSecondary, value))
+            {
+                HandleArtistSelectionChanged(isPrimary: false);
+                RefreshArtistPairGuidance();
+            }
+        }
+    }
+
+    public int InfluenceStrengthSecondary
+    {
+        get => _influenceStrengthSecondary;
+        set
+        {
+            if (SetArtistAndRefresh(ref _influenceStrengthSecondary, value))
+            {
+                RefreshArtistPairGuidance();
+            }
+        }
+    }
     public int CameraDistance { get => _cameraDistance; set => SetAndRefresh(ref _cameraDistance, value); }
     public int CameraAngle { get => _cameraAngle; set => SetAndRefresh(ref _cameraAngle, value); }
     public int BackgroundComplexity { get => _backgroundComplexity; set => SetAndRefresh(ref _backgroundComplexity, value); }
@@ -228,6 +432,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             if (SetProperty(ref _remainingDemoCopies, value))
             {
                 OnPropertyChanged(nameof(DemoModeHeadline));
+                OnPropertyChanged(nameof(CopyPromptRemainingText));
                 OnPropertyChanged(nameof(DemoModeBody));
                 RaiseCopyCommandCanExecuteChanged();
             }
@@ -236,18 +441,28 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public string DemoModeHeadline => RemainingDemoCopies > 0
         ? $"Demo mode: {RemainingDemoCopies} of {MaxDemoCopies} exports remaining"
         : "Demo mode: export limit reached";
+    public string CopyPromptRemainingText => RemainingDemoCopies > 0
+        ? $"{RemainingDemoCopies} of {MaxDemoCopies} left"
+        : "No exports left";
     public string DemoModeBody => RemainingDemoCopies > 0
         ? "Preview stays readable, but export is limited to the copy buttons."
         : "Preview stays visible, but copy/export is now locked until the full version is used.";
     public bool ShowNegativePrompt => UseNegativePrompt;
-    public bool ShowCustomRandomizeControls => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase);
+    public bool ShowCustomRandomizeControls => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase) || IntentModeCatalog.IsVintageBend(IntentMode);
     public bool ExcludeArtistSlidersFromRandomize { get => _excludeArtistSlidersFromRandomize; set => SetProperty(ref _excludeArtistSlidersFromRandomize, value); }
-    public bool ShowManualIntentControls => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase) || IsExperimentalManualAdvancedMode;
+    public bool ShowManualIntentControls => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase) || IntentModeCatalog.IsVintageBend(IntentMode) || IsExperimentalManualAdvancedMode;
+    public bool IsVintageBendIntent => IntentModeCatalog.IsVintageBend(IntentMode);
+    public bool ShowVintageBendModifierPanel => IsVintageBendIntent;
     public string IntentModeSummary => BuildIntentModeSummary();
+    public bool VintageBendEasternBlocGdr { get => _vintageBendEasternBlocGdr; set => SetAndRefresh(ref _vintageBendEasternBlocGdr, value); }
+    public bool VintageBendThrillerUndertone { get => _vintageBendThrillerUndertone; set => SetAndRefresh(ref _vintageBendThrillerUndertone, value); }
+    public bool VintageBendInstitutionalAusterity { get => _vintageBendInstitutionalAusterity; set => SetAndRefresh(ref _vintageBendInstitutionalAusterity, value); }
+    public bool VintageBendSurveillanceStateAtmosphere { get => _vintageBendSurveillanceStateAtmosphere; set => SetAndRefresh(ref _vintageBendSurveillanceStateAtmosphere, value); }
+    public bool VintageBendPeriodArtifacts { get => _vintageBendPeriodArtifacts; set => SetAndRefresh(ref _vintageBendPeriodArtifacts, value); }
     public string InfluenceStrengthPrimaryValueText => GetInfluenceBandLabel(InfluenceStrengthPrimary);
-    public string InfluenceStrengthPrimaryGuideText => InfluenceBandGuideText;
+    public string InfluenceStrengthPrimaryGuideText => GetInfluenceBandGuideText();
     public string InfluenceStrengthSecondaryValueText => GetInfluenceBandLabel(InfluenceStrengthSecondary);
-    public string InfluenceStrengthSecondaryGuideText => InfluenceBandGuideText;
+    public string InfluenceStrengthSecondaryGuideText => GetInfluenceBandGuideText();
     public string TemperatureHelper => GetSliderHelper("Temperature", Temperature);
     public string TemperatureValueText => GetSliderBandLabel("Temperature", Temperature);
     public string TemperatureGuideText => GetSliderBandGuide("Temperature");
@@ -340,6 +555,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowDemoPromptPreview));
         OnPropertyChanged(nameof(VersionButtonText));
         OnPropertyChanged(nameof(DemoModeHeadline));
+        OnPropertyChanged(nameof(CopyPromptRemainingText));
         OnPropertyChanged(nameof(DemoModeBody));
         RaiseCopyCommandCanExecuteChanged();
     }
@@ -378,9 +594,359 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         PromptPreview = result.PositivePrompt;
         NegativePromptPreview = result.NegativePrompt;
         RaiseArtistBlendSummaryChanged();
+        RaiseArtistPhraseEditorAvailabilityChanged();
         RaiseSliderHelperChanged();
         RaiseExperimentalMacroChanged();
         RaiseCopyCommandCanExecuteChanged();
+    }
+
+    private void OpenPrimaryArtistPhraseEditor()
+    {
+        OpenArtistPhraseEditor(isPrimary: true);
+    }
+
+    private void OpenSecondaryArtistPhraseEditor()
+    {
+        OpenArtistPhraseEditor(isPrimary: false);
+    }
+
+    private void OpenArtistPhraseEditor(bool isPrimary)
+    {
+        if (!TryGetArtistPhraseSlotState(isPrimary, out var slotState))
+        {
+            StatusMessage = "Select an active artist influence before editing its phrase.";
+            return;
+        }
+
+        var parts = ArtistPhraseComposer.SplitPhrase(slotState.CurrentPhrase, slotState.DisplayName);
+        _isEditingPrimaryArtistPhrase = isPrimary;
+        OnPropertyChanged(nameof(ArtistPhraseEditorTitle));
+
+        ArtistPhraseEditorPrefix = parts.Prefix;
+        ArtistPhraseEditorArtistName = slotState.DisplayName;
+        ArtistPhraseEditorSuffix = parts.Suffix;
+        ArtistPhraseEditorGeneratedPhrase = slotState.GeneratedPhrase;
+        _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
+        _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
+        _artistPhraseEditorStructuredSuffixTrailingText = parts.Suffix;
+        ArtistPhraseQuickInsertGroups = ArtistPhraseQuickInsertService.BuildGroups(isPrimary, _currentArtistPairLookup);
+        IsArtistPhraseEditorOpen = true;
+    }
+
+    private void InsertArtistPhraseQuickInsert(object? parameter)
+    {
+        if (parameter is not ArtistPhraseQuickInsert insert)
+        {
+            return;
+        }
+
+        switch (insert.Target)
+        {
+            case ArtistPhraseInsertTarget.Prefix:
+                ArtistPhraseEditorPrefix = ArtistPhraseComposer.AppendFragment(string.Empty, insert.Fragment, ArtistPhraseInsertTarget.Prefix);
+                break;
+            case ArtistPhraseInsertTarget.Suffix:
+                if (!string.IsNullOrWhiteSpace(insert.RoleStem) && !string.IsNullOrWhiteSpace(insert.DomainLabel))
+                {
+                    _artistPhraseEditorStructuredSuffixGroups = ArtistPhraseComposer.AddStructuredSuffixInsert(
+                        _artistPhraseEditorStructuredSuffixGroups,
+                        insert.RoleStem,
+                        insert.DomainLabel);
+                    _artistPhraseEditorStructuredSuffixLastRendered = ArtistPhraseComposer.RenderStructuredSuffix(
+                        _artistPhraseEditorStructuredSuffixGroups,
+                        _artistPhraseEditorStructuredSuffixTrailingText);
+                    ArtistPhraseEditorSuffix = _artistPhraseEditorStructuredSuffixLastRendered;
+                }
+                else
+                {
+                    ArtistPhraseEditorSuffix = ArtistPhraseComposer.AppendFragment(ArtistPhraseEditorSuffix, insert.Fragment, ArtistPhraseInsertTarget.Suffix);
+                }
+                break;
+        }
+    }
+
+    private void SaveArtistPhraseEditor()
+    {
+        var normalizedPreview = ArtistPhraseEditorPreview;
+        var useGeneratedPhrase = string.Equals(
+            normalizedPreview,
+            ArtistPhraseEditorGeneratedPhrase,
+            StringComparison.OrdinalIgnoreCase);
+
+        if (_isEditingPrimaryArtistPhrase)
+        {
+            _primaryArtistPhraseOverride = useGeneratedPhrase
+                ? new ArtistPhraseOverride()
+                : new ArtistPhraseOverride
+                {
+                    IsEnabled = true,
+                    ArtistName = ArtistPhraseEditorArtistName,
+                    Prefix = ArtistPhraseEditorPrefix,
+                    Suffix = ArtistPhraseEditorSuffix,
+                };
+            StatusMessage = useGeneratedPhrase
+                ? "Primary artist phrase reset to generated."
+                : "Primary artist phrase updated.";
+        }
+        else
+        {
+            _secondaryArtistPhraseOverride = useGeneratedPhrase
+                ? new ArtistPhraseOverride()
+                : new ArtistPhraseOverride
+                {
+                    IsEnabled = true,
+                    ArtistName = ArtistPhraseEditorArtistName,
+                    Prefix = ArtistPhraseEditorPrefix,
+                    Suffix = ArtistPhraseEditorSuffix,
+                };
+            StatusMessage = useGeneratedPhrase
+                ? "Secondary artist phrase reset to generated."
+                : "Secondary artist phrase updated.";
+        }
+
+        IsArtistPhraseEditorOpen = false;
+        RegeneratePrompt();
+    }
+
+    private void SwapArtistInfluences()
+    {
+        if (!CanSwapArtistInfluences)
+        {
+            return;
+        }
+
+        var originalPrimary = ArtistInfluencePrimary;
+        var originalSecondary = ArtistInfluenceSecondary;
+
+        _suspendArtistOverrideReset = true;
+        try
+        {
+            _artistInfluencePrimary = originalSecondary;
+            _artistInfluenceSecondary = originalPrimary;
+        }
+        finally
+        {
+            _suspendArtistOverrideReset = false;
+        }
+
+        OnPropertyChanged(nameof(ArtistInfluencePrimary));
+        OnPropertyChanged(nameof(ArtistInfluenceSecondary));
+        ApplyArtistNegativeConstraintDefaults();
+        UpdateArtistPhraseOverrideTargetNames();
+
+        if (IsArtistPhraseEditorOpen)
+        {
+            IsArtistPhraseEditorOpen = false;
+            ArtistPhraseQuickInsertGroups = Array.Empty<ArtistPhraseQuickInsertGroup>();
+        }
+
+        RegeneratePrompt();
+        RefreshArtistPairGuidance();
+        StatusMessage = "Primary and secondary artists swapped.";
+    }
+
+    private void ResetArtistPhraseEditorToGenerated()
+    {
+        if (!TryGetArtistPhraseSlotState(_isEditingPrimaryArtistPhrase, out var slotState))
+        {
+            return;
+        }
+
+        var parts = ArtistPhraseComposer.SplitPhrase(slotState.GeneratedPhrase, slotState.DisplayName);
+        ArtistPhraseEditorPrefix = parts.Prefix;
+        ArtistPhraseEditorArtistName = slotState.DisplayName;
+        ArtistPhraseEditorSuffix = parts.Suffix;
+        ArtistPhraseEditorGeneratedPhrase = slotState.GeneratedPhrase;
+        _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
+        _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
+        _artistPhraseEditorStructuredSuffixTrailingText = parts.Suffix;
+    }
+
+    private void CancelArtistPhraseEditor()
+    {
+        IsArtistPhraseEditorOpen = false;
+        ArtistPhraseQuickInsertGroups = Array.Empty<ArtistPhraseQuickInsertGroup>();
+        _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
+        _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
+        _artistPhraseEditorStructuredSuffixTrailingText = string.Empty;
+    }
+
+    private bool TryGetArtistPhraseSlotState(bool isPrimary, out ArtistPhraseSlotState slotState)
+    {
+        var selectedArtist = isPrimary ? ArtistInfluencePrimary : ArtistInfluenceSecondary;
+        var strength = isPrimary ? InfluenceStrengthPrimary : InfluenceStrengthSecondary;
+        var phraseOverride = isPrimary ? _primaryArtistPhraseOverride : _secondaryArtistPhraseOverride;
+
+        if (!HasActiveArtist(selectedArtist, strength))
+        {
+            slotState = new ArtistPhraseSlotState(string.Empty, 0, string.Empty, string.Empty);
+            return false;
+        }
+
+        var profile = _artistProfileService.GetProfile(selectedArtist);
+        var displayName = profile?.Name ?? selectedArtist;
+        var generatedPhrase = ArtistPhraseComposer.BuildGeneratedPhrase(displayName, strength, profile is not null, IntentMode);
+        var currentPhrase = ArtistPhraseComposer.BuildFinalPhrase(displayName, strength, profile is not null, phraseOverride, IntentMode);
+
+        slotState = new ArtistPhraseSlotState(displayName, strength, generatedPhrase, currentPhrase);
+        return true;
+    }
+
+    private void HandleArtistSelectionChanged(bool isPrimary)
+    {
+        if (_isApplyingConfiguration || _suspendArtistOverrideReset)
+        {
+            return;
+        }
+
+        if (isPrimary)
+        {
+            _primaryArtistPhraseOverride = new ArtistPhraseOverride();
+        }
+        else
+        {
+            _secondaryArtistPhraseOverride = new ArtistPhraseOverride();
+        }
+
+        if (IsArtistPhraseEditorOpen && _isEditingPrimaryArtistPhrase == isPrimary)
+        {
+            IsArtistPhraseEditorOpen = false;
+            ArtistPhraseQuickInsertGroups = Array.Empty<ArtistPhraseQuickInsertGroup>();
+        }
+
+        RaiseArtistPhraseEditorAvailabilityChanged();
+    }
+
+    private void RaiseArtistPhraseEditorAvailabilityChanged()
+    {
+        OnPropertyChanged(nameof(CanEditPrimaryArtistPhrase));
+        OnPropertyChanged(nameof(CanEditSecondaryArtistPhrase));
+        OnPropertyChanged(nameof(CanSwapArtistInfluences));
+        EditPrimaryArtistPhraseCommand.RaiseCanExecuteChanged();
+        EditSecondaryArtistPhraseCommand.RaiseCanExecuteChanged();
+        SwapArtistInfluencesCommand.RaiseCanExecuteChanged();
+    }
+
+    private void UpdateArtistPhraseOverrideTargetNames()
+    {
+        UpdateArtistPhraseOverrideTargetName(_primaryArtistPhraseOverride, ArtistInfluencePrimary);
+        UpdateArtistPhraseOverrideTargetName(_secondaryArtistPhraseOverride, ArtistInfluenceSecondary);
+    }
+
+    private void UpdateArtistPhraseOverrideTargetName(ArtistPhraseOverride phraseOverride, string selectedArtist)
+    {
+        if (phraseOverride is null || !phraseOverride.IsEnabled)
+        {
+            return;
+        }
+
+        if (!HasSelectedArtistValue(selectedArtist))
+        {
+            phraseOverride.IsEnabled = false;
+            phraseOverride.ArtistName = string.Empty;
+            phraseOverride.Prefix = string.Empty;
+            phraseOverride.Suffix = string.Empty;
+            return;
+        }
+
+        var profile = _artistProfileService.GetProfile(selectedArtist);
+        phraseOverride.ArtistName = profile?.Name ?? selectedArtist;
+    }
+
+    private void RefreshArtistPairGuidance()
+    {
+        var primary = CreateArtistState(ArtistInfluencePrimary, InfluenceStrengthPrimary);
+        var secondary = CreateArtistState(ArtistInfluenceSecondary, InfluenceStrengthSecondary);
+        if (primary is null || secondary is null)
+        {
+            _currentArtistPairLookup = null;
+            ArtistPairGuidanceTooltip = null;
+            return;
+        }
+
+        var lookup = _artistPairGuidanceService.ResolvePair(primary.Name, secondary.Name);
+        _currentArtistPairLookup = lookup;
+        ArtistPairGuidanceTooltip = lookup.PairFound
+            ? ArtistPairTooltipFormatter.FormatTooltip(lookup, lookup.Guidance!)
+            : BuildMissingArtistPairGuidanceTooltip(lookup);
+    }
+
+    private static string BuildMissingArtistPairGuidanceTooltip(ArtistPairLookupResult lookup)
+    {
+        if (!lookup.LeftArtistRecognized || !lookup.RightArtistRecognized)
+        {
+            var missingArtists = new List<string>();
+            if (!lookup.LeftArtistRecognized)
+            {
+                missingArtists.Add(lookup.LeftResolvedName ?? lookup.LeftInput);
+            }
+
+            if (!lookup.RightArtistRecognized)
+            {
+                missingArtists.Add(lookup.RightResolvedName ?? lookup.RightInput);
+            }
+
+            return string.Join(Environment.NewLine, new[]
+            {
+                "Pair guidance not available yet for this selection.",
+                $"Matrix coverage missing for: {string.Join(", ", missingArtists)}"
+            });
+        }
+
+        var leftResolved = FormatResolvedArtist(lookup.LeftResolvedName, lookup.LeftResolvedKey, lookup.LeftInput);
+        var rightResolved = FormatResolvedArtist(lookup.RightResolvedName, lookup.RightResolvedKey, lookup.RightInput);
+
+        return string.Join(Environment.NewLine, new[]
+        {
+            "Pair guidance not available yet for this selection.",
+            $"Resolved artists: {leftResolved} + {rightResolved}"
+        });
+    }
+
+    private static string FormatResolvedArtist(string? resolvedName, string? resolvedKey, string input)
+    {
+        if (!string.IsNullOrWhiteSpace(resolvedName) && !string.IsNullOrWhiteSpace(resolvedKey))
+        {
+            return $"{resolvedName} [{resolvedKey}]";
+        }
+
+        return $"unresolved ({input})";
+    }
+
+    private static string BuildCategoryLine(ArtistPairGuidance guidance)
+    {
+        var categoryLine = $"Category: {guidance.Category}";
+        if (!string.IsNullOrWhiteSpace(guidance.CategoryDefinition))
+        {
+            categoryLine = $"{categoryLine} — {guidance.CategoryDefinition}";
+        }
+
+        return categoryLine;
+    }
+
+    private static string GetEffectText(ArtistPairGuidance guidance)
+    {
+        if (!string.IsNullOrWhiteSpace(guidance.EffectOnPromptGeneration))
+        {
+            return guidance.EffectOnPromptGeneration;
+        }
+
+        if (!string.IsNullOrWhiteSpace(guidance.CategoryDefinition))
+        {
+            return guidance.CategoryDefinition;
+        }
+
+        return "Pair guidance is not available for this selection.";
+    }
+
+    private static string GetModelStruggleText(ArtistPairGuidance guidance)
+    {
+        if (!string.IsNullOrWhiteSpace(guidance.WhatModelsStruggleWith))
+        {
+            return guidance.WhatModelsStruggleWith;
+        }
+
+        return "Model may average or discard one artist without a strong dominance cue.";
     }
 
     private void ScheduleExperimentalMacroRefresh()
@@ -410,8 +976,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         ArtStyle = ArtStyle,
         ArtistInfluencePrimary = ArtistInfluencePrimary,
         InfluenceStrengthPrimary = InfluenceStrengthPrimary,
+        PrimaryArtistPhraseOverride = _primaryArtistPhraseOverride.Clone(),
         ArtistInfluenceSecondary = ArtistInfluenceSecondary,
         InfluenceStrengthSecondary = InfluenceStrengthSecondary,
+        SecondaryArtistPhraseOverride = _secondaryArtistPhraseOverride.Clone(),
         CameraDistance = CameraDistance,
         CameraAngle = CameraAngle,
         BackgroundComplexity = BackgroundComplexity,
@@ -439,6 +1007,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         AvoidMessyBackground = AvoidMessyBackground,
         AvoidWeakMaterialDefinition = AvoidWeakMaterialDefinition,
         AvoidBlurryDetail = AvoidBlurryDetail,
+        VintageBendEasternBlocGdr = VintageBendEasternBlocGdr,
+        VintageBendThrillerUndertone = VintageBendThrillerUndertone,
+        VintageBendInstitutionalAusterity = VintageBendInstitutionalAusterity,
+        VintageBendSurveillanceStateAtmosphere = VintageBendSurveillanceStateAtmosphere,
+        VintageBendPeriodArtifacts = VintageBendPeriodArtifacts,
     };
 
     private void ApplyConfiguration(PromptConfiguration configuration)
@@ -463,8 +1036,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         ArtStyle = configuration.ArtStyle;
         ArtistInfluencePrimary = configuration.ArtistInfluencePrimary;
         InfluenceStrengthPrimary = configuration.InfluenceStrengthPrimary;
+        _primaryArtistPhraseOverride = configuration.PrimaryArtistPhraseOverride?.Clone() ?? new ArtistPhraseOverride();
         ArtistInfluenceSecondary = configuration.ArtistInfluenceSecondary;
         InfluenceStrengthSecondary = configuration.InfluenceStrengthSecondary;
+        _secondaryArtistPhraseOverride = configuration.SecondaryArtistPhraseOverride?.Clone() ?? new ArtistPhraseOverride();
         CameraDistance = configuration.CameraDistance;
         CameraAngle = configuration.CameraAngle;
         BackgroundComplexity = configuration.BackgroundComplexity;
@@ -492,6 +1067,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         AvoidMessyBackground = configuration.AvoidMessyBackground;
         AvoidWeakMaterialDefinition = configuration.AvoidWeakMaterialDefinition;
         AvoidBlurryDetail = configuration.AvoidBlurryDetail;
+        VintageBendEasternBlocGdr = configuration.VintageBendEasternBlocGdr;
+        VintageBendThrillerUndertone = configuration.VintageBendThrillerUndertone;
+        VintageBendInstitutionalAusterity = configuration.VintageBendInstitutionalAusterity;
+        VintageBendSurveillanceStateAtmosphere = configuration.VintageBendSurveillanceStateAtmosphere;
+        VintageBendPeriodArtifacts = configuration.VintageBendPeriodArtifacts;
+        IsArtistPhraseEditorOpen = false;
         ApplyArtistNegativeConstraintDefaults();
         SyncExperimentalMacrosFromRaw();
         _isApplyingConfiguration = false;
@@ -506,7 +1087,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        CopyExportText(PromptPreview, "Prompt");
+        var wasPlainExperimental = string.Equals(IntentMode, IntentModeCatalog.ExperimentalName, StringComparison.OrdinalIgnoreCase);
+        var copied = CopyExportText(PromptPreview, "Prompt");
+        if (copied && wasPlainExperimental)
+        {
+            QueueIntentModeWorkflowUpdate("Custom");
+        }
+
+        if (copied)
+        {
+            CopyPromptFeedbackTick++;
+        }
     }
 
     private void CopyNegativePrompt()
@@ -581,6 +1172,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             AvoidMessyBackground = true,
             AvoidWeakMaterialDefinition = true,
             AvoidBlurryDetail = true,
+            VintageBendEasternBlocGdr = false,
+            VintageBendThrillerUndertone = false,
+            VintageBendInstitutionalAusterity = false,
+            VintageBendSurveillanceStateAtmosphere = false,
+            VintageBendPeriodArtifacts = false,
         });
         StatusMessage = "Controls reset to defaults.";
     }
@@ -588,6 +1184,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void RandomizeSliders()
     {
         var configuration = CaptureConfiguration();
+        configuration.IntentMode = IntentModeCatalog.ExperimentalName;
 
         configuration.Temperature = Random.Shared.Next(0, 101);
         configuration.LightingIntensity = Random.Shared.Next(0, 101);
@@ -619,7 +1216,48 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         configuration.Contrast = Random.Shared.Next(0, 101);
 
         ApplyConfiguration(configuration);
+        QueueIntentModeWorkflowUpdate(IntentModeCatalog.ExperimentalName);
         StatusMessage = "All slider values randomized.";
+    }
+
+    private void SetIntentModeFromWorkflow(string intentMode)
+    {
+        var normalizedIntentMode = ResolveIntentModeSelection(intentMode);
+        if (!string.Equals(IntentMode, normalizedIntentMode, StringComparison.OrdinalIgnoreCase))
+        {
+            IntentMode = normalizedIntentMode;
+            return;
+        }
+        
+        OnPropertyChanged(nameof(IntentMode));
+        OnPropertyChanged(nameof(IntentModeSelectedIndex));
+    }
+
+    private void QueueIntentModeWorkflowUpdate(string intentMode)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null)
+        {
+            SetIntentModeFromWorkflow(intentMode);
+            return;
+        }
+
+        dispatcher.BeginInvoke(
+            DispatcherPriority.Render,
+            new Action(() => SetIntentModeFromWorkflow(intentMode)));
+    }
+
+    private string ResolveIntentModeSelection(string? intentMode)
+    {
+        var normalizedIntentMode = NormalizeIntentMode(intentMode);
+        return IntentModes.FirstOrDefault(mode => string.Equals(mode, normalizedIntentMode, StringComparison.OrdinalIgnoreCase))
+            ?? normalizedIntentMode;
+    }
+
+    private int GetIntentModeSelectedIndex()
+    {
+        var selectedMode = ResolveIntentModeSelection(IntentMode);
+        return IntentModes.IndexOf(selectedMode);
     }
 
     private bool CanCopyPrompt()
@@ -632,13 +1270,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return true;
     }
 
-    private void CopyExportText(string text, string label)
+    private bool CopyExportText(string text, string label)
     {
         if (IsDemoMode && RemainingDemoCopies <= 0)
         {
             StatusMessage = "Demo export limit reached. Preview remains visible.";
             RaiseCopyCommandCanExecuteChanged();
-            return;
+            return false;
         }
 
         try
@@ -648,25 +1286,26 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         catch
         {
             StatusMessage = $"Could not copy the {label.ToLowerInvariant()}.";
-            return;
+            return false;
         }
 
         if (!IsDemoMode)
         {
             StatusMessage = $"{label} copied.";
-            return;
+            return true;
         }
 
         if (!_demoStateService.TryConsumeCopy(out var state))
         {
             StatusMessage = $"{label} copied, but the demo counter could not be updated locally.";
-            return;
+            return true;
         }
 
         RemainingDemoCopies = state.RemainingCopies;
         StatusMessage = RemainingDemoCopies > 0
             ? $"{label} copied. {RemainingDemoCopies} demo exports remaining."
             : $"{label} copied. Demo export limit reached.";
+        return true;
     }
 
     private void RefreshPresetNames(string? selected = null)
@@ -800,6 +1439,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private string BuildIntentModeSummary()
     {
+        if (IntentModeCatalog.IsVintageBend(IntentMode))
+        {
+            return "Vintage Bend language pack is active: candid documentary realism, period-correct color restraint, and disciplined analog texture are now steering prompt language.";
+        }
+
         if (IntentModeCatalog.IsExperimental(IntentMode))
         {
             return "Experimental governance is active: slider phrases are orchestrated through the isolated prototype layer instead of the standard intent path.";
@@ -814,7 +1458,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         return string.IsNullOrWhiteSpace(value) ? "Custom" : value.Trim();
     }
-    private const string InfluenceBandGuideText = "Off  |  subtle influence  |  artist-influenced sensibility  |  strongly shaped  |  deeply informed";
 
     private static readonly Dictionary<string, SliderBandMetadata> SliderBands = new(StringComparer.Ordinal)
     {
@@ -938,6 +1581,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private string GetSliderHelper(string key, int value)
     {
+        if (IsVintageBendIntent)
+        {
+            var vintagePhrase = SliderLanguageCatalog.ResolveVintageBendPhrase(key, value, CaptureConfiguration());
+            if (string.IsNullOrWhiteSpace(vintagePhrase))
+            {
+                return string.Empty;
+            }
+
+            return $"Vintage Bend: {vintagePhrase}{BuildArtistHelperTint(key)}".Trim();
+        }
+
         var artPrefix = ArtStyle switch
         {
             "Painterly" => "Painterly: ",
@@ -1047,8 +1701,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _ => null,
     };
 
-    private static string GetInfluenceBandLabel(int value)
+    private string GetInfluenceBandLabel(int value)
     {
+        if (IsVintageBendIntent)
+        {
+            if (value <= 20) return "omit artist language";
+            if (value <= 40) return "light stylistic cues from";
+            if (value <= 60) return "artist-informed sensibility drawn from";
+            if (value <= 80) return "clearly shaped by";
+            return "deeply informed by";
+        }
+
         if (value <= 20) return "Off";
         if (value <= 40) return "subtle influence";
         if (value <= 60) return "artist-influenced sensibility";
@@ -1056,18 +1719,29 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return "deeply informed";
     }
 
-    private static string GetSliderBandLabel(string key, int value)
+    private string GetSliderBandGuide(string key)
     {
-        return TryGetBandMetadata(key, out var metadata)
-            ? metadata.GetBandLabel(value)
-            : value.ToString();
+        return IsVintageBendIntent
+            ? SliderLanguageCatalog.ResolveVintageBendGuideText(key)
+            : TryGetBandMetadata(key, out var metadata)
+                ? metadata.GuideText
+                : "0  |  100";
     }
 
-    private static string GetSliderBandGuide(string key)
+    private string GetSliderBandLabel(string key, int value)
     {
-        return TryGetBandMetadata(key, out var metadata)
-            ? metadata.GuideText
-            : "0  |  100";
+        return IsVintageBendIntent
+            ? SliderLanguageCatalog.ResolveVintageBendPhrase(key, value, CaptureConfiguration())
+            : TryGetBandMetadata(key, out var metadata)
+                ? metadata.GetBandLabel(value)
+                : value.ToString();
+    }
+
+    private string GetInfluenceBandGuideText()
+    {
+        return IsVintageBendIntent
+            ? "0-20  |  omit artist language  |  21-40  |  light stylistic cues from  |  41-60  |  artist-informed sensibility drawn from  |  61-80  |  clearly shaped by  |  81-100  |  deeply informed by"
+            : "Off  |  subtle influence  |  artist-influenced sensibility  |  strongly shaped  |  deeply informed";
     }
 
     private static bool TryGetBandMetadata(string key, out SliderBandMetadata metadata)
@@ -1085,6 +1759,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     private static bool HasActiveArtist(string? name, int strength) => strength > 20 && !string.IsNullOrWhiteSpace(name) && !string.Equals(name, "None", StringComparison.OrdinalIgnoreCase);
+    private static bool HasSelectedArtistValue(string? name) => !string.IsNullOrWhiteSpace(name) && !string.Equals(name, "None", StringComparison.OrdinalIgnoreCase);
 
     private enum ContributionArea
     {
@@ -1111,6 +1786,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private sealed record ArtistPhraseSlotState(string DisplayName, int Strength, string GeneratedPhrase, string CurrentPhrase);
     private sealed record ArtistState(string Name, int Strength);
 }
 

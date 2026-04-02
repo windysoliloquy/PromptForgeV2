@@ -31,8 +31,8 @@ public sealed class ArtistProfileService : IArtistProfileService
             return profile;
         }
 
-        var normalizedTarget = NormalizeKey(name);
-        var normalizedMatch = _profiles.FirstOrDefault(pair => NormalizeKey(pair.Key) == normalizedTarget).Value;
+        var normalizedTarget = ArtistNameNormalizer.Normalize(name);
+        var normalizedMatch = _profiles.FirstOrDefault(pair => ArtistNameNormalizer.Normalize(pair.Key) == normalizedTarget).Value;
         if (normalizedMatch is not null)
         {
             return normalizedMatch;
@@ -41,7 +41,7 @@ public sealed class ArtistProfileService : IArtistProfileService
         var surname = ExtractSurname(normalizedTarget);
         if (!string.IsNullOrWhiteSpace(surname))
         {
-            var surnameMatch = _profiles.FirstOrDefault(pair => NormalizeKey(pair.Key).Contains(surname, StringComparison.OrdinalIgnoreCase)).Value;
+            var surnameMatch = _profiles.FirstOrDefault(pair => ArtistNameNormalizer.Normalize(pair.Key).Contains(surname, StringComparison.OrdinalIgnoreCase)).Value;
             if (surnameMatch is not null)
             {
                 return surnameMatch;
@@ -63,7 +63,7 @@ public sealed class ArtistProfileService : IArtistProfileService
         var profiles = JsonSerializer.Deserialize<List<ArtistProfile>>(reader.ReadToEnd()) ?? [];
         return profiles
             .Select(CleanProfile)
-            .GroupBy(profile => NormalizeKey(profile.Name), StringComparer.OrdinalIgnoreCase)
+            .GroupBy(profile => ArtistNameNormalizer.Normalize(profile.Name), StringComparer.OrdinalIgnoreCase)
             .Select(group => group
                 .OrderByDescending(profile => GetNameQualityScore(profile.Name))
                 .ThenBy(profile => profile.Name, StringComparer.OrdinalIgnoreCase)
@@ -80,13 +80,13 @@ public sealed class ArtistProfileService : IArtistProfileService
 
         foreach (var name in profiles.Keys)
         {
-            names[NormalizeKey(name)] = name;
+            names[ArtistNameNormalizer.Normalize(name)] = name;
         }
 
         foreach (var name in LoadCachedArtistNames())
         {
             var cleanedName = CleanArtistName(name);
-            var normalized = NormalizeKey(cleanedName);
+            var normalized = ArtistNameNormalizer.Normalize(cleanedName);
             if (!names.ContainsKey(normalized))
             {
                 names[normalized] = cleanedName;
@@ -94,7 +94,7 @@ public sealed class ArtistProfileService : IArtistProfileService
         }
 
         return names.Values
-            .OrderBy(name => name == "None" ? string.Empty : NormalizeKey(name), StringComparer.OrdinalIgnoreCase)
+            .OrderBy(name => name == "None" ? string.Empty : ArtistNameNormalizer.Normalize(name), StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
 
@@ -143,12 +143,12 @@ public sealed class ArtistProfileService : IArtistProfileService
         var cleaned = value.Trim();
         for (var i = 0; i < 3; i++)
         {
-            if (!LooksMojibake(cleaned))
+            if (!ArtistNameNormalizer.ContainsMojibake(cleaned))
             {
                 break;
             }
 
-            var repaired = TryRepairMojibake(cleaned);
+            var repaired = ArtistNameNormalizer.RepairMojibake(cleaned);
             if (repaired == cleaned)
             {
                 break;
@@ -160,31 +160,10 @@ public sealed class ArtistProfileService : IArtistProfileService
         return cleaned;
     }
 
-    private static string TryRepairMojibake(string value)
-    {
-        try
-        {
-            return Encoding.UTF8.GetString(Encoding.GetEncoding("ISO-8859-1").GetBytes(value));
-        }
-        catch (ArgumentException)
-        {
-            return value;
-        }
-    }
-
-    private static bool LooksMojibake(string value)
-    {
-        return value.Contains('\u00C3')
-            || value.Contains('\u00C2')
-            || value.Contains('\u00D0')
-            || value.Contains('\u00D1')
-            || value.Contains('\uFFFD');
-    }
-
     private static int GetNameQualityScore(string value)
     {
-        var suspiciousPenalty = value.Count(ch => ch is '\u00C3' or '\u00C2' or '\u00D0' or '\u00D1' or '\uFFFD' or '?') * 10;
-        var diacriticBonus = value.Count(ch => ch > 127 && !LooksMojibake(ch.ToString()));
+        var suspiciousPenalty = value.Count(ch => ArtistNameNormalizer.IsMojibakeChar(ch) || ch == '?') * 10;
+        var diacriticBonus = value.Count(ch => ch > 127 && !ArtistNameNormalizer.IsMojibakeChar(ch));
         return diacriticBonus - suspiciousPenalty;
     }
 
@@ -203,17 +182,6 @@ public sealed class ArtistProfileService : IArtistProfileService
         }
 
         return null;
-    }
-
-    private static string NormalizeKey(string value)
-    {
-        var chars = value.Normalize(System.Text.NormalizationForm.FormKD)
-            .Where(ch => ch < 128)
-            .Select(ch => char.ToLowerInvariant(ch))
-            .Where(ch => char.IsLetterOrDigit(ch) || char.IsWhiteSpace(ch))
-            .ToArray();
-
-        return string.Join(' ', new string(chars).Split(' ', StringSplitOptions.RemoveEmptyEntries));
     }
 
     private static string ExtractSurname(string normalizedName)

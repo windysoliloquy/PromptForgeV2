@@ -2,7 +2,7 @@ using PromptForge.App.Models;
 
 namespace PromptForge.App.Services;
 
-internal static class SliderLanguageCatalog
+public static class SliderLanguageCatalog
 {
     public const string ArtistInfluenceStrength = "ArtistInfluenceStrength";
     public const string Temperature = "Temperature";
@@ -846,6 +846,11 @@ internal static class SliderLanguageCatalog
             return string.Empty;
         }
 
+        if (IntentModeCatalog.IsVintageBend(configuration.IntentMode))
+        {
+            return ResolveVintageBendPhrase(sliderKey, value, configuration);
+        }
+
         var bandIndex = GetBandIndex(value);
         var candidates = new List<string>();
 
@@ -882,11 +887,82 @@ internal static class SliderLanguageCatalog
         return resolvedPool[Math.Abs(GetStableHash(seed)) % resolvedPool.Length];
     }
 
-    public static string ResolveArtistInfluenceDescriptor(int strength, string artistName)
+    public static string ResolveVintageBendLightingDescriptor(PromptConfiguration configuration)
+    {
+        var value = configuration.LightingIntensity;
+        return value switch
+        {
+            <= 20 => "subdued practical room light",
+            <= 40 => "practical fluorescent and tungsten mixed light",
+            <= 60 => "balanced practical illumination",
+            <= 80 => "clear period interior brightness",
+            _ => "strong practical-light presence",
+        };
+    }
+
+    public static IEnumerable<string> ResolveVintageBendDescriptors(PromptConfiguration configuration)
+    {
+        var phrases = new List<string>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        AddVintageDescriptor(phrases, seen, "candid documentary realism");
+        AddVintageDescriptor(phrases, seen, "early-1980s color photography");
+        AddVintageDescriptor(phrases, seen, "period-correct color restraint");
+        AddVintageDescriptor(phrases, seen, "non-glossy finish");
+
+        if (configuration.Realism >= 61)
+        {
+            AddVintageDescriptor(phrases, seen, "lived-in interior realism");
+        }
+
+        if (configuration.TextureDepth >= 41)
+        {
+            AddVintageDescriptor(phrases, seen, "subtle analog grain");
+        }
+
+        if (configuration.Saturation >= 41)
+        {
+            AddVintageDescriptor(phrases, seen, "muted olive-and-amber palette");
+        }
+
+        if (configuration.BackgroundComplexity >= 41)
+        {
+            AddVintageDescriptor(phrases, seen, "restrained observational framing");
+        }
+
+        if (configuration.MotionEnergy >= 21)
+        {
+            AddVintageDescriptor(phrases, seen, "everyday social energy");
+        }
+
+        if (configuration.Tension >= 21)
+        {
+            AddVintageDescriptor(phrases, seen, "quiet human tension");
+        }
+
+        if (configuration.AtmosphericDepth >= 21)
+        {
+            AddVintageDescriptor(phrases, seen, "slight atmospheric recession");
+        }
+
+        if (configuration.FocusDepth <= 60)
+        {
+            AddVintageDescriptor(phrases, seen, "readable facial structure");
+        }
+
+        return phrases;
+    }
+
+    public static string ResolveArtistInfluenceDescriptor(int strength, string artistName, string? intentMode = null)
     {
         if (string.IsNullOrWhiteSpace(artistName) || !Definitions.TryGetValue(ArtistInfluenceStrength, out var definition))
         {
             return string.Empty;
+        }
+
+        if (IntentModeCatalog.IsVintageBend(intentMode))
+        {
+            return ResolveVintageBendArtistInfluenceDescriptor(strength, artistName);
         }
 
         var phrases = definition.Bands[GetBandIndex(strength)].Phrases;
@@ -897,6 +973,258 @@ internal static class SliderLanguageCatalog
 
         return phrases[Math.Abs(GetStableHash($"{artistName}|{strength}")) % phrases.Length]
             .Replace("{artist}", artistName, StringComparison.Ordinal);
+    }
+
+    private static string ResolveVintageBendArtistInfluenceDescriptor(int strength, string artistName)
+    {
+        if (strength <= 20)
+        {
+            return string.Empty;
+        }
+
+        var band = GetBandIndex(strength);
+        var phrase = band switch
+        {
+            0 => string.Empty,
+            1 => "light stylistic cues from {artist}",
+            2 => "artist-informed sensibility drawn from {artist}",
+            3 => "clearly shaped by {artist}",
+            _ => "deeply informed by {artist}",
+        };
+
+        return string.IsNullOrWhiteSpace(phrase)
+            ? string.Empty
+            : phrase.Replace("{artist}", artistName, StringComparison.Ordinal);
+    }
+
+    public static string ResolveVintageBendPhrase(string sliderKey, int value, PromptConfiguration configuration)
+    {
+        var bandIndex = GetBandIndex(value);
+        var phrase = sliderKey switch
+        {
+            ArtistInfluenceStrength => string.Empty,
+            Stylization => MapBand(value,
+                "candid documentary treatment",
+                "lightly stylized documentary realism",
+                "period documentary image language",
+                "strongly stylized analog documentary treatment",
+                "highly stylized period-documentary visual language"),
+            Realism => MapBand(value,
+                "omit explicit realism",
+                "loosely realistic documentary image",
+                "moderately realistic period photography",
+                "high documentary realism",
+                "strongly realistic analog documentary rendering"),
+            TextureDepth => MapBand(value,
+                "minimal film texture",
+                "light analog grain",
+                "clear film-era texture",
+                "rich analog surface texture",
+                "deeply worked film-grain texture"),
+            NarrativeDensity => MapBand(value,
+                "single candid moment",
+                "light social context",
+                "layered observational storytelling",
+                "dense implied human context",
+                "world-rich documentary narrative density"),
+            Symbolism => MapBand(value,
+                "mostly literal documentary framing",
+                "subtle social cues",
+                "suggestive cultural undertones",
+                "pronounced social-symbolic resonance",
+                "mythic social charge"),
+            SurfaceAge => MapBand(value,
+                "clean period print character",
+                "slight print wear",
+                "gentle analog age",
+                "noticeable period print character",
+                "strongly aged print look"),
+            Framing => MapBand(value,
+                "restrained observational framing",
+                "close observational framing",
+                "balanced documentary framing",
+                "broader environmental documentary framing",
+                "wide social-context framing"),
+            BackgroundComplexity => MapBand(value,
+                "minimal documentary background",
+                "restrained period background",
+                "supporting lived-in environment",
+                "rich period environment detail",
+                "densely layered documentary setting"),
+            MotionEnergy => MapBand(value,
+                "still candid frame",
+                "gentle lived-in motion",
+                "active social energy",
+                "dynamic candid movement",
+                "high kinetic documentary energy"),
+            FocusDepth => MapBand(value,
+                "broad soft-focus realism",
+                "gentle focus falloff",
+                "balanced documentary focus",
+                "selective observational focus",
+                "strong subject-isolating focus"),
+            ImageCleanliness => MapBand(value,
+                "rough analog messiness",
+                "lightly imperfect period image",
+                "balanced documentary cleanliness",
+                "clean analog print character",
+                "unusually clean period image"),
+            DetailDensity => MapBand(value,
+                "sparse readable detail",
+                "restrained documentary detail",
+                "balanced observational detail",
+                "rich period detail",
+                "dense documentary detail load"),
+            AtmosphericDepth => MapBand(value,
+                "limited air depth",
+                "slight spatial recession",
+                "air-filled period depth",
+                "layered analog atmosphere",
+                "deep lived-in atmospheric perspective"),
+            Chaos => MapBand(value,
+                "controlled candid composition",
+                "mild social restlessness",
+                "busy documentary energy",
+                "crowded observational disorder",
+                "high visual disorder"),
+            Whimsy => MapBand(value,
+                "serious observational tone",
+                "slight social lightness",
+                "casual human playfulness",
+                "strong social looseness",
+                "rowdy period playfulness"),
+            Tension => MapBand(value,
+                "low social tension",
+                "light documentary tension",
+                "noticeable human unease",
+                "strong interpersonal pressure",
+                "intense social or political tension"),
+            Awe => MapBand(value,
+                "grounded human scale",
+                "slight sense of presence",
+                "quiet atmosphere of significance",
+                "strong observational gravity",
+                "overwhelming social or historical weight"),
+            Saturation => MapBand(value,
+                "muted period color",
+                "restrained analog color",
+                "balanced period saturation",
+                "rich film-era color",
+                "vivid 1980s color intensity"),
+            Contrast => MapBand(value,
+                "low contrast print softness",
+                "gentle tonal separation",
+                "balanced documentary contrast",
+                "crisp analog contrast",
+                "striking print contrast"),
+            Temperature => MapBand(value,
+                "cool institutional cast",
+                "restrained neutral-cool balance",
+                "balanced period warmth",
+                "mild warm print bias",
+                "strong tobacco-amber warmth"),
+            LightingIntensity => MapBand(value,
+                "dim available light",
+                "subdued room light",
+                "balanced practical illumination",
+                "clear period interior brightness",
+                "strong practical-light presence"),
+            CameraDistance => MapBand(value,
+                "intimate close documentary framing",
+                "close observational framing",
+                "mid-distance candid view",
+                "broader environmental view",
+                "wide social-context framing"),
+            CameraAngle => MapBand(value,
+                "low observational angle",
+                "slightly lowered human viewpoint",
+                "eye-level documentary view",
+                "slightly elevated social overview",
+                "detached observational vantage"),
+            _ => string.Empty,
+        };
+
+        if (string.IsNullOrWhiteSpace(phrase))
+        {
+            return string.Empty;
+        }
+
+        return ApplyVintageBendGuardrails(sliderKey, bandIndex, configuration, phrase);
+    }
+
+    public static string ResolveVintageBendGuideText(string sliderKey)
+    {
+        var labels = sliderKey switch
+        {
+            ArtistInfluenceStrength => new[] { "omit artist language", "light stylistic cues from", "artist-informed sensibility drawn from", "clearly shaped by", "deeply informed by" },
+            Stylization => new[] { "candid documentary treatment", "lightly stylized documentary realism", "period documentary image language", "strongly stylized analog documentary treatment", "highly stylized period-documentary visual language" },
+            Realism => new[] { "omit explicit realism", "loosely realistic documentary image", "moderately realistic period photography", "high documentary realism", "strongly realistic analog documentary rendering" },
+            TextureDepth => new[] { "minimal film texture", "light analog grain", "clear film-era texture", "rich analog surface texture", "deeply worked film-grain texture" },
+            NarrativeDensity => new[] { "single candid moment", "light social context", "layered observational storytelling", "dense implied human context", "world-rich documentary narrative density" },
+            Symbolism => new[] { "mostly literal documentary framing", "subtle social cues", "suggestive cultural undertones", "pronounced social-symbolic resonance", "mythic social charge" },
+            SurfaceAge => new[] { "clean period print character", "slight print wear", "gentle analog age", "noticeable period print character", "strongly aged print look" },
+            Framing => new[] { "restrained observational framing", "close observational framing", "balanced documentary framing", "broader environmental documentary framing", "wide social-context framing" },
+            BackgroundComplexity => new[] { "minimal documentary background", "restrained period background", "supporting lived-in environment", "rich period environment detail", "densely layered documentary setting" },
+            MotionEnergy => new[] { "still candid frame", "gentle lived-in motion", "active social energy", "dynamic candid movement", "high kinetic documentary energy" },
+            FocusDepth => new[] { "broad soft-focus realism", "gentle focus falloff", "balanced documentary focus", "selective observational focus", "strong subject-isolating focus" },
+            ImageCleanliness => new[] { "rough analog messiness", "lightly imperfect period image", "balanced documentary cleanliness", "clean analog print character", "unusually clean period image" },
+            DetailDensity => new[] { "sparse readable detail", "restrained documentary detail", "balanced observational detail", "rich period detail", "dense documentary detail load" },
+            AtmosphericDepth => new[] { "limited air depth", "slight spatial recession", "air-filled period depth", "layered analog atmosphere", "deep lived-in atmospheric perspective" },
+            Chaos => new[] { "controlled candid composition", "mild social restlessness", "busy documentary energy", "crowded observational disorder", "high visual disorder" },
+            Whimsy => new[] { "serious observational tone", "slight social lightness", "casual human playfulness", "strong social looseness", "rowdy period playfulness" },
+            Tension => new[] { "low social tension", "light documentary tension", "noticeable human unease", "strong interpersonal pressure", "intense social or political tension" },
+            Awe => new[] { "grounded human scale", "slight sense of presence", "quiet atmosphere of significance", "strong observational gravity", "overwhelming social or historical weight" },
+            Saturation => new[] { "muted period color", "restrained analog color", "balanced period saturation", "rich film-era color", "vivid 1980s color intensity" },
+            Contrast => new[] { "low contrast print softness", "gentle tonal separation", "balanced documentary contrast", "crisp analog contrast", "striking print contrast" },
+            Temperature => new[] { "cool institutional cast", "restrained neutral-cool balance", "balanced period warmth", "mild warm print bias", "strong tobacco-amber warmth" },
+            LightingIntensity => new[] { "dim available light", "subdued room light", "balanced practical illumination", "clear period interior brightness", "strong practical-light presence" },
+            CameraDistance => new[] { "intimate close documentary framing", "close observational framing", "mid-distance candid view", "broader environmental view", "wide social-context framing" },
+            CameraAngle => new[] { "low observational angle", "slightly lowered human viewpoint", "eye-level documentary view", "slightly elevated social overview", "detached observational vantage" },
+            _ => Array.Empty<string>(),
+        };
+
+        return labels.Length == 0 ? string.Empty : string.Join("  |  ", labels);
+    }
+
+    private static string ApplyVintageBendGuardrails(string sliderKey, int bandIndex, PromptConfiguration configuration, string phrase)
+    {
+        if (string.Equals(sliderKey, Temperature, StringComparison.OrdinalIgnoreCase) && bandIndex == 4)
+        {
+            return configuration.SurfaceAge >= 60 || configuration.TextureDepth >= 60
+                ? "mild warm print bias"
+                : phrase;
+        }
+
+        if (string.Equals(sliderKey, SurfaceAge, StringComparison.OrdinalIgnoreCase) && bandIndex == 4)
+        {
+            return configuration.TextureDepth >= 60 || configuration.Temperature >= 60
+                ? "noticeable period print character"
+                : phrase;
+        }
+
+        if (string.Equals(sliderKey, TextureDepth, StringComparison.OrdinalIgnoreCase) && bandIndex == 4)
+        {
+            return configuration.SurfaceAge >= 60 || configuration.Temperature >= 60
+                ? "rich analog surface texture"
+                : phrase;
+        }
+
+        if (string.Equals(sliderKey, Saturation, StringComparison.OrdinalIgnoreCase) && bandIndex == 4)
+        {
+            return configuration.Temperature >= 60 || configuration.SurfaceAge >= 60
+                ? "rich film-era color"
+                : phrase;
+        }
+
+        return phrase;
+    }
+
+    private static void AddVintageDescriptor(ICollection<string> phrases, ISet<string> seen, string phrase)
+    {
+        if (!string.IsNullOrWhiteSpace(phrase) && seen.Add(phrase))
+        {
+            phrases.Add(phrase);
+        }
     }
 
     private static SliderBandDefinition[] GetVariant(Dictionary<string, SliderBandDefinition[]> variants, string key)
@@ -1000,6 +1328,15 @@ internal static class SliderLanguageCatalog
 
             return hash;
         }
+    }
+
+    private static string MapBand(int value, string low, string lowMid, string mid, string high, string veryHigh)
+    {
+        if (value <= 20) return low;
+        if (value <= 40) return lowMid;
+        if (value <= 60) return mid;
+        if (value <= 80) return high;
+        return veryHigh;
     }
 
     private static SliderBandDefinition Band(string interpretation, params string[] phrases) => new(interpretation, phrases);

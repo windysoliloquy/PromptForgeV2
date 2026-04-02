@@ -2,6 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Thickness x:Key="SectionCardPadding">15,14,15,15</Thickness>
     <Thickness x:Key="SectionCardMargin">0,0,0,10</Thickness>
+    <SolidColorBrush x:Key="SliderFlyoutGlowBrush" Color="#FFDFA43A" />
+    <SolidColorBrush x:Key="SliderFlyoutGlowPeakBrush" Color="#FFF6D98C" />
 
     <Style x:Key="CardBorderStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource CardBrush}" />
@@ -415,10 +417,6 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource InputBorderHoverBrush}" />
-                        </Trigger>
-                        <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource InputBorderFocusBrush}" />
-                            <Setter TargetName="RootBorder" Property="Background" Value="{DynamicResource SubtleSurfaceBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

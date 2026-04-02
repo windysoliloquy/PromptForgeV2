@@ -5,7 +5,15 @@ param(
 
     [string]$MetadataPath,
 
-    [string]$TimestampUrl = 'http://timestamp.acs.microsoft.com'
+    [int]$MaxAttemptsPerTimestamp = 3,
+
+    [int]$RetryDelaySeconds = 5,
+
+    [string[]]$TimestampUrls = @(
+        'http://timestamp.acs.microsoft.com',
+        'http://timestamp.digicert.com',
+        'http://timestamp.sectigo.com'
+    )
 )
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -30,9 +38,25 @@ if (-not (Test-Path -LiteralPath $MetadataPath)) {
     throw "Trusted Signing metadata file not found at '$MetadataPath'. Copy metadata.template.json to metadata.json and fill in your Azure values first."
 }
 
-& $signToolPath sign /v /debug /fd SHA256 /tr $TimestampUrl /td SHA256 /dlib $dlibPath /dmdf $MetadataPath $resolvedTargetPath
-$exitCode = $LASTEXITCODE
+$errors = [System.Collections.Generic.List[string]]::new()
 
-if ($exitCode -ne 0) {
-    throw "SignTool failed with exit code $exitCode while signing '$resolvedTargetPath'."
+foreach ($timestampUrl in $TimestampUrls) {
+    for ($attempt = 1; $attempt -le $MaxAttemptsPerTimestamp; $attempt++) {
+        Write-Host "Signing attempt $attempt of $MaxAttemptsPerTimestamp using timestamp server '$timestampUrl'."
+        & $signToolPath sign /v /debug /fd SHA256 /tr $timestampUrl /td SHA256 /dlib $dlibPath /dmdf $MetadataPath $resolvedTargetPath
+        $exitCode = $LASTEXITCODE
+
+        if ($exitCode -eq 0) {
+            Write-Host "Signed successfully using timestamp server '$timestampUrl'."
+            return
+        }
+
+        $errors.Add("Timestamp server '$timestampUrl' failed with exit code $exitCode on attempt $attempt.")
+
+        if ($attempt -lt $MaxAttemptsPerTimestamp) {
+            Start-Sleep -Seconds $RetryDelaySeconds
+        }
+    }
 }
+
+throw ("SignTool failed for '{0}' after trying all configured timestamp servers.{1}{2}" -f $resolvedTargetPath, [Environment]::NewLine, ($errors -join [Environment]::NewLine))

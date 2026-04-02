@@ -37,14 +37,17 @@ public sealed class PromptBuilderService : IPromptBuilderService
     {
         var phrases = new List<string>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var useVintageBend = IntentModeCatalog.IsVintageBend(configuration.IntentMode);
 
         AddUnique(phrases, seen, BuildSubjectSection(configuration));
         AddUnique(phrases, seen, BuildRelationshipSection(configuration));
-        foreach (var phrase in BuildStyleSection(configuration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in useVintageBend ? BuildVintageBendStyleSection(configuration) : BuildStyleSection(configuration)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildCompositionSection(configuration)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildMoodSection(configuration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildLightingAndColorSection(configuration)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildLightingAndColorSection(configuration, useVintageBend)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildImageFinishSection(configuration)) AddUnique(phrases, seen, phrase);
+        phrases = [.. VintageBendModifierService.Apply(phrases, configuration)];
+        seen = new HashSet<string>(phrases, StringComparer.OrdinalIgnoreCase);
         foreach (var phrase in BuildOutputSection(configuration)) AddUnique(phrases, seen, phrase);
 
         return new PromptResult
@@ -120,6 +123,14 @@ public sealed class PromptBuilderService : IPromptBuilderService
         }
     }
 
+    private static IEnumerable<string> BuildVintageBendStyleSection(PromptConfiguration configuration)
+    {
+        foreach (var phrase in SliderLanguageCatalog.ResolveVintageBendDescriptors(configuration))
+        {
+            yield return phrase;
+        }
+    }
+
     private static PromptConfiguration ApplyIntentMode(PromptConfiguration configuration)
     {
         if (!IntentModeCatalog.TryGet(configuration.IntentMode, out var intentMode))
@@ -156,6 +167,21 @@ public sealed class PromptBuilderService : IPromptBuilderService
     {
         var phrases = new List<string>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (IntentModeCatalog.IsVintageBend(configuration.IntentMode))
+        {
+            AddUnique(phrases, seen, "no hand deformity");
+            AddUnique(phrases, seen, "no unstable finger anatomy");
+            AddUnique(phrases, seen, "no warped object handling");
+            AddUnique(phrases, seen, "no melted facial features");
+            AddUnique(phrases, seen, "no unreadable facial structure");
+            AddUnique(phrases, seen, "no warped limb proportions");
+            AddUnique(phrases, seen, "no excessive softness obscuring structure");
+            AddUnique(phrases, seen, "no muddy detail");
+            AddUnique(phrases, seen, "no exaggerated sepia wash");
+            AddUnique(phrases, seen, "no fake antique damage");
+            AddUnique(phrases, seen, "no overprocessed vintage effects");
+        }
 
         if (configuration.AvoidBlurryDetail)
         {
@@ -279,8 +305,8 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private IEnumerable<string> BuildArtistBlend(PromptConfiguration configuration)
     {
-        var primary = CreateInfluence(configuration.ArtistInfluencePrimary, configuration.InfluenceStrengthPrimary);
-        var secondary = CreateInfluence(configuration.ArtistInfluenceSecondary, configuration.InfluenceStrengthSecondary);
+        var primary = CreateInfluence(configuration.ArtistInfluencePrimary, configuration.InfluenceStrengthPrimary, configuration.PrimaryArtistPhraseOverride, configuration.IntentMode);
+        var secondary = CreateInfluence(configuration.ArtistInfluenceSecondary, configuration.InfluenceStrengthSecondary, configuration.SecondaryArtistPhraseOverride, configuration.IntentMode);
 
         if (primary is null && secondary is null)
         {
@@ -318,8 +344,8 @@ public sealed class PromptBuilderService : IPromptBuilderService
     {
         var stronger = primary.Strength >= secondary.Strength ? primary : secondary;
         var lighter = ReferenceEquals(stronger, primary) ? secondary : primary;
-
-        yield return DescribeBlend(stronger, lighter);
+        yield return primary.InvocationPhrase;
+        yield return secondary.InvocationPhrase;
 
         var strongerCategories = (stronger.Strength - lighter.Strength) switch
         {
@@ -348,13 +374,15 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private IEnumerable<string> BuildSingleArtistInfluence(ArtistInfluence influence)
     {
-        if (influence.Profile is null)
+        if (!string.IsNullOrWhiteSpace(influence.InvocationPhrase))
         {
-            yield return SliderLanguageCatalog.ResolveArtistInfluenceDescriptor(influence.Strength, influence.DisplayName);
-            yield break;
+            yield return influence.InvocationPhrase;
         }
 
-        yield return SliderLanguageCatalog.ResolveArtistInfluenceDescriptor(influence.Strength, influence.DisplayName);
+        if (influence.Profile is null)
+        {
+            yield break;
+        }
 
         var categories = new[]
         {
@@ -371,26 +399,7 @@ public sealed class PromptBuilderService : IPromptBuilderService
         }
     }
 
-    private static string DescribeBlend(ArtistInfluence stronger, ArtistInfluence lighter)
-    {
-        if (stronger.Profile is null || lighter.Profile is null)
-        {
-            return MapBand(stronger.Strength, string.Empty,
-                $"light blend of {stronger.DisplayName} and {lighter.DisplayName}",
-                $"blended influence from {stronger.DisplayName} and {lighter.DisplayName}",
-                $"prominent blend of {stronger.DisplayName} with {lighter.DisplayName}",
-                $"deeply fused influence from {stronger.DisplayName} and {lighter.DisplayName}");
-        }
-
-        if (stronger.Strength - lighter.Strength >= 25)
-        {
-            return $"{stronger.DisplayName}-led blend with {lighter.DisplayName} accents";
-        }
-
-        return $"balanced blend of {stronger.DisplayName} and {lighter.DisplayName}";
-    }
-
-    private ArtistInfluence? CreateInfluence(string artistName, int strength)
+    private ArtistInfluence? CreateInfluence(string artistName, int strength, ArtistPhraseOverride phraseOverride, string? intentMode)
     {
         if (strength <= 20 || string.IsNullOrWhiteSpace(artistName) || string.Equals(artistName, "None", StringComparison.OrdinalIgnoreCase))
         {
@@ -398,7 +407,9 @@ public sealed class PromptBuilderService : IPromptBuilderService
         }
 
         var profile = _artistProfileService.GetProfile(artistName);
-        return new ArtistInfluence(profile?.Name ?? artistName, strength, profile);
+        var displayName = profile?.Name ?? artistName;
+        var invocationPhrase = ArtistPhraseComposer.BuildFinalPhrase(displayName, strength, profile is not null, phraseOverride, intentMode);
+        return new ArtistInfluence(displayName, strength, profile, invocationPhrase);
     }
 
     private static IEnumerable<string> SelectCategoryPhrases(ArtistInfluence influence, ArtistPhraseCategory[] categories, int budget)
@@ -492,11 +503,13 @@ public sealed class PromptBuilderService : IPromptBuilderService
         if (configuration.Whimsy >= 70 && configuration.Tension >= 50) yield return "comedic interpersonal tension";
     }
 
-    private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration)
+    private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration, bool useVintageBend)
     {
         yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Temperature, configuration.Temperature, configuration);
         yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.LightingIntensity, configuration.LightingIntensity, configuration);
-        yield return Lower(configuration.Lighting);
+        yield return useVintageBend
+            ? SliderLanguageCatalog.ResolveVintageBendLightingDescriptor(configuration)
+            : Lower(configuration.Lighting);
         yield return MapSaturation(configuration.Saturation, configuration);
         yield return MapContrast(configuration.Contrast, configuration);
     }
@@ -1050,6 +1063,6 @@ public sealed class PromptBuilderService : IPromptBuilderService
         Mood,
     }
 
-    private sealed record ArtistInfluence(string DisplayName, int Strength, ArtistProfile? Profile);
+    private sealed record ArtistInfluence(string DisplayName, int Strength, ArtistProfile? Profile, string InvocationPhrase);
 }
 

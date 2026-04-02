@@ -1,0 +1,2454 @@
+{
+  "schema_version": "1.0",
+  "record_type": "artist_influence_roster",
+  "source_file": "artist_profiles.json",
+  "source_artist_count": 106,
+  "generated_at_utc": "2026-04-02T11:03:39.100304+00:00",
+  "artists": [
+    {
+      "artist_key": "adolph_von_menzel",
+      "artist_name": "Adolph von Menzel",
+      "normalized_name": "adolph von menzel",
+      "hallmarks": [
+        "brilliant observational exactitude",
+        "industrial and courtly realism"
+      ],
+      "composition": [
+        "densely observed spatial complexity"
+      ],
+      "palette": [
+        "steel gray, brass highlights, and smoky interior light"
+      ],
+      "surface": [
+        "nimble high-detail brush intelligence"
+      ],
+      "mood": [
+        "restless perceptual acuity"
+      ]
+    },
+    {
+      "artist_key": "albrecht_durer",
+      "artist_name": "Albrecht Dürer",
+      "normalized_name": "albrecht durer",
+      "hallmarks": [
+        "graphic precision",
+        "Northern Renaissance detail density"
+      ],
+      "composition": [
+        "carefully ordered symbolic arrangement"
+      ],
+      "palette": [
+        "restrained historic tonal range"
+      ],
+      "surface": [
+        "engraver-like line clarity"
+      ],
+      "mood": [
+        "intellectual intensity"
+      ]
+    },
+    {
+      "artist_key": "alexandre_cabanel",
+      "artist_name": "Alexandre Cabanel",
+      "normalized_name": "alexandre cabanel",
+      "hallmarks": [
+        "academic elegance",
+        "idealized mythic beauty"
+      ],
+      "composition": [
+        "salon-style theatrical balance"
+      ],
+      "palette": [
+        "creamy skin tones and silky azure accents"
+      ],
+      "surface": [
+        "smooth refined finish"
+      ],
+      "mood": [
+        "luxurious classicism"
+      ]
+    },
+    {
+      "artist_key": "alphonse_mucha",
+      "artist_name": "Alphonse Mucha",
+      "normalized_name": "alphonse mucha",
+      "hallmarks": [
+        "Art Nouveau arabesque line",
+        "ornamental halo-like framing"
+      ],
+      "composition": [
+        "poster-like vertical elegance"
+      ],
+      "palette": [
+        "soft sage, cream, rose, and gold"
+      ],
+      "surface": [
+        "decorative flat pattern richness"
+      ],
+      "mood": [
+        "romantic decorative grace"
+      ]
+    },
+    {
+      "artist_key": "amedeo_modigliani",
+      "artist_name": "Amedeo Modigliani",
+      "normalized_name": "amedeo modigliani",
+      "hallmarks": [
+        "elongated portraiture",
+        "simplified anatomy",
+        "lyrical distortion"
+      ],
+      "composition": [
+        "centered portraits",
+        "quiet frontal staging",
+        "elegant verticality"
+      ],
+      "palette": [
+        "muted ochres",
+        "dusty blues",
+        "warm browns"
+      ],
+      "surface": [
+        "matte painterly softness",
+        "simplified surface treatment"
+      ],
+      "mood": [
+        "melancholy intimacy",
+        "elegance",
+        "quiet stylization"
+      ]
+    },
+    {
+      "artist_key": "andersen_brendekilde",
+      "artist_name": "Andersen Brendekilde",
+      "normalized_name": "andersen brendekilde",
+      "hallmarks": [
+        "rural naturalism",
+        "Nordic field labor realism"
+      ],
+      "composition": [
+        "grounded peasant scene arrangement"
+      ],
+      "palette": [
+        "grass green, soil brown, and pale northern sky"
+      ],
+      "surface": [
+        "earthy descriptive brushwork"
+      ],
+      "mood": [
+        "quiet humane endurance"
+      ]
+    },
+    {
+      "artist_key": "arnold_bocklin",
+      "artist_name": "Arnold Böcklin",
+      "normalized_name": "arnold bocklin",
+      "hallmarks": [
+        "mythic symbolism",
+        "eerie landscapes",
+        "death-haunted classicism"
+      ],
+      "composition": [
+        "island staging",
+        "solemn figure placement",
+        "theatrical landscape framing"
+      ],
+      "palette": [
+        "deep greens",
+        "stone neutrals",
+        "spectral glow accents"
+      ],
+      "surface": [
+        "dense painterly atmosphere",
+        "moody finish"
+      ],
+      "mood": [
+        "ominous stillness",
+        "mythic dread",
+        "mournful grandeur"
+      ]
+    },
+    {
+      "artist_key": "artemisia_gentileschi",
+      "artist_name": "Artemisia Gentileschi",
+      "normalized_name": "artemisia gentileschi",
+      "hallmarks": [
+        "forceful Baroque figuration",
+        "heroic female protagonists"
+      ],
+      "composition": [
+        "compressed dramatic confrontation"
+      ],
+      "palette": [
+        "dark ambers, crimson accents, and torchlit flesh"
+      ],
+      "surface": [
+        "dense painterly shadow structure"
+      ],
+      "mood": [
+        "defiant dramatic resolve"
+      ]
+    },
+    {
+      "artist_key": "arthur_rackham",
+      "artist_name": "Arthur Rackham",
+      "normalized_name": "arthur rackham",
+      "hallmarks": [
+        "wiry line fantasy",
+        "gnarled organic forms",
+        "storybook unease"
+      ],
+      "composition": [
+        "curling silhouettes",
+        "clustered woodland staging",
+        "fairy-tale framing"
+      ],
+      "palette": [
+        "muted earths",
+        "moss greens",
+        "sepia shadows"
+      ],
+      "surface": [
+        "ink-and-wash delicacy",
+        "textured illustration finish"
+      ],
+      "mood": [
+        "eerie whimsy",
+        "old-world enchantment",
+        "folkloric tension"
+      ]
+    },
+    {
+      "artist_key": "bartolome_esteban_murillo",
+      "artist_name": "Bartolomé Esteban Murillo",
+      "normalized_name": "bartolome esteban murillo",
+      "hallmarks": [
+        "soft devotional warmth",
+        "gentle Baroque tenderness"
+      ],
+      "composition": [
+        "graceful sacred grouping"
+      ],
+      "palette": [
+        "warm cream, blue drapery, and golden haze"
+      ],
+      "surface": [
+        "soft blended devotional glow"
+      ],
+      "mood": [
+        "compassionate serenity"
+      ]
+    },
+    {
+      "artist_key": "briton_riviere",
+      "artist_name": "Briton Rivière",
+      "normalized_name": "briton riviere",
+      "hallmarks": [
+        "sentimental animal realism",
+        "Victorian narrative pathos"
+      ],
+      "composition": [
+        "emotion-focused creature staging"
+      ],
+      "palette": [
+        "earth browns, winter gray, and soft natural light"
+      ],
+      "surface": [
+        "careful fur and atmosphere rendering"
+      ],
+      "mood": [
+        "tender melancholy"
+      ]
+    },
+    {
+      "artist_key": "camille_pissarro",
+      "artist_name": "Camille Pissarro",
+      "normalized_name": "camille pissarro",
+      "hallmarks": [
+        "gentle impressionist observation",
+        "rural and urban atmosphere"
+      ],
+      "composition": [
+        "open breathing scene structure"
+      ],
+      "palette": [
+        "dusty greens, mauves, and soft daylight creams"
+      ],
+      "surface": [
+        "fine broken brush texture"
+      ],
+      "mood": [
+        "patient everyday calm"
+      ]
+    },
+    {
+      "artist_key": "caravaggio",
+      "artist_name": "Caravaggio",
+      "normalized_name": "caravaggio",
+      "hallmarks": [
+        "theatrical tenebrism",
+        "hard-edged realism"
+      ],
+      "composition": [
+        "stage-like figural confrontation"
+      ],
+      "palette": [
+        "dark grounds with sharp light strikes"
+      ],
+      "surface": [
+        "crisp form emergence from shadow"
+      ],
+      "mood": [
+        "violent dramatic intensity"
+      ]
+    },
+    {
+      "artist_key": "carl_spitzweg",
+      "artist_name": "Carl Spitzweg",
+      "normalized_name": "carl spitzweg",
+      "hallmarks": [
+        "Biedermeier whimsy",
+        "small-scale narrative charm"
+      ],
+      "composition": [
+        "intimate anecdotal staging"
+      ],
+      "palette": [
+        "cozy browns, moss greens, and warm window light"
+      ],
+      "surface": [
+        "fine tidy brush detail"
+      ],
+      "mood": [
+        "gentle comic warmth"
+      ]
+    },
+    {
+      "artist_key": "caspar_david_friedrich",
+      "artist_name": "Caspar David Friedrich",
+      "normalized_name": "caspar david friedrich",
+      "hallmarks": [
+        "solitary Romantic contemplation",
+        "landscape as spiritual mirror"
+      ],
+      "composition": [
+        "figure before vastness"
+      ],
+      "palette": [
+        "mist gray, pine green, and twilight blue"
+      ],
+      "surface": [
+        "quiet restrained surface handling"
+      ],
+      "mood": [
+        "sacred loneliness"
+      ]
+    },
+    {
+      "artist_key": "charles_amable_lenoir",
+      "artist_name": "Charles-Amable Lenoir",
+      "normalized_name": "charles amable lenoir",
+      "hallmarks": [
+        "salon ideal beauty",
+        "sentimental feminine grace"
+      ],
+      "composition": [
+        "centered romantic figure presentation"
+      ],
+      "palette": [
+        "soft rose, ivory, and pale blue"
+      ],
+      "surface": [
+        "smooth porcelain finish"
+      ],
+      "mood": [
+        "gentle sentimental charm"
+      ]
+    },
+    {
+      "artist_key": "childe_hassam",
+      "artist_name": "Childe Hassam",
+      "normalized_name": "childe hassam",
+      "hallmarks": [
+        "American impressionist light shimmer",
+        "flag-flecked urban air"
+      ],
+      "composition": [
+        "breezy city or garden rhythm"
+      ],
+      "palette": [
+        "bright daylight blues, whites, and reds"
+      ],
+      "surface": [
+        "broken lively brush texture"
+      ],
+      "mood": [
+        "optimistic civic brightness"
+      ]
+    },
+    {
+      "artist_key": "claude_monet",
+      "artist_name": "Claude Monet",
+      "normalized_name": "claude monet",
+      "hallmarks": [
+        "broken color impressionism",
+        "light-first perception"
+      ],
+      "composition": [
+        "atmospheric open-air framing"
+      ],
+      "palette": [
+        "shimmering pastel color vibration"
+      ],
+      "surface": [
+        "soft painterly diffusion"
+      ],
+      "mood": [
+        "luminous immediacy"
+      ]
+    },
+    {
+      "artist_key": "diego_velazquez",
+      "artist_name": "Diego Velázquez",
+      "normalized_name": "diego velazquez",
+      "hallmarks": [
+        "courtly realism",
+        "effortless painterly intelligence"
+      ],
+      "composition": [
+        "spacious observational staging"
+      ],
+      "palette": [
+        "silver gray, black, and muted carmine"
+      ],
+      "surface": [
+        "loose close-up brush intelligence"
+      ],
+      "mood": [
+        "quiet authority"
+      ]
+    },
+    {
+      "artist_key": "edgar_degas",
+      "artist_name": "Edgar Degas",
+      "normalized_name": "edgar degas",
+      "hallmarks": [
+        "cropped observational modernity",
+        "gesture captured in rehearsal"
+      ],
+      "composition": [
+        "off-center snapshot-like framing"
+      ],
+      "palette": [
+        "powdered pastels, ochres, and smoky interiors"
+      ],
+      "surface": [
+        "pastel dust and brisk line"
+      ],
+      "mood": [
+        "tense observational intimacy"
+      ]
+    },
+    {
+      "artist_key": "edmund_leighton",
+      "artist_name": "Edmund Leighton",
+      "normalized_name": "edmund leighton",
+      "hallmarks": [
+        "medieval romantic pageantry",
+        "courtly storytelling detail"
+      ],
+      "composition": [
+        "narrative ceremonial tableau"
+      ],
+      "palette": [
+        "ruby, gold, and stone gray"
+      ],
+      "surface": [
+        "carefully finished costume richness"
+      ],
+      "mood": [
+        "chivalric romance"
+      ]
+    },
+    {
+      "artist_key": "edouard_manet",
+      "artist_name": "Édouard Manet",
+      "normalized_name": "edouard manet",
+      "hallmarks": [
+        "modern painterly flatness",
+        "economical assertive brushwork"
+      ],
+      "composition": [
+        "direct frontal staging"
+      ],
+      "palette": [
+        "black-rich modern tonal contrast"
+      ],
+      "surface": [
+        "broad urban paint application"
+      ],
+      "mood": [
+        "cool observational detachment"
+      ]
+    },
+    {
+      "artist_key": "edvard_munch",
+      "artist_name": "Edvard Munch",
+      "normalized_name": "edvard munch",
+      "hallmarks": [
+        "existential distortion",
+        "emotion-driven contour"
+      ],
+      "composition": [
+        "anxiety-laden spatial compression"
+      ],
+      "palette": [
+        "unnatural expressive color"
+      ],
+      "surface": [
+        "raw emotionally unstable surface"
+      ],
+      "mood": [
+        "psychic unease"
+      ]
+    },
+    {
+      "artist_key": "edward_hopper",
+      "artist_name": "Edward Hopper",
+      "normalized_name": "edward hopper",
+      "hallmarks": [
+        "architectural solitude",
+        "clean narrative tension",
+        "still urban realism"
+      ],
+      "composition": [
+        "staged interiors",
+        "isolated figures",
+        "strong window geometry"
+      ],
+      "palette": [
+        "muted daylight",
+        "cool shadows",
+        "restrained warm accents"
+      ],
+      "surface": [
+        "smooth painterly handling",
+        "quiet surface finish"
+      ],
+      "mood": [
+        "loneliness",
+        "suspended time",
+        "psychological stillness"
+      ]
+    },
+    {
+      "artist_key": "egon_schiele",
+      "artist_name": "Egon Schiele",
+      "normalized_name": "egon schiele",
+      "hallmarks": [
+        "angular figuration",
+        "psychological line tension",
+        "exposed anatomy"
+      ],
+      "composition": [
+        "isolated figures",
+        "cropped tension",
+        "confrontational staging"
+      ],
+      "palette": [
+        "pallid flesh",
+        "bruised earths",
+        "stark dark accents"
+      ],
+      "surface": [
+        "dry line energy",
+        "raw painted passages",
+        "unfinished tension"
+      ],
+      "mood": [
+        "unease",
+        "vulnerability",
+        "nervous intensity"
+      ]
+    },
+    {
+      "artist_key": "emanuel_leutze",
+      "artist_name": "Emanuel Leutze",
+      "normalized_name": "emanuel leutze",
+      "hallmarks": [
+        "heroic history painting",
+        "patriotic narrative spectacle"
+      ],
+      "composition": [
+        "sweeping action tableau"
+      ],
+      "palette": [
+        "river gray, military blue, and banner red"
+      ],
+      "surface": [
+        "firm academic action rendering"
+      ],
+      "mood": [
+        "triumphant resolve"
+      ]
+    },
+    {
+      "artist_key": "eugene_delacroix",
+      "artist_name": "Eugène Delacroix",
+      "normalized_name": "eugene delacroix",
+      "hallmarks": [
+        "Romantic color drama",
+        "sweeping expressive movement"
+      ],
+      "composition": [
+        "turbulent diagonal staging"
+      ],
+      "palette": [
+        "burning reds, smoky browns, and lion-gold light"
+      ],
+      "surface": [
+        "energetic painterly agitation"
+      ],
+      "mood": [
+        "rebellious emotional grandeur"
+      ]
+    },
+    {
+      "artist_key": "francesco_hayez",
+      "artist_name": "Francesco Hayez",
+      "normalized_name": "francesco hayez",
+      "hallmarks": [
+        "Italian Romantic drama",
+        "historic sensuality"
+      ],
+      "composition": [
+        "charged stage-like embrace or confrontation"
+      ],
+      "palette": [
+        "deep velvet black, rich scarlet, and pale skin"
+      ],
+      "surface": [
+        "lush polished romantic finish"
+      ],
+      "mood": [
+        "operatic passion"
+      ]
+    },
+    {
+      "artist_key": "francisco_goya",
+      "artist_name": "Francisco Goya",
+      "normalized_name": "francisco goya",
+      "hallmarks": [
+        "dark psychological charge",
+        "volatile human drama"
+      ],
+      "composition": [
+        "destabilized dramatic grouping"
+      ],
+      "palette": [
+        "earth-darkened reds and blacks"
+      ],
+      "surface": [
+        "roughened expressive surface"
+      ],
+      "mood": [
+        "bleak intensity"
+      ]
+    },
+    {
+      "artist_key": "franz_marc",
+      "artist_name": "Franz Marc",
+      "normalized_name": "franz marc",
+      "hallmarks": [
+        "symbolic animal forms",
+        "color-charged expressionist simplification"
+      ],
+      "composition": [
+        "rhythmic interlocking shapes"
+      ],
+      "palette": [
+        "electric blue, golden yellow, and crimson"
+      ],
+      "surface": [
+        "faceted expressionist color planes"
+      ],
+      "mood": [
+        "mystic vitality"
+      ]
+    },
+    {
+      "artist_key": "frederic_bazille",
+      "artist_name": "Frédéric Bazille",
+      "normalized_name": "frederic bazille",
+      "hallmarks": [
+        "early impressionist brightness",
+        "figures integrated with landscape"
+      ],
+      "composition": [
+        "sunlit open-air figure grouping"
+      ],
+      "palette": [
+        "fresh greens, pale blue, and warm summer light"
+      ],
+      "surface": [
+        "clear bright brush freshness"
+      ],
+      "mood": [
+        "youthful luminous ease"
+      ]
+    },
+    {
+      "artist_key": "frederic_leighton",
+      "artist_name": "Frederic Leighton",
+      "normalized_name": "frederic leighton",
+      "hallmarks": [
+        "Victorian classicist grandeur",
+        "marble-like ideal form"
+      ],
+      "composition": [
+        "stately ceremonial staging"
+      ],
+      "palette": [
+        "burnished gold, deep crimson, and cool stone"
+      ],
+      "surface": [
+        "refined sculptural finish"
+      ],
+      "mood": [
+        "noble theatrical poise"
+      ]
+    },
+    {
+      "artist_key": "georges_de_la_tour",
+      "artist_name": "Georges de La Tour",
+      "normalized_name": "georges de la tour",
+      "hallmarks": [
+        "candlelit austerity",
+        "hushed tenebrism",
+        "simplified sacred drama"
+      ],
+      "composition": [
+        "close grouped figures",
+        "dark voids",
+        "candle-centered geometry"
+      ],
+      "palette": [
+        "ember warms",
+        "deep browns",
+        "velvety blacks"
+      ],
+      "surface": [
+        "smooth still finish",
+        "controlled light transitions"
+      ],
+      "mood": [
+        "silence",
+        "devotion",
+        "intimate gravity"
+      ]
+    },
+    {
+      "artist_key": "georges_seurat",
+      "artist_name": "Georges Seurat",
+      "normalized_name": "georges seurat",
+      "hallmarks": [
+        "pointillist optical construction",
+        "disciplined chromatic structure"
+      ],
+      "composition": [
+        "measured rhythmic grouping"
+      ],
+      "palette": [
+        "vibrating complementary color dots"
+      ],
+      "surface": [
+        "fine particulate surface shimmer"
+      ],
+      "mood": [
+        "calm analytical distance"
+      ]
+    },
+    {
+      "artist_key": "gilbert_stuart",
+      "artist_name": "Gilbert Stuart",
+      "normalized_name": "gilbert stuart",
+      "hallmarks": [
+        "colonial portrait poise",
+        "face-centered character study"
+      ],
+      "composition": [
+        "formal bust or half-length framing"
+      ],
+      "palette": [
+        "deep blacks, warm browns, and muted flesh"
+      ],
+      "surface": [
+        "controlled portrait finish"
+      ],
+      "mood": [
+        "measured civic dignity"
+      ]
+    },
+    {
+      "artist_key": "giuseppe_arcimboldo",
+      "artist_name": "Giuseppe Arcimboldo",
+      "normalized_name": "giuseppe arcimboldo",
+      "hallmarks": [
+        "composite symbolic portraiture",
+        "objects assembled into faces"
+      ],
+      "composition": [
+        "iconic frontal emblem construction"
+      ],
+      "palette": [
+        "harvest greens, fruit reds, and vegetal ochres"
+      ],
+      "surface": [
+        "crisp object-by-object articulation"
+      ],
+      "mood": [
+        "witty surreal ingenuity"
+      ]
+    },
+    {
+      "artist_key": "grant_wood",
+      "artist_name": "Grant Wood",
+      "normalized_name": "grant wood",
+      "hallmarks": [
+        "Regionalist clarity",
+        "stylized American rural form"
+      ],
+      "composition": [
+        "iconic frontal arrangement"
+      ],
+      "palette": [
+        "clean farm greens, browns, and sky blues"
+      ],
+      "surface": [
+        "tight smooth realism with stylized edges"
+      ],
+      "mood": [
+        "plainspoken ironic gravity"
+      ]
+    },
+    {
+      "artist_key": "guido_reni",
+      "artist_name": "Guido Reni",
+      "normalized_name": "guido reni",
+      "hallmarks": [
+        "idealized Baroque grace",
+        "elevated devotional classicism"
+      ],
+      "composition": [
+        "calm upward figure rhythm"
+      ],
+      "palette": [
+        "cool silver blue, ivory, and crimson accents"
+      ],
+      "surface": [
+        "smooth elevated finish"
+      ],
+      "mood": [
+        "sacred poise"
+      ]
+    },
+    {
+      "artist_key": "gustav_dore",
+      "artist_name": "Gustav Doré",
+      "normalized_name": "gustav dore",
+      "hallmarks": [
+        "monumental engraving drama",
+        "dense illustrative detail",
+        "theatrical chiaroscuro"
+      ],
+      "composition": [
+        "towering vertical scenes",
+        "sweeping narrative staging",
+        "dramatic scale contrasts"
+      ],
+      "palette": [
+        "monochrome value logic",
+        "stark dark-light separation"
+      ],
+      "surface": [
+        "etched line density",
+        "engraved texture",
+        "highly worked detail"
+      ],
+      "mood": [
+        "apocalyptic grandeur",
+        "mythic severity",
+        "dramatic awe"
+      ]
+    },
+    {
+      "artist_key": "gustav_klimt",
+      "artist_name": "Gustav Klimt",
+      "normalized_name": "gustav klimt",
+      "hallmarks": [
+        "ornamental gilded patterning",
+        "decorative figure-ground flattening"
+      ],
+      "composition": [
+        "iconic frontal emphasis"
+      ],
+      "palette": [
+        "jewel-toned opulence"
+      ],
+      "surface": [
+        "luminous decorative surface richness"
+      ],
+      "mood": [
+        "sensual symbolic atmosphere"
+      ]
+    },
+    {
+      "artist_key": "gustave_caillebotte",
+      "artist_name": "Gustave Caillebotte",
+      "normalized_name": "gustave caillebotte",
+      "hallmarks": [
+        "urban modernity with crisp realism",
+        "unusual perspective cuts"
+      ],
+      "composition": [
+        "cropped boulevard or interior geometry"
+      ],
+      "palette": [
+        "cool gray daylight with refined dark tailoring"
+      ],
+      "surface": [
+        "smooth realistic finish"
+      ],
+      "mood": [
+        "elegant modern reserve"
+      ]
+    },
+    {
+      "artist_key": "gustave_courbet",
+      "artist_name": "Gustave Courbet",
+      "normalized_name": "gustave courbet",
+      "hallmarks": [
+        "earthbound realism",
+        "unsentimental physical presence"
+      ],
+      "composition": [
+        "sturdy grounded arrangement"
+      ],
+      "palette": [
+        "soil-heavy greens, browns, and slate grays"
+      ],
+      "surface": [
+        "heavy knife-like paint texture"
+      ],
+      "mood": [
+        "material bluntness"
+      ]
+    },
+    {
+      "artist_key": "hans_holbein_the_younger",
+      "artist_name": "Hans Holbein the Younger",
+      "normalized_name": "hans holbein the younger",
+      "hallmarks": [
+        "forensic portrait clarity",
+        "cool precision",
+        "courtly realism"
+      ],
+      "composition": [
+        "frontal or three-quarter portrait staging",
+        "disciplined symmetry"
+      ],
+      "palette": [
+        "dark velvets",
+        "muted flesh",
+        "jewel accents"
+      ],
+      "surface": [
+        "enamel-like finish",
+        "crisp detail control"
+      ],
+      "mood": [
+        "intelligence",
+        "restraint",
+        "formal presence"
+      ]
+    },
+    {
+      "artist_key": "henri_de_toulouse_lautrec",
+      "artist_name": "Henri de Toulouse-Lautrec",
+      "normalized_name": "henri de toulouse lautrec",
+      "hallmarks": [
+        "poster-like silhouette",
+        "cabaret immediacy"
+      ],
+      "composition": [
+        "cropped modern urban framing"
+      ],
+      "palette": [
+        "acidic reds and smoky yellows"
+      ],
+      "surface": [
+        "graphic flatness with sharp accents"
+      ],
+      "mood": [
+        "bohemian theatricality"
+      ]
+    },
+    {
+      "artist_key": "henri_matisse",
+      "artist_name": "Henri Matisse",
+      "normalized_name": "henri matisse",
+      "hallmarks": [
+        "bold flat color",
+        "decorative simplification",
+        "lyrical shape rhythm"
+      ],
+      "composition": [
+        "flattened interiors",
+        "ornamental balance",
+        "cutout-like clarity"
+      ],
+      "palette": [
+        "saturated primaries",
+        "warm pinks",
+        "lush greens"
+      ],
+      "surface": [
+        "flat painted color",
+        "smooth decorative finish"
+      ],
+      "mood": [
+        "joy",
+        "ease",
+        "luminous vitality"
+      ]
+    },
+    {
+      "artist_key": "henri_rousseau",
+      "artist_name": "Henri Rousseau",
+      "normalized_name": "henri rousseau",
+      "hallmarks": [
+        "dreamlike naive clarity",
+        "fantastical botanical density"
+      ],
+      "composition": [
+        "frontal layered foliage staging"
+      ],
+      "palette": [
+        "saturated jungle greens and warm oranges"
+      ],
+      "surface": [
+        "smooth simplified planes"
+      ],
+      "mood": [
+        "enchanted stillness"
+      ]
+    },
+    {
+      "artist_key": "herbert_draper",
+      "artist_name": "Herbert Draper",
+      "normalized_name": "herbert draper",
+      "hallmarks": [
+        "mythological sensuality",
+        "luminous academic fantasy"
+      ],
+      "composition": [
+        "cascading mythic figure arrangement"
+      ],
+      "palette": [
+        "sea blue, flesh gold, and opaline highlights"
+      ],
+      "surface": [
+        "liquid polished figure finish"
+      ],
+      "mood": [
+        "opulent dream-myth atmosphere"
+      ]
+    },
+    {
+      "artist_key": "hokusai",
+      "artist_name": "Hokusai",
+      "normalized_name": "hokusai",
+      "hallmarks": [
+        "bold contour design",
+        "dynamic wave energy",
+        "iconic shape simplification"
+      ],
+      "composition": [
+        "flattened depth",
+        "strong silhouette hierarchy",
+        "asymmetrical balance"
+      ],
+      "palette": [
+        "indigo blues",
+        "warm neutrals",
+        "crisp accent color"
+      ],
+      "surface": [
+        "woodblock flatness",
+        "clean contour edges",
+        "graphic finish"
+      ],
+      "mood": [
+        "vitality",
+        "clarity",
+        "lyrical force"
+      ]
+    },
+    {
+      "artist_key": "ivan_aivazovsky",
+      "artist_name": "Ivan Aivazovsky",
+      "normalized_name": "ivan aivazovsky",
+      "hallmarks": [
+        "luminous seascapes",
+        "dramatic surf",
+        "radiant horizon light"
+      ],
+      "composition": [
+        "sweeping marine vistas",
+        "storm-centered staging",
+        "depth through atmosphere"
+      ],
+      "palette": [
+        "sea greens",
+        "storm blues",
+        "firelit golds"
+      ],
+      "surface": [
+        "smooth marine finish",
+        "luminous mist",
+        "fluid wave handling"
+      ],
+      "mood": [
+        "maritime awe",
+        "storm drama",
+        "sublime vastness"
+      ]
+    },
+    {
+      "artist_key": "j_c_leyendecker",
+      "artist_name": "J. C. Leyendecker",
+      "normalized_name": "j c leyendecker",
+      "hallmarks": [
+        "graphic elegance",
+        "confident shape design",
+        "polished illustration realism"
+      ],
+      "composition": [
+        "poster-like staging",
+        "crisp figure focus",
+        "strong silhouette control"
+      ],
+      "palette": [
+        "tailored primaries",
+        "cream highlights",
+        "controlled accent color"
+      ],
+      "surface": [
+        "smooth brush economy",
+        "stylized finish",
+        "crisp edge design"
+      ],
+      "mood": [
+        "poised confidence",
+        "theatrical charm",
+        "polished vitality"
+      ]
+    },
+    {
+      "artist_key": "jacques_louis_david",
+      "artist_name": "Jacques-Louis David",
+      "normalized_name": "jacques louis david",
+      "hallmarks": [
+        "severe neoclassical clarity",
+        "moralizing heroic figuration"
+      ],
+      "composition": [
+        "frieze-like structural order"
+      ],
+      "palette": [
+        "stone neutrals, crimson signals, and cool flesh"
+      ],
+      "surface": [
+        "firm disciplined finish"
+      ],
+      "mood": [
+        "stoic civic gravity"
+      ]
+    },
+    {
+      "artist_key": "james_abbott_mcneill_whistler",
+      "artist_name": "James Abbott McNeill Whistler",
+      "normalized_name": "james abbott mcneill whistler",
+      "hallmarks": [
+        "tonal restraint",
+        "atmospheric minimalism",
+        "elegant reduction"
+      ],
+      "composition": [
+        "sparse arrangement",
+        "tonal balance",
+        "quiet asymmetry"
+      ],
+      "palette": [
+        "smoky grays",
+        "muted blues",
+        "soft creams"
+      ],
+      "surface": [
+        "thin tonal layering",
+        "softened edges",
+        "restrained finish"
+      ],
+      "mood": [
+        "quiet refinement",
+        "hush",
+        "contemplative distance"
+      ]
+    },
+    {
+      "artist_key": "jean_auguste_dominique_ingres",
+      "artist_name": "Jean-Auguste-Dominique Ingres",
+      "normalized_name": "jean auguste dominique ingres",
+      "hallmarks": [
+        "razor-clean contour precision",
+        "idealized neoclassical draftsmanship"
+      ],
+      "composition": [
+        "formal figure emphasis",
+        "disciplined compositional clarity"
+      ],
+      "palette": [
+        "cool porcelain flesh tones with restrained reds"
+      ],
+      "surface": [
+        "polished enamel-like finish"
+      ],
+      "mood": [
+        "aristocratic control"
+      ]
+    },
+    {
+      "artist_key": "jean_baptiste_simeon_chardin",
+      "artist_name": "Jean-Baptiste-Siméon Chardin",
+      "normalized_name": "jean baptiste simeon chardin",
+      "hallmarks": [
+        "quiet domestic stillness",
+        "humble objects",
+        "tonal intimacy"
+      ],
+      "composition": [
+        "stable tabletop balance",
+        "quiet interiors",
+        "simple grouping"
+      ],
+      "palette": [
+        "warm browns",
+        "dusty creams",
+        "muted reds"
+      ],
+      "surface": [
+        "soft painterly texture",
+        "understated finish"
+      ],
+      "mood": [
+        "humility",
+        "domestic calm",
+        "quiet observation"
+      ]
+    },
+    {
+      "artist_key": "jean_francois_millet",
+      "artist_name": "Jean-François Millet",
+      "normalized_name": "jean francois millet",
+      "hallmarks": [
+        "peasant monumentalism",
+        "rural labor dignity"
+      ],
+      "composition": [
+        "ground-hugging figural gravity"
+      ],
+      "palette": [
+        "earth, straw, and dusk umber"
+      ],
+      "surface": [
+        "grainy rustic paint mass"
+      ],
+      "mood": [
+        "humble solemn reverence"
+      ]
+    },
+    {
+      "artist_key": "jean_honore_fragonard",
+      "artist_name": "Jean-Honoré Fragonard",
+      "normalized_name": "jean honore fragonard",
+      "hallmarks": [
+        "rococo flourish",
+        "light sensual brushwork"
+      ],
+      "composition": [
+        "playful spiraling movement"
+      ],
+      "palette": [
+        "creamy pinks and powdered golds"
+      ],
+      "surface": [
+        "silken decorative finish"
+      ],
+      "mood": [
+        "flirtatious exuberance"
+      ]
+    },
+    {
+      "artist_key": "jean_leon_gerome",
+      "artist_name": "Jean-Léon Gérôme",
+      "normalized_name": "jean leon gerome",
+      "hallmarks": [
+        "hyper-finished academic realism",
+        "Orientalist precision"
+      ],
+      "composition": [
+        "carefully staged tableau clarity"
+      ],
+      "palette": [
+        "sunlit stone, jewel accents, and desert neutrals"
+      ],
+      "surface": [
+        "meticulous hard-edged finish"
+      ],
+      "mood": [
+        "cool theatrical spectacle"
+      ]
+    },
+    {
+      "artist_key": "joaquin_sorolla",
+      "artist_name": "Joaquín Sorolla",
+      "normalized_name": "joaquin sorolla",
+      "hallmarks": [
+        "sun-struck luminism",
+        "fluid plein-air brushwork"
+      ],
+      "composition": [
+        "wind-filled open composition"
+      ],
+      "palette": [
+        "salt-bright whites and Mediterranean blues"
+      ],
+      "surface": [
+        "radiant light-washed paint handling"
+      ],
+      "mood": [
+        "joyful brilliance"
+      ]
+    },
+    {
+      "artist_key": "johannes_vermeer",
+      "artist_name": "Johannes Vermeer",
+      "normalized_name": "johannes vermeer",
+      "hallmarks": [
+        "quiet domestic stillness",
+        "precisely observed light falloff"
+      ],
+      "composition": [
+        "intimate interior framing"
+      ],
+      "palette": [
+        "cool daylight blues and warm ochres"
+      ],
+      "surface": [
+        "pearl-like light on surfaces"
+      ],
+      "mood": [
+        "hushed contemplative calm"
+      ]
+    },
+    {
+      "artist_key": "john_atkinson_grimshaw",
+      "artist_name": "John Atkinson Grimshaw",
+      "normalized_name": "john atkinson grimshaw",
+      "hallmarks": [
+        "nocturnal city glow",
+        "rain-slick streets",
+        "gaslight atmosphere"
+      ],
+      "composition": [
+        "receding streets",
+        "moody river views",
+        "lamplit perspective"
+      ],
+      "palette": [
+        "amber lights",
+        "blue-black night",
+        "damp silvers"
+      ],
+      "surface": [
+        "polished atmospheric finish",
+        "wet reflective surfaces"
+      ],
+      "mood": [
+        "hushed melancholy",
+        "nocturnal mystery",
+        "quiet enchantment"
+      ]
+    },
+    {
+      "artist_key": "john_collier",
+      "artist_name": "John Collier",
+      "normalized_name": "john collier",
+      "hallmarks": [
+        "Pre-Raphaelite narrative clarity",
+        "mythic literary storytelling"
+      ],
+      "composition": [
+        "stage-like narrative framing"
+      ],
+      "palette": [
+        "deep greens, crimson accents, and cool flesh"
+      ],
+      "surface": [
+        "clear finished storytelling surface"
+      ],
+      "mood": [
+        "dramatic mythic solemnity"
+      ]
+    },
+    {
+      "artist_key": "john_everett_millais",
+      "artist_name": "John Everett Millais",
+      "normalized_name": "john everett millais",
+      "hallmarks": [
+        "Pre-Raphaelite exactitude",
+        "botanical and emotional detail"
+      ],
+      "composition": [
+        "dramatic literary staging"
+      ],
+      "palette": [
+        "saturated natural greens with jewel accents"
+      ],
+      "surface": [
+        "high-finish detail density"
+      ],
+      "mood": [
+        "earnest emotional clarity"
+      ]
+    },
+    {
+      "artist_key": "john_singer_sargent",
+      "artist_name": "John Singer Sargent",
+      "normalized_name": "john singer sargent",
+      "hallmarks": [
+        "virtuosic brush economy",
+        "luxurious portrait confidence"
+      ],
+      "composition": [
+        "elegant high-society framing"
+      ],
+      "palette": [
+        "black satin, ivory light, and muted jewel tones"
+      ],
+      "surface": [
+        "slick bravura paint passages"
+      ],
+      "mood": [
+        "effortless sophistication"
+      ]
+    },
+    {
+      "artist_key": "john_william_godward",
+      "artist_name": "John William Godward",
+      "normalized_name": "john william godward",
+      "hallmarks": [
+        "neo-classical marble serenity",
+        "archaeological decorative detail"
+      ],
+      "composition": [
+        "poised lateral figure placement"
+      ],
+      "palette": [
+        "sunlit stone, terracotta, and soft Mediterranean blue"
+      ],
+      "surface": [
+        "ultra-smooth polished finish"
+      ],
+      "mood": [
+        "quiet luxurious stillness"
+      ]
+    },
+    {
+      "artist_key": "john_william_waterhouse",
+      "artist_name": "John William Waterhouse",
+      "normalized_name": "john william waterhouse",
+      "hallmarks": [
+        "Pre-Raphaelite romantic detail",
+        "mythic feminine focus"
+      ],
+      "composition": [
+        "narrative tableau staging"
+      ],
+      "palette": [
+        "lush botanical reds and greens"
+      ],
+      "surface": [
+        "finely finished romantic surfaces"
+      ],
+      "mood": [
+        "melancholic enchantment"
+      ]
+    },
+    {
+      "artist_key": "joseph_mallord_william_turner",
+      "artist_name": "Joseph Mallord William Turner",
+      "normalized_name": "joseph mallord william turner",
+      "hallmarks": [
+        "radiant atmospheric dissolution",
+        "light-devoured landscape drama"
+      ],
+      "composition": [
+        "swirling elemental movement"
+      ],
+      "palette": [
+        "golden firelight, storm blue, and vaporous white"
+      ],
+      "surface": [
+        "mist-softened luminous paint haze"
+      ],
+      "mood": [
+        "sublime natural force"
+      ]
+    },
+    {
+      "artist_key": "jules_breton",
+      "artist_name": "Jules Breton",
+      "normalized_name": "jules breton",
+      "hallmarks": [
+        "peasant idealization",
+        "twilight rural lyricism"
+      ],
+      "composition": [
+        "figure silhouetted against expansive land"
+      ],
+      "palette": [
+        "dusky violets, wheat gold, and earth brown"
+      ],
+      "surface": [
+        "soft realistic blending"
+      ],
+      "mood": [
+        "pastoral solemn beauty"
+      ]
+    },
+    {
+      "artist_key": "jules_cyrille_cave",
+      "artist_name": "Jules-Cyrille Cavé",
+      "normalized_name": "jules cyrille cave",
+      "hallmarks": [
+        "salon romanticism",
+        "idealized feminine presence"
+      ],
+      "composition": [
+        "decorative centered figure design"
+      ],
+      "palette": [
+        "soft ivory, rose, and dusky blue"
+      ],
+      "surface": [
+        "velvety polished finish"
+      ],
+      "mood": [
+        "dream-soft sentiment"
+      ]
+    },
+    {
+      "artist_key": "jules_lefebvre",
+      "artist_name": "Jules Lefebvre",
+      "normalized_name": "jules lefebvre",
+      "hallmarks": [
+        "academic idealized figure beauty",
+        "salon polish"
+      ],
+      "composition": [
+        "elevated isolated figure emphasis"
+      ],
+      "palette": [
+        "creamy flesh, pale drapery, and muted atmosphere"
+      ],
+      "surface": [
+        "velvety refined finish"
+      ],
+      "mood": [
+        "dreamlike poise"
+      ]
+    },
+    {
+      "artist_key": "kay_nielsen",
+      "artist_name": "Kay Nielsen",
+      "normalized_name": "kay nielsen",
+      "hallmarks": [
+        "elegant stylization",
+        "ornamental silhouettes",
+        "fairytale abstraction"
+      ],
+      "composition": [
+        "flattened decorative staging",
+        "elongated forms",
+        "theatrical spacing"
+      ],
+      "palette": [
+        "jewel accents",
+        "dusky pastels",
+        "black-ground contrast"
+      ],
+      "surface": [
+        "refined decorative finish",
+        "smooth graphic surfaces"
+      ],
+      "mood": [
+        "dreamlike elegance",
+        "enchanted distance",
+        "ornamental mystery"
+      ]
+    },
+    {
+      "artist_key": "lawrence_alma_tadema",
+      "artist_name": "Lawrence Alma-Tadema",
+      "normalized_name": "lawrence alma tadema",
+      "hallmarks": [
+        "marble-rich classicism",
+        "sunlit archaeological luxury"
+      ],
+      "composition": [
+        "terraced classical stagecraft"
+      ],
+      "palette": [
+        "white marble, rose petals, and Mediterranean blue"
+      ],
+      "surface": [
+        "highly polished stone and skin rendering"
+      ],
+      "mood": [
+        "luxurious classical leisure"
+      ]
+    },
+    {
+      "artist_key": "leon_bonnat",
+      "artist_name": "Léon Bonnat",
+      "normalized_name": "leon bonnat",
+      "hallmarks": [
+        "stern portrait realism",
+        "somber psychological concentration"
+      ],
+      "composition": [
+        "weighty bust-length emphasis"
+      ],
+      "palette": [
+        "dark umber, black, and muted flesh"
+      ],
+      "surface": [
+        "dense sober paint handling"
+      ],
+      "mood": [
+        "authoritative severity"
+      ]
+    },
+    {
+      "artist_key": "leonardo_da_vinci",
+      "artist_name": "Leonardo da Vinci",
+      "normalized_name": "leonardo da vinci",
+      "hallmarks": [
+        "sfumato transitions",
+        "anatomically attentive rendering"
+      ],
+      "composition": [
+        "measured Renaissance balance",
+        "quiet pyramidal stability"
+      ],
+      "palette": [
+        "restrained earth-toned palette"
+      ],
+      "surface": [
+        "softly unified surface modeling"
+      ],
+      "mood": [
+        "enigmatic calm"
+      ]
+    },
+    {
+      "artist_key": "lionel_royer",
+      "artist_name": "Lionel Royer",
+      "normalized_name": "lionel royer",
+      "hallmarks": [
+        "heroic historical pageantry",
+        "dramatic national myth staging"
+      ],
+      "composition": [
+        "sweeping battlefield or ceremonial tableau"
+      ],
+      "palette": [
+        "steel gray, banner red, and gold light"
+      ],
+      "surface": [
+        "firm academic realism"
+      ],
+      "mood": [
+        "patriotic drama"
+      ]
+    },
+    {
+      "artist_key": "louis_jean_francois_lagrenee",
+      "artist_name": "Louis Jean François Lagrenée",
+      "normalized_name": "louis jean francois lagrenee",
+      "hallmarks": [
+        "rococo classicism",
+        "decorative mythological grace"
+      ],
+      "composition": [
+        "airy ornamental figure arrangement"
+      ],
+      "palette": [
+        "powder blue, pearl cream, and soft pink"
+      ],
+      "surface": [
+        "smooth elegant decorative finish"
+      ],
+      "mood": [
+        "courtly refinement"
+      ]
+    },
+    {
+      "artist_key": "louis_leopold_boilly",
+      "artist_name": "Louis-Léopold Boilly",
+      "normalized_name": "louis leopold boilly",
+      "hallmarks": [
+        "crowded social observation",
+        "miniaturist anecdotal precision"
+      ],
+      "composition": [
+        "busy salon-like scene arrangement"
+      ],
+      "palette": [
+        "clear bourgeois interiors with crisp costume color"
+      ],
+      "surface": [
+        "small-scale polished detail"
+      ],
+      "mood": [
+        "witty urban sociability"
+      ]
+    },
+    {
+      "artist_key": "mary_cassatt",
+      "artist_name": "Mary Cassatt",
+      "normalized_name": "mary cassatt",
+      "hallmarks": [
+        "intimate observational tenderness",
+        "domestic impressionist sensitivity"
+      ],
+      "composition": [
+        "close relational framing"
+      ],
+      "palette": [
+        "soft rose, cream, and blue harmonies"
+      ],
+      "surface": [
+        "delicate pastel softness"
+      ],
+      "mood": [
+        "warm human intimacy"
+      ]
+    },
+    {
+      "artist_key": "michelangelo_buonarroti",
+      "artist_name": "Michelangelo Buonarroti",
+      "normalized_name": "michelangelo buonarroti",
+      "hallmarks": [
+        "heroic anatomical power",
+        "monumental sculptural bodies"
+      ],
+      "composition": [
+        "muscular monumental arrangement"
+      ],
+      "palette": [
+        "stone-like flesh tones with fresco color"
+      ],
+      "surface": [
+        "carved physical presence"
+      ],
+      "mood": [
+        "mythic grandeur"
+      ]
+    },
+    {
+      "artist_key": "n_c_wyeth",
+      "artist_name": "N. C. Wyeth",
+      "normalized_name": "n c wyeth",
+      "hallmarks": [
+        "heroic illustration",
+        "bold color masses",
+        "high-adventure drama"
+      ],
+      "composition": [
+        "strong diagonals",
+        "dramatic figure staging",
+        "storybook depth"
+      ],
+      "palette": [
+        "rich primaries",
+        "earthy shadows",
+        "sunlit highlights"
+      ],
+      "surface": [
+        "vigorous brushwork",
+        "painterly illustration finish"
+      ],
+      "mood": [
+        "adventure",
+        "legend",
+        "romantic momentum"
+      ]
+    },
+    {
+      "artist_key": "norman_rockwell",
+      "artist_name": "Norman Rockwell",
+      "normalized_name": "norman rockwell",
+      "hallmarks": [
+        "narrative Americana",
+        "expressive character acting",
+        "readable storytelling"
+      ],
+      "composition": [
+        "single-moment narrative focus",
+        "staged character clusters",
+        "clear visual read"
+      ],
+      "palette": [
+        "warm naturalism",
+        "friendly midtones",
+        "clean accents"
+      ],
+      "surface": [
+        "polished illustrative realism",
+        "soft paint finish"
+      ],
+      "mood": [
+        "warmth",
+        "humor",
+        "human familiarity"
+      ]
+    },
+    {
+      "artist_key": "odilon_redon",
+      "artist_name": "Odilon Redon",
+      "normalized_name": "odilon redon",
+      "hallmarks": [
+        "dream symbolism",
+        "floating forms",
+        "luminous inner vision"
+      ],
+      "composition": [
+        "suspended objects",
+        "ambiguous depth",
+        "symbolic grouping"
+      ],
+      "palette": [
+        "smoky violets",
+        "muted golds",
+        "soft chromatic bloom"
+      ],
+      "surface": [
+        "powdery pastel softness",
+        "velvety transitions",
+        "hazy finish"
+      ],
+      "mood": [
+        "inward mystery",
+        "dream reverie",
+        "symbolic quiet"
+      ]
+    },
+    {
+      "artist_key": "pablo_picasso",
+      "artist_name": "Pablo Picasso",
+      "normalized_name": "pablo picasso",
+      "hallmarks": [
+        "fractured cubist geometry",
+        "bold modernist abstraction",
+        "planar facial and bodily distortion"
+      ],
+      "composition": [
+        "angular multi-perspective staging",
+        "flattened interlocking spatial planes"
+      ],
+      "palette": [
+        "ochre, charcoal, muted blue, and sharp black contour accents"
+      ],
+      "surface": [
+        "cut planes and graphic edge articulation",
+        "dry matte modernist surface tension"
+      ],
+      "mood": [
+        "restless inventive intensity",
+        "playful formal disruption"
+      ]
+    },
+    {
+      "artist_key": "paul_cezanne",
+      "artist_name": "Paul Cézanne",
+      "normalized_name": "paul cezanne",
+      "hallmarks": [
+        "structural brush planes",
+        "form built through color"
+      ],
+      "composition": [
+        "deliberate geometric stability"
+      ],
+      "palette": [
+        "muted orchard greens and warm ochres"
+      ],
+      "surface": [
+        "constructed painterly facets"
+      ],
+      "mood": [
+        "measured perceptual tension"
+      ]
+    },
+    {
+      "artist_key": "paul_delaroche",
+      "artist_name": "Paul Delaroche",
+      "normalized_name": "paul delaroche",
+      "hallmarks": [
+        "historical melodrama",
+        "academic theatrical realism"
+      ],
+      "composition": [
+        "stage-lit historical tableau"
+      ],
+      "palette": [
+        "velvet reds, charcoal blacks, and cold highlights"
+      ],
+      "surface": [
+        "carefully controlled drama finish"
+      ],
+      "mood": [
+        "somber historical pathos"
+      ]
+    },
+    {
+      "artist_key": "paul_gauguin",
+      "artist_name": "Paul Gauguin",
+      "normalized_name": "paul gauguin",
+      "hallmarks": [
+        "symbolist flattening",
+        "simplified bold contour"
+      ],
+      "composition": [
+        "decorative symbolic arrangement"
+      ],
+      "palette": [
+        "exotic saturated oranges and greens"
+      ],
+      "surface": [
+        "matte color fields"
+      ],
+      "mood": [
+        "dreamlike spiritual distance"
+      ]
+    },
+    {
+      "artist_key": "paul_klee",
+      "artist_name": "Paul Klee",
+      "normalized_name": "paul klee",
+      "hallmarks": [
+        "playful symbolic abstraction",
+        "delicate linear whimsy"
+      ],
+      "composition": [
+        "grid-like poetic improvisation"
+      ],
+      "palette": [
+        "muted warm primaries with translucent layering"
+      ],
+      "surface": [
+        "chalky watercolor-like surface"
+      ],
+      "mood": [
+        "intellectual playfulness"
+      ]
+    },
+    {
+      "artist_key": "paul_signac",
+      "artist_name": "Paul Signac",
+      "normalized_name": "paul signac",
+      "hallmarks": [
+        "divisionist color architecture",
+        "luminous Mediterranean geometry"
+      ],
+      "composition": [
+        "structured harbor or coastal rhythm"
+      ],
+      "palette": [
+        "high-key marine blues and oranges"
+      ],
+      "surface": [
+        "mosaic-like color tessellation"
+      ],
+      "mood": [
+        "bright ordered vitality"
+      ]
+    },
+    {
+      "artist_key": "peter_paul_rubens",
+      "artist_name": "Peter Paul Rubens",
+      "normalized_name": "peter paul rubens",
+      "hallmarks": [
+        "Baroque abundance",
+        "voluptuous dynamic anatomy"
+      ],
+      "composition": [
+        "spiraling theatrical movement"
+      ],
+      "palette": [
+        "warm flesh, ruby drapery, and honeyed light"
+      ],
+      "surface": [
+        "lush energetic oil handling"
+      ],
+      "mood": [
+        "sensual grandeur"
+      ]
+    },
+    {
+      "artist_key": "pierre_auguste_cot",
+      "artist_name": "Pierre-Auguste Cot",
+      "normalized_name": "pierre auguste cot",
+      "hallmarks": [
+        "idealized romantic sweetness",
+        "wind-swept lyrical bodies"
+      ],
+      "composition": [
+        "graceful floating movement"
+      ],
+      "palette": [
+        "rosy flesh, soft ivory, and pastoral greens"
+      ],
+      "surface": [
+        "soft polished salon finish"
+      ],
+      "mood": [
+        "dreamy romantic charm"
+      ]
+    },
+    {
+      "artist_key": "pierre_auguste_renoir",
+      "artist_name": "Pierre-Auguste Renoir",
+      "normalized_name": "pierre auguste renoir",
+      "hallmarks": [
+        "warm sociable impressionism",
+        "soft flesh and sunlight vibration"
+      ],
+      "composition": [
+        "intimate crowded convivial framing"
+      ],
+      "palette": [
+        "rose skin tones, blue shadows, and warm creams"
+      ],
+      "surface": [
+        "feathered luminous brushwork"
+      ],
+      "mood": [
+        "sensual warmth"
+      ]
+    },
+    {
+      "artist_key": "piet_mondrian",
+      "artist_name": "Piet Mondrian",
+      "normalized_name": "piet mondrian",
+      "hallmarks": [
+        "pure geometric reduction",
+        "orthogonal abstraction"
+      ],
+      "composition": [
+        "gridded compositional equilibrium"
+      ],
+      "palette": [
+        "primary colors, white fields, and black lines"
+      ],
+      "surface": [
+        "flat crisp planar finish"
+      ],
+      "mood": [
+        "utopian order"
+      ]
+    },
+    {
+      "artist_key": "pieter_bruegel_the_elder",
+      "artist_name": "Pieter Bruegel the Elder",
+      "normalized_name": "pieter bruegel the elder",
+      "hallmarks": [
+        "crowded peasant narrative",
+        "panoramic action",
+        "earthy observation"
+      ],
+      "composition": [
+        "broad village staging",
+        "many small figure events",
+        "layered distance"
+      ],
+      "palette": [
+        "soil reds",
+        "moss greens",
+        "winter grays"
+      ],
+      "surface": [
+        "detailed rustic finish",
+        "small-figure texture"
+      ],
+      "mood": [
+        "communal life",
+        "satire",
+        "earthy vitality"
+      ]
+    },
+    {
+      "artist_key": "rachel_ruysch",
+      "artist_name": "Rachel Ruysch",
+      "normalized_name": "rachel ruysch",
+      "hallmarks": [
+        "floral abundance",
+        "dark-ground still life",
+        "botanical precision"
+      ],
+      "composition": [
+        "bouquet arcs",
+        "dark void backgrounds",
+        "balanced asymmetry"
+      ],
+      "palette": [
+        "deep greens",
+        "petal pinks",
+        "rich floral highlights"
+      ],
+      "surface": [
+        "precise botanical finish",
+        "polished detail"
+      ],
+      "mood": [
+        "opulence",
+        "delicacy",
+        "stillness"
+      ]
+    },
+    {
+      "artist_key": "raphael",
+      "artist_name": "Raphael",
+      "normalized_name": "raphael",
+      "hallmarks": [
+        "harmonious idealized anatomy",
+        "clear High Renaissance order"
+      ],
+      "composition": [
+        "balanced classical arrangement"
+      ],
+      "palette": [
+        "clear balanced fresco color"
+      ],
+      "surface": [
+        "polished integrated finish"
+      ],
+      "mood": [
+        "serene nobility"
+      ]
+    },
+    {
+      "artist_key": "rembrandt_van_rijn",
+      "artist_name": "Rembrandt van Rijn",
+      "normalized_name": "rembrandt van rijn",
+      "hallmarks": [
+        "dramatic chiaroscuro",
+        "psychological portrait gravity"
+      ],
+      "composition": [
+        "weighty figure emphasis"
+      ],
+      "palette": [
+        "deep umbers and molten golds"
+      ],
+      "surface": [
+        "rugged tactile paint handling"
+      ],
+      "mood": [
+        "soulful introspection"
+      ]
+    },
+    {
+      "artist_key": "salvador_dali",
+      "artist_name": "Salvador Dalí",
+      "normalized_name": "salvador dali",
+      "hallmarks": [
+        "dreamlike surreal transformation",
+        "uncanny symbolic distortion",
+        "precise illusionistic absurdity"
+      ],
+      "composition": [
+        "theatrical surreal staging",
+        "wide barren spatial recession"
+      ],
+      "palette": [
+        "sun-bleached ochres, lucid Mediterranean blues, and sharp surreal highlights"
+      ],
+      "surface": [
+        "hyper-finished illusionistic detail",
+        "polished dreamlike surface clarity"
+      ],
+      "mood": [
+        "oneiric psychological strangeness",
+        "luxurious uncanny tension"
+      ]
+    },
+    {
+      "artist_key": "sandro_botticelli",
+      "artist_name": "Sandro Botticelli",
+      "normalized_name": "sandro botticelli",
+      "hallmarks": [
+        "linear elegance",
+        "graceful flowing contour"
+      ],
+      "composition": [
+        "poetic mythic staging"
+      ],
+      "palette": [
+        "delicate luminous pastels"
+      ],
+      "surface": [
+        "refined tempera-like finish"
+      ],
+      "mood": [
+        "lyrical idealism"
+      ]
+    },
+    {
+      "artist_key": "tamara_de_lempicka",
+      "artist_name": "Tamara de Lempicka",
+      "normalized_name": "tamara de lempicka",
+      "hallmarks": [
+        "Art Deco glamour",
+        "sculpted modern figures",
+        "sleek polish"
+      ],
+      "composition": [
+        "geometric framing",
+        "stylized portrait staging",
+        "compressed elegance"
+      ],
+      "palette": [
+        "cool metallics",
+        "lacquered skin tones",
+        "bold luxury accents"
+      ],
+      "surface": [
+        "airbrushed smoothness",
+        "polished enamel finish"
+      ],
+      "mood": [
+        "glamour",
+        "control",
+        "modern sophistication"
+      ]
+    },
+    {
+      "artist_key": "theodore_gericault",
+      "artist_name": "Théodore Géricault",
+      "normalized_name": "theodore gericault",
+      "hallmarks": [
+        "Romantic bodily force",
+        "tumultuous emotional realism"
+      ],
+      "composition": [
+        "surging diagonal instability"
+      ],
+      "palette": [
+        "storm-darkened browns and flesh tones"
+      ],
+      "surface": [
+        "energetic muscular paint handling"
+      ],
+      "mood": [
+        "catastrophic urgency"
+      ]
+    },
+    {
+      "artist_key": "thomas_cole",
+      "artist_name": "Thomas Cole",
+      "normalized_name": "thomas cole",
+      "hallmarks": [
+        "American sublime landscape",
+        "moralized wilderness grandeur"
+      ],
+      "composition": [
+        "epic scenic recession"
+      ],
+      "palette": [
+        "autumn gold, storm blue, and forest green"
+      ],
+      "surface": [
+        "clear descriptive landscape finish"
+      ],
+      "mood": [
+        "reverent expansion"
+      ]
+    },
+    {
+      "artist_key": "utagawa_hiroshige",
+      "artist_name": "Utagawa Hiroshige",
+      "normalized_name": "utagawa hiroshige",
+      "hallmarks": [
+        "atmospheric landscape printmaking",
+        "poetic weather",
+        "elegant spatial layering"
+      ],
+      "composition": [
+        "framed vistas",
+        "oblique viewpoints",
+        "rhythmic recession"
+      ],
+      "palette": [
+        "misty blues",
+        "soft greens",
+        "warm seasonal accents"
+      ],
+      "surface": [
+        "woodblock smoothness",
+        "flat color fields",
+        "delicate gradients"
+      ],
+      "mood": [
+        "calm transience",
+        "seasonal melancholy",
+        "quiet beauty"
+      ]
+    },
+    {
+      "artist_key": "vassily_kandinsky",
+      "artist_name": "Vassily Kandinsky",
+      "normalized_name": "vassily kandinsky",
+      "hallmarks": [
+        "abstract musical geometry",
+        "color as emotional structure"
+      ],
+      "composition": [
+        "floating non-objective arrangement"
+      ],
+      "palette": [
+        "high-contrast chromatic accents"
+      ],
+      "surface": [
+        "clean abstract articulation"
+      ],
+      "mood": [
+        "spiritual dynamism"
+      ]
+    },
+    {
+      "artist_key": "vincent_van_gogh",
+      "artist_name": "Vincent Van Gogh",
+      "normalized_name": "vincent van gogh",
+      "hallmarks": [
+        "expressive directional brushwork",
+        "swirling rhythmic mark making"
+      ],
+      "composition": [
+        "emotionally charged framing",
+        "restless spatial movement"
+      ],
+      "palette": [
+        "saturated yellows against electric blues"
+      ],
+      "surface": [
+        "thick impasto presence"
+      ],
+      "mood": [
+        "feverish emotional intensity"
+      ]
+    },
+    {
+      "artist_key": "william_adolphe_bouguereau",
+      "artist_name": "William-Adolphe Bouguereau",
+      "normalized_name": "william adolphe bouguereau",
+      "hallmarks": [
+        "academic ideal beauty",
+        "flawless anatomical polish"
+      ],
+      "composition": [
+        "gracefully centered figural harmony"
+      ],
+      "palette": [
+        "creamy skin, sky blue, and blush rose"
+      ],
+      "surface": [
+        "silken salon smoothness"
+      ],
+      "mood": [
+        "tender idealism"
+      ]
+    },
+    {
+      "artist_key": "william_blake",
+      "artist_name": "William Blake",
+      "normalized_name": "william blake",
+      "hallmarks": [
+        "visionary symbolism",
+        "illuminated myth imagery",
+        "mystical figuration"
+      ],
+      "composition": [
+        "emblematic staging",
+        "floating figures",
+        "spiritual tableaux"
+      ],
+      "palette": [
+        "glowing warms",
+        "smoky cools",
+        "stained visionary color"
+      ],
+      "surface": [
+        "delicate linework",
+        "watercolor-like radiance",
+        "hand-worked finish"
+      ],
+      "mood": [
+        "prophetic intensity",
+        "sacred strangeness",
+        "visionary exaltation"
+      ]
+    },
+    {
+      "artist_key": "winslow_homer",
+      "artist_name": "Winslow Homer",
+      "normalized_name": "winslow homer",
+      "hallmarks": [
+        "rugged naturalism",
+        "sea-and-weather drama",
+        "direct American realism"
+      ],
+      "composition": [
+        "figure-versus-nature staging",
+        "strong horizon control",
+        "sturdy forms"
+      ],
+      "palette": [
+        "marine blues",
+        "sun-baked earths",
+        "weathered neutrals"
+      ],
+      "surface": [
+        "robust brush handling",
+        "outdoor clarity",
+        "practical finish"
+      ],
+      "mood": [
+        "endurance",
+        "plainspoken drama",
+        "elemental force"
+      ]
+    }
+  ]
+}
