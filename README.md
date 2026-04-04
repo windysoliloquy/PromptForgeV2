@@ -1,14 +1,12 @@
 # Prompt Forge Releases
 
-This repository now distributes release artifacts only.
+This branch is release-only.
 
-Source code and development files have been removed from the public branch history and are no longer published here.
+The source code is kept off the public branch on purpose. This branch should only contain signed installers, release notes, and minimal public-facing documentation.
 
-Available downloads are in [artifacts/installer](/C:/Users/windy/OneDrive/Desktop/codex/Prompt%20Forge/artifacts/installer) in the local workspace and in the GitHub Releases page for this repository.
+Current release:
 
-Current public release:
+- Version: 4.1
+- Installer: PromptForge-4.1-Setup.exe
 
-- `Prompt Forge 4.0.0`
-- installer: `PromptForge-4.0.0-Setup.exe`
-
-Older release installers and notes may also be preserved here as binary release artifacts.
+Release assets live in `artifacts/installer`.
