@@ -138,13 +138,14 @@ public sealed class PromptBuilderService : IPromptBuilderService
                 AddUnique(phrases, seen, phrase);
             }
         }
-        else
+        if (!useVintageBend)
         {
             foreach (var phrase in BuildStyleSection(configuration))
             {
                 AddUnique(phrases, seen, phrase);
             }
         }
+
         foreach (var phrase in BuildCompositionSection(configuration)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildMoodSection(configuration)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildLightingAndColorSection(configuration, useVintageBend, useProductPhotographyLane, useFoodPhotographyLane, useArchitectureArchvizLane, usePhotographyLane, useCinematicLane, useThreeDRenderLane, useConceptArtLane)) AddUnique(phrases, seen, phrase);

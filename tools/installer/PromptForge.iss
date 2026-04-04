@@ -7,11 +7,11 @@
 #endif
 
 #ifndef SetupBaseName
-  #define SetupBaseName "PromptForge-4.1.1-Setup"
+  #define SetupBaseName "PromptForge-4.1.2-Setup"
 #endif
 
 #ifndef AppVersion
-  #define AppVersion "4.1.1"
+  #define AppVersion "4.1.2"
 #endif
 
 #ifndef AppExeName

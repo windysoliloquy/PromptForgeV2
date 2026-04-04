@@ -1558,6 +1558,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         if (changed)
         {
             _ordinaryLaneStates.GetOrAddLane(laneId).SetSelector(selectorKey, value);
+            LogLaneDebugSelectorChange(laneId, selectorKey, value);
         }
 
         return changed;
@@ -1569,6 +1570,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         if (changed)
         {
             _ordinaryLaneStates.GetOrAddLane(laneId).SetModifier(modifierKey, value);
+            LogLaneDebugModifierChange(laneId, modifierKey, value);
         }
 
         return changed;
@@ -1578,14 +1580,54 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         var laneState = _ordinaryLaneStates.GetOrAddLane(SharedLaneKeys.Anime.LaneId);
         laneState.SetSelector(selectorKey, value);
-        return SetAndRefresh(ref field, value);
+        var changed = SetAndRefresh(ref field, value);
+        if (changed)
+        {
+            LogLaneDebugSelectorChange(SharedLaneKeys.Anime.LaneId, selectorKey, value);
+        }
+
+        return changed;
     }
 
     private bool SetAnimeModifierAndRefresh(ref bool field, bool value, string modifierKey)
     {
         var laneState = _ordinaryLaneStates.GetOrAddLane(SharedLaneKeys.Anime.LaneId);
         laneState.SetModifier(modifierKey, value);
-        return SetAndRefresh(ref field, value);
+        var changed = SetAndRefresh(ref field, value);
+        if (changed)
+        {
+            LogLaneDebugModifierChange(SharedLaneKeys.Anime.LaneId, modifierKey, value);
+        }
+
+        return changed;
+    }
+
+    private void LogLaneDebugSelectorChange(string laneId, string selectorKey, string value)
+    {
+        if (!ShouldLogLaneDebug(laneId))
+        {
+            return;
+        }
+
+        UiEventLog.Write(
+            $"lane-selector lane='{laneId}' selector='{selectorKey}' value='{value}' intent='{IntentMode}' prompt='{FormatPromptPreviewForLog(PromptPreview)}'");
+    }
+
+    private void LogLaneDebugModifierChange(string laneId, string modifierKey, bool value)
+    {
+        if (!ShouldLogLaneDebug(laneId))
+        {
+            return;
+        }
+
+        UiEventLog.Write(
+            $"lane-modifier lane='{laneId}' modifier='{modifierKey}' value={value} intent='{IntentMode}' prompt='{FormatPromptPreviewForLog(PromptPreview)}'");
+    }
+
+    private static bool ShouldLogLaneDebug(string laneId)
+    {
+        return string.Equals(laneId, SharedLaneKeys.Anime.LaneId, StringComparison.Ordinal)
+            || string.Equals(laneId, SharedLaneKeys.PixelArt.LaneId, StringComparison.Ordinal);
     }
 
     private void RegeneratePrompt()
@@ -2143,6 +2185,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         StandardLaneStateAdapter.ApplyToConfiguration(configuration, configuration.StandardLaneStates);
         UiEventLog.Write(
             $"capture-configuration intent='{configuration.IntentMode}' stylization={configuration.Stylization} realism={configuration.Realism} textureDepth={configuration.TextureDepth} narrativeDensity={configuration.NarrativeDensity} symbolism={configuration.Symbolism} surfaceAge={configuration.SurfaceAge} framing={configuration.Framing} cameraDistance={configuration.CameraDistance} cameraAngle={configuration.CameraAngle} background={configuration.BackgroundComplexity} motion={configuration.MotionEnergy} atmospheric={configuration.AtmosphericDepth} chaos={configuration.Chaos} focusDepth={configuration.FocusDepth} imageCleanliness={configuration.ImageCleanliness} detailDensity={configuration.DetailDensity} temperature={configuration.Temperature} lightingIntensity={configuration.LightingIntensity} saturation={configuration.Saturation} contrast={configuration.Contrast} excludeNarrative={configuration.ExcludeNarrativeDensityFromPrompt} excludeSymbolism={configuration.ExcludeSymbolismFromPrompt} excludeAtmospheric={configuration.ExcludeAtmosphericDepthFromPrompt} excludeChaos={configuration.ExcludeChaosFromPrompt} excludeFraming={configuration.ExcludeFramingFromPrompt} excludeCameraDistance={configuration.ExcludeCameraDistanceFromPrompt} excludeCameraAngle={configuration.ExcludeCameraAngleFromPrompt} excludeBackground={configuration.ExcludeBackgroundComplexityFromPrompt} excludeMotion={configuration.ExcludeMotionEnergyFromPrompt} excludeWhimsy={configuration.ExcludeWhimsyFromPrompt} excludeTension={configuration.ExcludeTensionFromPrompt} excludeAwe={configuration.ExcludeAweFromPrompt} excludeTemperature={configuration.ExcludeTemperatureFromPrompt} excludeLightingIntensity={configuration.ExcludeLightingIntensityFromPrompt} excludeStylization={configuration.ExcludeStylizationFromPrompt} excludeRealism={configuration.ExcludeRealismFromPrompt} excludeTextureDepth={configuration.ExcludeTextureDepthFromPrompt} excludeSurfaceAge={configuration.ExcludeSurfaceAgeFromPrompt} excludeFocusDepth={configuration.ExcludeFocusDepthFromPrompt} excludeImageCleanliness={configuration.ExcludeImageCleanlinessFromPrompt} excludeDetailDensity={configuration.ExcludeDetailDensityFromPrompt} excludeSaturation={configuration.ExcludeSaturationFromPrompt} excludeContrast={configuration.ExcludeContrastFromPrompt}");
+        if (IntentModeCatalog.IsAnime(configuration.IntentMode))
+        {
+            UiEventLog.Write(
+                $"capture-lane intent='{configuration.IntentMode}' lane='{SharedLaneKeys.Anime.LaneId}' style='{configuration.AnimeStyle}' era='{configuration.AnimeEra}' celShading={configuration.AnimeCelShading} cleanLineArt={configuration.AnimeCleanLineArt} expressiveEyes={configuration.AnimeExpressiveEyes} dynamicAction={configuration.AnimeDynamicAction} cinematicLighting={configuration.AnimeCinematicLighting} stylizedHair={configuration.AnimeStylizedHair} atmosphericEffects={configuration.AnimeAtmosphericEffects}");
+        }
+        else if (IntentModeCatalog.IsPixelArt(configuration.IntentMode))
+        {
+            UiEventLog.Write(
+                $"capture-lane intent='{configuration.IntentMode}' lane='{SharedLaneKeys.PixelArt.LaneId}' subtype='{configuration.PixelArtSubtype}' limitedPalette={configuration.PixelArtLimitedPalette} dithering={configuration.PixelArtDithering} tileableDesign={configuration.PixelArtTileableDesign} spriteSheetReadability={configuration.PixelArtSpriteSheetReadability} cleanOutline={configuration.PixelArtCleanOutline} subpixelShading={configuration.PixelArtSubpixelShading} hudUiFraming={configuration.PixelArtHudUiFraming}");
+        }
+
         return configuration;
     }
 
