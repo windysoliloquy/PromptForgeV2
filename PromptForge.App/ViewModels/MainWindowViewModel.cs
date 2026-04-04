@@ -1078,14 +1078,41 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             RegeneratePrompt();
 
             if (!string.IsNullOrWhiteSpace(propertyName) &&
-                propertyName.StartsWith("Exclude", StringComparison.Ordinal))
+                (propertyName.StartsWith("Exclude", StringComparison.Ordinal) || IsPromptSliderProperty(propertyName)))
             {
                 UiEventLog.Write(
-                    $"prompt-preview property='{propertyName}' intent='{IntentMode}' text='{FormatPromptPreviewForLog(PromptPreview)}'");
+                    $"prompt-preview property='{propertyName}' value='{value}' intent='{IntentMode}' prompt='{FormatPromptPreviewForLog(PromptPreview)}'");
             }
         }
 
         return changed;
+    }
+
+    private static bool IsPromptSliderProperty(string propertyName)
+    {
+        return propertyName is nameof(Temperature)
+            or nameof(LightingIntensity)
+            or nameof(Stylization)
+            or nameof(Realism)
+            or nameof(TextureDepth)
+            or nameof(NarrativeDensity)
+            or nameof(Symbolism)
+            or nameof(AtmosphericDepth)
+            or nameof(SurfaceAge)
+            or nameof(Chaos)
+            or nameof(Framing)
+            or nameof(CameraDistance)
+            or nameof(CameraAngle)
+            or nameof(BackgroundComplexity)
+            or nameof(MotionEnergy)
+            or nameof(FocusDepth)
+            or nameof(ImageCleanliness)
+            or nameof(DetailDensity)
+            or nameof(Whimsy)
+            or nameof(Tension)
+            or nameof(Awe)
+            or nameof(Saturation)
+            or nameof(Contrast);
     }
 
     private static string FormatPromptPreviewForLog(string? value)
@@ -2115,7 +2142,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         configuration.StandardLaneStates = _ordinaryLaneStates.Clone();
         StandardLaneStateAdapter.ApplyToConfiguration(configuration, configuration.StandardLaneStates);
         UiEventLog.Write(
-            $"capture-configuration intent='{configuration.IntentMode}' narrative={configuration.ExcludeNarrativeDensityFromPrompt} symbolism={configuration.ExcludeSymbolismFromPrompt} atmospheric={configuration.ExcludeAtmosphericDepthFromPrompt} chaos={configuration.ExcludeChaosFromPrompt} framing={configuration.ExcludeFramingFromPrompt} cameraDistance={configuration.ExcludeCameraDistanceFromPrompt} cameraAngle={configuration.ExcludeCameraAngleFromPrompt} background={configuration.ExcludeBackgroundComplexityFromPrompt} motion={configuration.ExcludeMotionEnergyFromPrompt} whimsy={configuration.ExcludeWhimsyFromPrompt} tension={configuration.ExcludeTensionFromPrompt} awe={configuration.ExcludeAweFromPrompt} temperature={configuration.ExcludeTemperatureFromPrompt} lightingIntensity={configuration.ExcludeLightingIntensityFromPrompt} stylization={configuration.ExcludeStylizationFromPrompt} realism={configuration.ExcludeRealismFromPrompt} textureDepth={configuration.ExcludeTextureDepthFromPrompt} surfaceAge={configuration.ExcludeSurfaceAgeFromPrompt} focusDepth={configuration.ExcludeFocusDepthFromPrompt} imageCleanliness={configuration.ExcludeImageCleanlinessFromPrompt} detailDensity={configuration.ExcludeDetailDensityFromPrompt} saturation={configuration.ExcludeSaturationFromPrompt} contrast={configuration.ExcludeContrastFromPrompt}");
+            $"capture-configuration intent='{configuration.IntentMode}' stylization={configuration.Stylization} realism={configuration.Realism} textureDepth={configuration.TextureDepth} narrativeDensity={configuration.NarrativeDensity} symbolism={configuration.Symbolism} surfaceAge={configuration.SurfaceAge} framing={configuration.Framing} cameraDistance={configuration.CameraDistance} cameraAngle={configuration.CameraAngle} background={configuration.BackgroundComplexity} motion={configuration.MotionEnergy} atmospheric={configuration.AtmosphericDepth} chaos={configuration.Chaos} focusDepth={configuration.FocusDepth} imageCleanliness={configuration.ImageCleanliness} detailDensity={configuration.DetailDensity} temperature={configuration.Temperature} lightingIntensity={configuration.LightingIntensity} saturation={configuration.Saturation} contrast={configuration.Contrast} excludeNarrative={configuration.ExcludeNarrativeDensityFromPrompt} excludeSymbolism={configuration.ExcludeSymbolismFromPrompt} excludeAtmospheric={configuration.ExcludeAtmosphericDepthFromPrompt} excludeChaos={configuration.ExcludeChaosFromPrompt} excludeFraming={configuration.ExcludeFramingFromPrompt} excludeCameraDistance={configuration.ExcludeCameraDistanceFromPrompt} excludeCameraAngle={configuration.ExcludeCameraAngleFromPrompt} excludeBackground={configuration.ExcludeBackgroundComplexityFromPrompt} excludeMotion={configuration.ExcludeMotionEnergyFromPrompt} excludeWhimsy={configuration.ExcludeWhimsyFromPrompt} excludeTension={configuration.ExcludeTensionFromPrompt} excludeAwe={configuration.ExcludeAweFromPrompt} excludeTemperature={configuration.ExcludeTemperatureFromPrompt} excludeLightingIntensity={configuration.ExcludeLightingIntensityFromPrompt} excludeStylization={configuration.ExcludeStylizationFromPrompt} excludeRealism={configuration.ExcludeRealismFromPrompt} excludeTextureDepth={configuration.ExcludeTextureDepthFromPrompt} excludeSurfaceAge={configuration.ExcludeSurfaceAgeFromPrompt} excludeFocusDepth={configuration.ExcludeFocusDepthFromPrompt} excludeImageCleanliness={configuration.ExcludeImageCleanlinessFromPrompt} excludeDetailDensity={configuration.ExcludeDetailDensityFromPrompt} excludeSaturation={configuration.ExcludeSaturationFromPrompt} excludeContrast={configuration.ExcludeContrastFromPrompt}");
         return configuration;
     }
 
@@ -3255,35 +3282,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private string GetSliderBandLabel(string key, int value)
     {
-        return IsVintageBendIntent
-            ? SliderLanguageCatalog.ResolveVintageBendPhrase(key, value, CaptureConfiguration())
-            : IsAnimeIntent
-                ? SliderLanguageCatalog.ResolveAnimePhrase(key, value, CaptureConfiguration())
-                : IsChildrensBookIntent
-                    ? SliderLanguageCatalog.ResolveChildrensBookPhrase(key, value, CaptureConfiguration())
-                : IsComicBookIntent
-                    ? SliderLanguageCatalog.ResolveComicBookPhrase(key, value, CaptureConfiguration())
-                : IsCinematicIntent
-                    ? SliderLanguageCatalog.ResolveCinematicPhrase(key, value, CaptureConfiguration())
-                : IsThreeDRenderIntent
-                    ? SliderLanguageCatalog.ResolveThreeDRenderPhrase(key, value, CaptureConfiguration())
-                : IsConceptArtIntent
-                    ? SliderLanguageCatalog.ResolveConceptArtPhrase(key, value, CaptureConfiguration())
-                : IsPixelArtIntent
-                    ? SliderLanguageCatalog.ResolvePixelArtPhrase(key, value, CaptureConfiguration())
-                : IsWatercolorIntent
-                    ? SliderLanguageCatalog.ResolveWatercolorPhrase(key, value, CaptureConfiguration())
-                : IsProductPhotographyIntent
-                    ? SliderLanguageCatalog.ResolveProductPhotographyPhrase(key, value, CaptureConfiguration())
-                : IsFoodPhotographyIntent
-                    ? SliderLanguageCatalog.ResolveFoodPhotographyPhrase(key, value, CaptureConfiguration())
-                : IsArchitectureArchvizIntent
-                    ? SliderLanguageCatalog.ResolveArchitectureArchvizPhrase(key, value, CaptureConfiguration())
-                : IsPhotographyIntent
-                    ? SliderLanguageCatalog.ResolvePhotographyPhrase(key, value, CaptureConfiguration())
-            : TryGetBandMetadata(key, out var metadata)
-                ? metadata.GetBandLabel(value)
-                : value.ToString();
+        var configuration = CaptureConfiguration();
+        var label = SliderLanguageCatalog.ResolvePromptPhraseOrFallback(key, value, configuration);
+        if (!string.IsNullOrWhiteSpace(label))
+        {
+            return label;
+        }
+
+        return TryGetBandMetadata(key, out var metadata)
+            ? metadata.GetBandLabel(value)
+            : value.ToString();
     }
 
     private string GetInfluenceBandGuideText()
@@ -3330,7 +3338,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             }
 
             var normalized = Math.Clamp(value, 0, 100);
-            var index = Math.Min(Labels.Length - 1, (int)Math.Floor((normalized / 100d) * Labels.Length));
+            var index = normalized switch
+            {
+                <= 20 => 0,
+                <= 40 => 1,
+                <= 60 => 2,
+                <= 80 => 3,
+                _ => 4,
+            };
             return Labels[index];
         }
     }

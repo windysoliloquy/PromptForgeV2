@@ -352,22 +352,10 @@ public sealed class PromptBuilderService : IPromptBuilderService
         }
 
         var effective = configuration.Clone();
-        if (LaneRegistry.TryGetByIntentName(configuration.IntentMode, out var lane))
-        {
-            effective = LaneRegistry.GetPolicy(lane).ApplyDefaults(effective, lane);
-        }
 
-        effective.Whimsy = intentMode.Whimsy;
-        effective.Tension = intentMode.Tension;
-        effective.Awe = intentMode.Awe;
-        effective.Chaos = intentMode.Chaos;
-        effective.MotionEnergy = intentMode.MotionEnergy;
-        effective.AtmosphericDepth = intentMode.AtmosphericDepth;
-        effective.NarrativeDensity = intentMode.NarrativeDensity;
-        effective.Symbolism = intentMode.Symbolism;
-        effective.Saturation = intentMode.Saturation;
-        effective.Contrast = intentMode.Contrast;
-        effective.Lighting = intentMode.Lighting;
+        // Intent and lane defaults should be applied when an intent is selected,
+        // not every time the prompt is rebuilt. Reapplying them here overwrites
+        // live slider changes and makes the preview appear frozen.
         return effective;
     }
 
@@ -719,17 +707,17 @@ public sealed class PromptBuilderService : IPromptBuilderService
     {
         if (!configuration.ExcludeFramingFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Framing, configuration.Framing, configuration);
+            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Framing, configuration.Framing, configuration);
         }
 
         if (!configuration.ExcludeCameraDistanceFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.CameraDistance, configuration.CameraDistance, configuration);
+            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.CameraDistance, configuration.CameraDistance, configuration);
         }
 
         if (!configuration.ExcludeCameraAngleFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.CameraAngle, configuration.CameraAngle, configuration);
+            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.CameraAngle, configuration.CameraAngle, configuration);
         }
 
         if (!configuration.ExcludeBackgroundComplexityFromPrompt)
@@ -759,7 +747,7 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
         if (!configuration.ExcludeFocusDepthFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.FocusDepth, configuration.FocusDepth, configuration);
+            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.FocusDepth, configuration.FocusDepth, configuration);
         }
     }
 
@@ -791,12 +779,12 @@ public sealed class PromptBuilderService : IPromptBuilderService
     {
         if (!configuration.ExcludeTemperatureFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Temperature, configuration.Temperature, configuration);
+            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Temperature, configuration.Temperature, configuration);
         }
 
         if (!configuration.ExcludeLightingIntensityFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.LightingIntensity, configuration.LightingIntensity, configuration);
+            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.LightingIntensity, configuration.LightingIntensity, configuration);
         }
 
         yield return useThreeDRender
@@ -831,17 +819,12 @@ public sealed class PromptBuilderService : IPromptBuilderService
     {
         if (!configuration.ExcludeImageCleanlinessFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.ImageCleanliness, configuration.ImageCleanliness, configuration);
+            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.ImageCleanliness, configuration.ImageCleanliness, configuration);
         }
 
         if (!configuration.ExcludeDetailDensityFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.DetailDensity, configuration.DetailDensity, configuration);
-        }
-
-        if (!configuration.ExcludeFocusDepthFromPrompt)
-        {
-            yield return SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.FocusDepth, configuration.FocusDepth, configuration);
+            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.DetailDensity, configuration.DetailDensity, configuration);
         }
     }
 
@@ -852,35 +835,35 @@ public sealed class PromptBuilderService : IPromptBuilderService
         if (configuration.TransparentBackground) { yield return "isolated subject"; yield return "clean background separation"; }
     }
 
-    private static string MapStylization(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Stylization, value, configuration);
+    private static string MapStylization(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Stylization, value, configuration);
 
-    private static string MapRealism(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Realism, value, configuration);
+    private static string MapRealism(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Realism, value, configuration);
 
-    private static string MapTextureDepth(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.TextureDepth, value, configuration);
+    private static string MapTextureDepth(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.TextureDepth, value, configuration);
 
-    private static string MapSurfaceAge(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.SurfaceAge, value, configuration);
+    private static string MapSurfaceAge(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.SurfaceAge, value, configuration);
 
-    private static string MapBackgroundComplexity(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.BackgroundComplexity, value, configuration);
+    private static string MapBackgroundComplexity(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.BackgroundComplexity, value, configuration);
 
-    private static string MapMotionEnergy(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.MotionEnergy, value, configuration);
+    private static string MapMotionEnergy(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.MotionEnergy, value, configuration);
 
-    private static string MapNarrativeDensity(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.NarrativeDensity, value, configuration);
+    private static string MapNarrativeDensity(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.NarrativeDensity, value, configuration);
 
-    private static string MapAtmosphericDepth(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.AtmosphericDepth, value, configuration);
+    private static string MapAtmosphericDepth(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.AtmosphericDepth, value, configuration);
 
-    private static string MapChaos(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Chaos, value, configuration);
+    private static string MapChaos(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Chaos, value, configuration);
 
-    private static string MapWhimsy(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Whimsy, value, configuration);
+    private static string MapWhimsy(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Whimsy, value, configuration);
 
-    private static string MapTension(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Tension, value, configuration);
+    private static string MapTension(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Tension, value, configuration);
 
-    private static string MapAwe(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Awe, value, configuration);
+    private static string MapAwe(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Awe, value, configuration);
 
-    private static string MapSymbolism(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Symbolism, value, configuration);
+    private static string MapSymbolism(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Symbolism, value, configuration);
 
-    private static string MapSaturation(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Saturation, value, configuration);
+    private static string MapSaturation(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Saturation, value, configuration);
 
-    private static string MapContrast(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePhrase(SliderLanguageCatalog.Contrast, value, configuration);
+    private static string MapContrast(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Contrast, value, configuration);
 
     private static string MapStylization(int value, string artStyle) => artStyle switch
     {

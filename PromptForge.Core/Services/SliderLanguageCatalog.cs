@@ -708,6 +708,18 @@ public static class SliderLanguageCatalog
         return ResolveStandardPhrase(sliderKey, value, configuration);
     }
 
+    public static string ResolvePromptPhraseOrFallback(string sliderKey, int value, PromptConfiguration configuration)
+    {
+        var resolved = ResolvePhrase(sliderKey, value, configuration);
+        if (IsUsablePromptPhrase(resolved))
+        {
+            return resolved;
+        }
+
+        var fallback = ResolveFallbackPromptPhrase(sliderKey, value, configuration);
+        return IsUsablePromptPhrase(fallback) ? fallback : string.Empty;
+    }
+
     public static string ResolveAnimePhrase(string sliderKey, int value, PromptConfiguration configuration)
     {
         var phrase = sliderKey switch
@@ -4499,6 +4511,84 @@ public static class SliderLanguageCatalog
 
         var resolvedPool = ApplyBundlePreference(configuration.IntentMode, sliderKey, deduped);
         return resolvedPool[Math.Abs(GetStableHash(seed)) % resolvedPool.Length];
+    }
+
+    private static string ResolveFallbackPromptPhrase(string sliderKey, int value, PromptConfiguration configuration)
+    {
+        if (!Definitions.TryGetValue(sliderKey, out var definition))
+        {
+            return string.Empty;
+        }
+
+        var bandIndex = GetBandIndex(value);
+        var variantBands = new[]
+        {
+            GetVariant(definition.StyleMaterialVariants, $"{configuration.ArtStyle}|{configuration.Material}"),
+            GetVariant(definition.MaterialVariants, configuration.Material),
+            GetVariant(definition.StyleVariants, configuration.ArtStyle),
+            definition.Bands,
+        };
+
+        foreach (var bands in variantBands)
+        {
+            if (bands is null || bandIndex >= bands.Length)
+            {
+                continue;
+            }
+
+            var band = bands[bandIndex];
+            var promptPhrase = band.Phrases.FirstOrDefault(IsUsablePromptPhrase);
+            if (IsUsablePromptPhrase(promptPhrase))
+            {
+                return promptPhrase!;
+            }
+
+            var interpretation = NormalizeFallbackInterpretation(sliderKey, band.Interpretation);
+            if (IsUsablePromptPhrase(interpretation))
+            {
+                return interpretation;
+            }
+        }
+
+        return ResolveNeutralFallbackPhrase(sliderKey, value);
+    }
+
+    private static bool IsUsablePromptPhrase(string? phrase)
+    {
+        if (string.IsNullOrWhiteSpace(phrase))
+        {
+            return false;
+        }
+
+        return !IsPlaceholderPromptPhrase(phrase);
+    }
+
+    private static bool IsPlaceholderPromptPhrase(string phrase)
+    {
+        var cleaned = phrase.Trim();
+        return cleaned.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || cleaned.Equals("omit explicit realism", StringComparison.OrdinalIgnoreCase)
+            || cleaned.Equals("omit artist language", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizeFallbackInterpretation(string sliderKey, string interpretation)
+    {
+        if (IsPlaceholderPromptPhrase(interpretation))
+        {
+            return ResolveNeutralFallbackPhrase(sliderKey, 0);
+        }
+
+        return interpretation.Trim();
+    }
+
+    private static string ResolveNeutralFallbackPhrase(string sliderKey, int value)
+    {
+        return sliderKey switch
+        {
+            Realism => value <= 20 ? "minimal realism emphasis" : string.Empty,
+            ArtistInfluenceStrength => value <= 20 ? "no direct artist citation" : string.Empty,
+            _ => string.Empty,
+        };
     }
 
     public static string ResolveVintageBendLightingDescriptor(PromptConfiguration configuration)
