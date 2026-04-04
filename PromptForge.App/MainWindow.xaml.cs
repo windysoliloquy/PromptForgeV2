@@ -1,8 +1,11 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using PromptForge.App.Services;
 using PromptForge.App.ViewModels;
 
@@ -22,6 +25,7 @@ public partial class MainWindow : Window
     {
         _licenseService = new LicenseService();
         InitializeComponent();
+        UiEventLog.Reset();
         DataContextChanged += OnDataContextChanged;
         Loaded += OnWindowLoaded;
         SizeChanged += OnWindowSizeChanged;
@@ -31,6 +35,7 @@ public partial class MainWindow : Window
     {
         _licenseService = licenseService;
         InitializeComponent();
+        UiEventLog.Reset();
         DataContextChanged += OnDataContextChanged;
         Loaded += OnWindowLoaded;
         SizeChanged += OnWindowSizeChanged;
@@ -71,6 +76,27 @@ public partial class MainWindow : Window
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (string.Equals(e.PropertyName, nameof(MainWindowViewModel.IntentMode), StringComparison.Ordinal))
+        {
+            if (sender is MainWindowViewModel intentViewModel)
+            {
+                UiEventLog.Write($"intent-changed intent='{intentViewModel.IntentMode}'");
+            }
+
+            Dispatcher.BeginInvoke(() =>
+            {
+                CloseAllSliderFlyouts();
+
+                Dispatcher.BeginInvoke(() =>
+                {
+                    RefreshSliderFlyoutExcludeBindings();
+                    InvalidateVisual();
+                    UpdateLayout();
+                }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Background);
+            return;
+        }
+
         if (!string.Equals(e.PropertyName, nameof(MainWindowViewModel.CopyPromptFeedbackTick), StringComparison.Ordinal))
         {
             return;
@@ -156,6 +182,22 @@ public partial class MainWindow : Window
 
     private void OnWindowLoaded(object sender, RoutedEventArgs e)
     {
+    }
+
+    private void OnIntentModeDropDownOpened(object sender, EventArgs e)
+    {
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            UiEventLog.Write($"intent-dropdown-opened currentIntent='{viewModel.IntentMode}'");
+            viewModel.ResetCompressionStateForIntentPicker();
+        }
+
+        Dispatcher.BeginInvoke(() =>
+        {
+            RefreshCompressionCheckboxBindings();
+            InvalidateVisual();
+            UpdateLayout();
+        }, DispatcherPriority.Loaded);
     }
 
     private void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
@@ -308,5 +350,59 @@ public partial class MainWindow : Window
     private TimeSpan GetTimeSpan(string key) => (TimeSpan)FindResource(key);
 
     private Color GetColor(string key) => (Color)FindResource(key);
+
+    private void RefreshCompressionCheckboxBindings()
+    {
+        CompressPromptCheckBox?.GetBindingExpression(ToggleButton.IsCheckedProperty)?.UpdateTarget();
+        ReduceRepeatedLaneWordsCheckBox?.GetBindingExpression(ToggleButton.IsCheckedProperty)?.UpdateTarget();
+        TrimRepeatedLongWordsCheckBox?.GetBindingExpression(ToggleButton.IsCheckedProperty)?.UpdateTarget();
+        BindingOperations.GetBindingExpressionBase(CompressPromptCheckBox, UIElement.VisibilityProperty)?.UpdateTarget();
+        BindingOperations.GetBindingExpressionBase(ReduceRepeatedLaneWordsCheckBox, UIElement.VisibilityProperty)?.UpdateTarget();
+        BindingOperations.GetBindingExpressionBase(TrimRepeatedLongWordsCheckBox, UIElement.VisibilityProperty)?.UpdateTarget();
+    }
+
+    private void CloseAllSliderFlyouts()
+    {
+        foreach (var flyout in FindVisualChildren<Controls.SliderFlyout>(this))
+        {
+            flyout.CloseFlyout();
+        }
+    }
+
+    private void RefreshSliderFlyoutExcludeBindings()
+    {
+        foreach (var flyout in FindVisualChildren<Controls.SliderFlyout>(this))
+        {
+            if (flyout.IsFlyoutSessionActive)
+            {
+                continue;
+            }
+
+            flyout.RefreshExcludeBindingFromSource();
+        }
+    }
+
+    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
+    {
+        if (root is null)
+        {
+            yield break;
+        }
+
+        var childCount = VisualTreeHelper.GetChildrenCount(root);
+        for (var index = 0; index < childCount; index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match)
+            {
+                yield return match;
+            }
+
+            foreach (var descendant in FindVisualChildren<T>(child))
+            {
+                yield return descendant;
+            }
+        }
+    }
 
 }

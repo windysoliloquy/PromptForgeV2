@@ -6,197 +6,224 @@ public static class IntentModeCatalog
 {
     public const string ExperimentalName = "Experimental";
     public const string VintageBendName = "Vintage Bend";
+    public const string AnimeName = "Anime";
+    public const string WatercolorName = "Watercolor";
+    public const string ChildrensBookName = "Children's Book";
+    public const string ComicBookName = "Comic Book";
+    public const string CinematicName = "Cinematic";
+    public const string PhotographyName = "Photography";
+    public const string PhotographicName = "Photographic";
+    public const string ProductPhotographyName = "Product Photography";
+    public const string FoodPhotographyName = "Food Photography";
+    public const string ArchitectureArchvizName = "Architecture / Archviz";
+    public const string ThreeDRenderName = "3D Render";
+    public const string ConceptArtName = "Concept Art";
+    public const string PixelArtName = "Pixel Art";
 
     private static readonly IReadOnlyDictionary<string, IntentModeDefinition> Definitions =
-        new Dictionary<string, IntentModeDefinition>(StringComparer.OrdinalIgnoreCase)
+        BuildDefinitions();
+
+    private static IReadOnlyDictionary<string, IntentModeDefinition> BuildDefinitions()
+    {
+        var photography = new IntentModeDefinition(
+            PhotographyName,
+            Whimsy: 14,
+            Tension: 32,
+            Awe: 42,
+            Chaos: 12,
+            MotionEnergy: 30,
+            AtmosphericDepth: 40,
+            NarrativeDensity: 54,
+            Symbolism: 28,
+            Saturation: 50,
+            Contrast: 56,
+            Lighting: "Soft daylight",
+            Summary: "observational, editorial, and documentary photographic language with lens-mediated presence and compact process-aware phrasing");
+
+        var productPhotography = new IntentModeDefinition(
+            ProductPhotographyName,
+            Whimsy: 4,
+            Tension: 8,
+            Awe: 18,
+            Chaos: 8,
+            MotionEnergy: 6,
+            AtmosphericDepth: 26,
+            NarrativeDensity: 16,
+            Symbolism: 8,
+            Saturation: 54,
+            Contrast: 58,
+            Lighting: "Dramatic studio light",
+            Summary: "commercial merchandise imagery with controlled studio presentation, material fidelity, and clean sellable staging");
+
+        var foodPhotography = new IntentModeDefinition(
+            FoodPhotographyName,
+            Whimsy: 2,
+            Tension: 2,
+            Awe: 18,
+            Chaos: 10,
+            MotionEnergy: 6,
+            AtmosphericDepth: 24,
+            NarrativeDensity: 18,
+            Symbolism: 2,
+            Saturation: 58,
+            Contrast: 52,
+            Lighting: "Soft daylight",
+            Summary: "commercial food imagery with appetizing presentation, menu-ready clarity, hospitality polish, and styled service-driven visuals");
+
+        var architectureArchviz = new IntentModeDefinition(
+            ArchitectureArchvizName,
+            Whimsy: 2,
+            Tension: 4,
+            Awe: 24,
+            Chaos: 8,
+            MotionEnergy: 4,
+            AtmosphericDepth: 48,
+            NarrativeDensity: 14,
+            Symbolism: 4,
+            Saturation: 48,
+            Contrast: 54,
+            Lighting: "Soft daylight",
+            Summary: "built-space visualization with spatial clarity, material realism, development polish, and market-ready architectural imagery");
+
+        return new Dictionary<string, IntentModeDefinition>(StringComparer.OrdinalIgnoreCase)
         {
-            ["Playful Chaos"] = new(
-                "Playful Chaos",
-                Whimsy: 78,
-                Tension: 42,
-                Awe: 52,
-                Chaos: 74,
-                MotionEnergy: 70,
-                AtmosphericDepth: 48,
-                NarrativeDensity: 58,
-                Symbolism: 38,
-                Saturation: 72,
-                Contrast: 64,
-                Lighting: "Golden hour",
-                Summary: "buoyant mischief, energetic movement, and controlled disorder"),
-            ["Sacred Stillness"] = new(
-                "Sacred Stillness",
-                Whimsy: 8,
-                Tension: 18,
-                Awe: 84,
-                Chaos: 6,
-                MotionEnergy: 10,
-                AtmosphericDepth: 78,
-                NarrativeDensity: 46,
-                Symbolism: 72,
-                Saturation: 42,
-                Contrast: 50,
-                Lighting: "Soft daylight",
-                Summary: "reverent calm, contemplative atmosphere, and quiet grandeur"),
-            ["Dramatic Fracture"] = new(
-                "Dramatic Fracture",
-                Whimsy: 6,
-                Tension: 86,
-                Awe: 58,
-                Chaos: 68,
-                MotionEnergy: 62,
-                AtmosphericDepth: 60,
-                NarrativeDensity: 66,
-                Symbolism: 54,
-                Saturation: 48,
-                Contrast: 82,
-                Lighting: "Dramatic studio light",
-                Summary: "emotional rupture, cinematic strain, and unstable force"),
-            ["Dreamlike Drift"] = new(
-                "Dreamlike Drift",
-                Whimsy: 34,
-                Tension: 26,
-                Awe: 74,
+            [AnimeName] = new(
+                AnimeName,
+                Whimsy: 28,
+                Tension: 40,
+                Awe: 56,
                 Chaos: 24,
-                MotionEnergy: 28,
-                AtmosphericDepth: 88,
-                NarrativeDensity: 54,
-                Symbolism: 78,
-                Saturation: 58,
-                Contrast: 40,
-                Lighting: "Moonlit",
-                Summary: "floating surreal calm, soft wonder, and lucid symbolic flow"),
-            ["Quiet Wonder"] = new(
-                "Quiet Wonder",
-                Whimsy: 25,
-                Tension: 20,
-                Awe: 58,
-                Chaos: 12,
-                MotionEnergy: 22,
-                AtmosphericDepth: 62,
-                NarrativeDensity: 38,
-                Symbolism: 36,
-                Saturation: 46,
-                Contrast: 38,
-                Lighting: "Soft daylight",
-                Summary: "gentle beauty, spacious calm, and restrained uplift"),
-            ["Ominous Calm"] = new(
-                "Ominous Calm",
-                Whimsy: 5,
-                Tension: 68,
-                Awe: 28,
-                Chaos: 22,
-                MotionEnergy: 14,
-                AtmosphericDepth: 54,
-                NarrativeDensity: 48,
+                MotionEnergy: 54,
+                AtmosphericDepth: 44,
+                NarrativeDensity: 52,
                 Symbolism: 34,
-                Saturation: 24,
-                Contrast: 66,
-                Lighting: "Overcast",
-                Summary: "suspended threat, still air, and restrained severity"),
-            ["Mythic Radiance"] = new(
-                "Mythic Radiance",
-                Whimsy: 10,
-                Tension: 34,
-                Awe: 88,
-                Chaos: 18,
-                MotionEnergy: 34,
-                AtmosphericDepth: 78,
-                NarrativeDensity: 56,
-                Symbolism: 74,
-                Saturation: 68,
-                Contrast: 64,
-                Lighting: "Golden hour",
-                Summary: "luminous grandeur, iconic scale, and elevated symbolic authority"),
-            ["Playful Reverie"] = new(
-                "Playful Reverie",
-                Whimsy: 62,
+                Saturation: 62,
+                Contrast: 58,
+                Lighting: "Soft glow",
+                Summary: "stylized anime illustration language with polished character-led staging and clean visual readability"),
+            [WatercolorName] = new(
+                WatercolorName,
+                Whimsy: 24,
+                Tension: 26,
+                Awe: 58,
+                Chaos: 10,
+                MotionEnergy: 18,
+                AtmosphericDepth: 52,
+                NarrativeDensity: 44,
+                Symbolism: 30,
+                Saturation: 50,
+                Contrast: 42,
+                Lighting: "Soft daylight",
+                Summary: "watercolor illustration language with luminous washes, paper-backed softness, and hand-painted clarity"),
+            [ChildrensBookName] = new(
+                ChildrensBookName,
+                Whimsy: 42,
                 Tension: 18,
+                Awe: 50,
+                Chaos: 12,
+                MotionEnergy: 24,
+                AtmosphericDepth: 40,
+                NarrativeDensity: 58,
+                Symbolism: 36,
+                Saturation: 56,
+                Contrast: 44,
+                Lighting: "Soft daylight",
+                Summary: "gentle illustrated scenes with readable storytelling, warm character presence, and decorative clarity"),
+            [ComicBookName] = new(
+                ComicBookName,
+                Whimsy: 18,
+                Tension: 52,
                 Awe: 44,
                 Chaos: 24,
-                MotionEnergy: 34,
-                AtmosphericDepth: 52,
-                NarrativeDensity: 40,
-                Symbolism: 38,
+                MotionEnergy: 56,
+                AtmosphericDepth: 34,
+                NarrativeDensity: 60,
+                Symbolism: 28,
                 Saturation: 58,
-                Contrast: 34,
-                Lighting: "Soft glow",
-                Summary: "dreamlike charm, tender whimsy, and welcoming strangeness"),
-            ["Haunted Stillness"] = new(
-                "Haunted Stillness",
-                Whimsy: 0,
-                Tension: 72,
-                Awe: 42,
-                Chaos: 16,
-                MotionEnergy: 8,
-                AtmosphericDepth: 70,
-                NarrativeDensity: 44,
-                Symbolism: 50,
-                Saturation: 18,
-                Contrast: 52,
-                Lighting: "Moonlit",
-                Summary: "ghostly quiet, lingering weight, and restrained eeriness"),
-            ["Charged Spectacle"] = new(
-                "Charged Spectacle",
-                Whimsy: 14,
-                Tension: 62,
-                Awe: 76,
-                Chaos: 52,
-                MotionEnergy: 72,
-                AtmosphericDepth: 66,
-                NarrativeDensity: 52,
-                Symbolism: 30,
-                Saturation: 72,
-                Contrast: 78,
+                Contrast: 72,
                 Lighting: "Dramatic studio light",
-                Summary: "theatrical force, kinetic impact, and bold image power"),
-            ["Melancholic Drift"] = new(
-                "Melancholic Drift",
-                Whimsy: 8,
-                Tension: 34,
-                Awe: 30,
-                Chaos: 20,
-                MotionEnergy: 18,
-                AtmosphericDepth: 68,
-                NarrativeDensity: 46,
-                Symbolism: 42,
-                Saturation: 20,
-                Contrast: 28,
-                Lighting: "Dusk haze",
-                Summary: "soft sorrow, suspended motion, and reflective distance"),
-            ["Storybook Tension"] = new(
-                "Storybook Tension",
-                Whimsy: 44,
-                Tension: 56,
-                Awe: 48,
-                Chaos: 34,
-                MotionEnergy: 40,
-                AtmosphericDepth: 44,
-                NarrativeDensity: 54,
-                Symbolism: 46,
+                Summary: "graphic storytelling with sharp ink contrast, readable panel energy, and clear narrative beats"),
+            [CinematicName] = new(
+                CinematicName,
+                Whimsy: 18,
+                Tension: 44,
+                Awe: 46,
+                Chaos: 16,
+                MotionEnergy: 42,
+                AtmosphericDepth: 54,
+                NarrativeDensity: 60,
+                Symbolism: 28,
                 Saturation: 56,
-                Contrast: 50,
-                Lighting: "Warm directional light",
-                Summary: "folkloric peril, readable stakes, and playful dramatic clarity"),
+                Contrast: 62,
+                Lighting: "Soft cinematic daylight",
+                Summary: "cinematic film still framing with screen-native atmosphere, disciplined tension, and clear scene presence"),
+            [PhotographyName] = photography,
+            [PhotographicName] = photography,
+            [ProductPhotographyName] = productPhotography,
+            [FoodPhotographyName] = foodPhotography,
+            [ArchitectureArchvizName] = architectureArchviz,
+            [ThreeDRenderName] = new(
+                ThreeDRenderName,
+                Whimsy: 14,
+                Tension: 32,
+                Awe: 40,
+                Chaos: 18,
+                MotionEnergy: 34,
+                AtmosphericDepth: 44,
+                NarrativeDensity: 52,
+                Symbolism: 22,
+                Saturation: 54,
+                Contrast: 60,
+                Lighting: "Soft rendered daylight",
+                Summary: "clean 3D render presentation with material clarity, controlled lighting, and polished scene readability"),
+            [ConceptArtName] = new(
+                ConceptArtName,
+                Whimsy: 18,
+                Tension: 34,
+                Awe: 48,
+                Chaos: 14,
+                MotionEnergy: 22,
+                AtmosphericDepth: 48,
+                NarrativeDensity: 58,
+                Symbolism: 34,
+                Saturation: 54,
+                Contrast: 52,
+                Lighting: "Soft daylight",
+                Summary: "concept art presentation with production-facing clarity, readable design intent, and disciplined worldbuilding"),
+            [PixelArtName] = new(
+                PixelArtName,
+                Whimsy: 16,
+                Tension: 20,
+                Awe: 32,
+                Chaos: 12,
+                MotionEnergy: 18,
+                AtmosphericDepth: 24,
+                NarrativeDensity: 42,
+                Symbolism: 26,
+                Saturation: 54,
+                Contrast: 60,
+                Lighting: "Soft daylight",
+                Summary: "pixel art presentation with palette discipline, sprite-readable structure, and crisp game-oriented clarity"),
         };
+    }
 
     public static IReadOnlyList<string> Names { get; } = new[]
     {
         "Custom",
+        AnimeName,
+        WatercolorName,
+        ChildrensBookName,
+        ComicBookName,
+        CinematicName,
+        PhotographyName,
+        ProductPhotographyName,
+        FoodPhotographyName,
+        ArchitectureArchvizName,
+        ThreeDRenderName,
+        ConceptArtName,
+        PixelArtName,
         VintageBendName,
         ExperimentalName,
-        "Playful Chaos",
-        "Sacred Stillness",
-        "Dramatic Fracture",
-        "Dreamlike Drift",
-        "Quiet Wonder",
-        "Ominous Calm",
-        "Mythic Radiance",
-        "Playful Reverie",
-        "Haunted Stillness",
-        "Charged Spectacle",
-        "Melancholic Drift",
-        "Storybook Tension",
     };
 
     public static bool IsExperimental(string? intentMode)
@@ -209,6 +236,67 @@ public static class IntentModeCatalog
         return string.Equals(intentMode, VintageBendName, StringComparison.OrdinalIgnoreCase);
     }
 
+    public static bool IsAnime(string? intentMode)
+    {
+        return string.Equals(intentMode, AnimeName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsWatercolor(string? intentMode)
+    {
+        return string.Equals(intentMode, WatercolorName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsChildrensBook(string? intentMode)
+    {
+        return string.Equals(intentMode, ChildrensBookName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsComicBook(string? intentMode)
+    {
+        return string.Equals(intentMode, ComicBookName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsCinematic(string? intentMode)
+    {
+        return string.Equals(intentMode, CinematicName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsPhotography(string? intentMode)
+    {
+        return string.Equals(intentMode, PhotographyName, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(intentMode, PhotographicName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsProductPhotography(string? intentMode)
+    {
+        return string.Equals(intentMode, ProductPhotographyName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsFoodPhotography(string? intentMode)
+    {
+        return string.Equals(intentMode, FoodPhotographyName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsArchitectureArchviz(string? intentMode)
+    {
+        return string.Equals(intentMode, ArchitectureArchvizName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsThreeDRender(string? intentMode)
+    {
+        return string.Equals(intentMode, ThreeDRenderName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsConceptArt(string? intentMode)
+    {
+        return string.Equals(intentMode, ConceptArtName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsPixelArt(string? intentMode)
+    {
+        return string.Equals(intentMode, PixelArtName, StringComparison.OrdinalIgnoreCase);
+    }
+
     public static bool TryGet(string? intentMode, out IntentModeDefinition definition)
     {
         if (string.IsNullOrWhiteSpace(intentMode)
@@ -219,6 +307,26 @@ public static class IntentModeCatalog
             return false;
         }
 
-        return Definitions.TryGetValue(intentMode, out definition!);
+        if (Definitions.TryGetValue(intentMode, out definition!))
+        {
+            return true;
+        }
+
+        if (IsProductPhotography(intentMode))
+        {
+            return Definitions.TryGetValue(ProductPhotographyName, out definition!);
+        }
+
+        if (IsFoodPhotography(intentMode))
+        {
+            return Definitions.TryGetValue(FoodPhotographyName, out definition!);
+        }
+
+        if (IsPhotography(intentMode))
+        {
+            return Definitions.TryGetValue(PhotographyName, out definition!);
+        }
+
+        return false;
     }
 }

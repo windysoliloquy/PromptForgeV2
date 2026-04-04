@@ -26,7 +26,9 @@ Features List.txt
 docs/screenshots/*.png
 
 # Local signing and seller secrets
-tools/trusted-signing/metadata.json
+tools/trusted-signing/metadata*.json
+!tools/trusted-signing/metadata.template.json
+tools/trusted-signing/*.log
 tools/trusted-signing/nuget.exe
 tools/trusted-signing/packages/
 tools/licensing/private/

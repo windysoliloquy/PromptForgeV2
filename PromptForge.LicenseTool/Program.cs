@@ -28,7 +28,7 @@ if (string.IsNullOrWhiteSpace(purchaserEmail))
 var issuedUtc = ResolveIssuedUtc(options.IssuedUtcText);
 if (issuedUtc is null)
 {
-    Console.Error.WriteLine("Could not parse --issued-utc. Use an ISO-8601 UTC timestamp like 2026-03-30T18:00:00Z.");
+    Console.Error.WriteLine("Could not parse --issued-utc. Use an ISO-8601 UTC timestamp like 2026-04-02T18:00:00Z.");
     Environment.ExitCode = 1;
     return;
 }
@@ -258,7 +258,7 @@ static void PrintUsage()
     Console.WriteLine("Usage:");
     Console.WriteLine("  dotnet run --project PromptForge.LicenseTool -- --email buyer@example.com");
     Console.WriteLine("  dotnet run --project PromptForge.LicenseTool -- --generate-keypair");
-    Console.WriteLine("  dotnet run --project PromptForge.LicenseTool -- --email buyer@example.com --license-id PF-ORDER-001 --issued-utc 2026-03-30T18:00:00Z --output C:\\licenses\\PromptForge-License-PF-ORDER-001.json");
+    Console.WriteLine("  dotnet run --project PromptForge.LicenseTool -- --email buyer@example.com --license-id PF-ORDER-001 --issued-utc 2026-04-02T18:00:00Z --output C:\\licenses\\PromptForge-License-PF-ORDER-001.json");
     Console.WriteLine();
     Console.WriteLine("Options:");
     Console.WriteLine("  --generate-keypair   Generate a new RSA keypair. The private key stays local to the seller machine.");

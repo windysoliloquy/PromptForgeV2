@@ -9,6 +9,8 @@
         Width="1480"
         MinHeight="820"
         MinWidth="1320"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
         Background="{DynamicResource AppBackgroundBrush}">
     <Window.Resources>
         <sys:Double x:Key="ForgeButtonPressScale">0.9</sys:Double>
@@ -294,6 +296,56 @@
                              BeginTime="{StaticResource ForgeReducedMotionBorderFadeBegin}"
                              Duration="{StaticResource ForgeReducedMotionBorderFadeDuration}" />
         </Storyboard>
+
+        <DataTemplate x:Key="StandardLanePanelTemplate">
+            <Border Padding="14"
+                    CornerRadius="18"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource AccentBrush}"
+                    Background="{DynamicResource SubtleSurfaceBrush}"
+                    VerticalAlignment="Stretch">
+                <StackPanel>
+                    <TextBlock Text="{Binding Title}" Style="{StaticResource FieldLabelTextStyle}" />
+                    <TextBlock Text="{Binding Description}"
+                               Margin="0,4,0,10"
+                               Style="{StaticResource BodyMutedTextStyle}"
+                               TextWrapping="Wrap" />
+
+                    <ItemsControl ItemsSource="{Binding SubtypeSelectors}"
+                                  Visibility="{Binding HasSubtypeSelectors, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding Label}" Style="{StaticResource FieldLabelTextStyle}" />
+                                    <ComboBox ItemsSource="{Binding Options}"
+                                              DisplayMemberPath="Label"
+                                              SelectedValuePath="Key"
+                                              SelectedValue="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource AppComboBoxStyle}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="{Binding AccentSectionTitle}"
+                               Style="{StaticResource FieldLabelTextStyle}"
+                               Margin="0,0,0,0"
+                               Visibility="{Binding HasAccentSectionTitle, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <ItemsControl ItemsSource="{Binding Modifiers}"
+                                  Margin="0,10,0,0"
+                                  Visibility="{Binding HasModifiers, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Label}"
+                                          IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                          Style="{StaticResource AppCheckBoxStyle}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
     </Window.Resources>
     <Grid x:Name="RootLayout" Margin="16">
         <Grid.ColumnDefinitions>
@@ -343,6 +395,7 @@
                             <TextBlock Text="Intent Mode" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding IntentModes}"
                                       SelectedIndex="{Binding IntentModeSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      DropDownOpened="OnIntentModeDropDownOpened"
                                       Style="{StaticResource AppComboBoxStyle}" />
                             <TextBlock Margin="0,7,0,0" Text="{Binding IntentModeSummary}" Style="{StaticResource BodyMutedTextStyle}" TextWrapping="Wrap" />
                             <StackPanel Margin="0,12,0,0"
@@ -559,12 +612,12 @@
                                        Visibility="{Binding IsVintageBendIntent, Converter={StaticResource BooleanToVisibilityConverter}}"
                                        Margin="0,0,0,6" />
                             <UniformGrid Columns="2" Margin="0,2,0,0">
-                                <controls:SliderFlyout Label="Stylization" Value="{Binding Stylization}" ValueText="{Binding StylizationValueText}" GuideText="{Binding StylizationGuideText}" HelperText="{Binding StylizationHelper}" />
-                                <controls:SliderFlyout Label="Realism" Value="{Binding Realism}" ValueText="{Binding RealismValueText}" GuideText="{Binding RealismGuideText}" HelperText="{Binding RealismHelper}" />
-                                <controls:SliderFlyout Label="Texture Depth" Value="{Binding TextureDepth}" ValueText="{Binding TextureDepthValueText}" GuideText="{Binding TextureDepthGuideText}" HelperText="{Binding TextureDepthHelper}" />
-                                <controls:SliderFlyout Label="Narrative Density" Value="{Binding NarrativeDensity}" ValueText="{Binding NarrativeDensityValueText}" GuideText="{Binding NarrativeDensityGuideText}" HelperText="{Binding NarrativeDensityHelper}" />
-                                <controls:SliderFlyout Label="Symbolism" Value="{Binding Symbolism}" ValueText="{Binding SymbolismValueText}" GuideText="{Binding SymbolismGuideText}" HelperText="{Binding SymbolismHelper}" />
-                                <controls:SliderFlyout Label="Surface Age" Value="{Binding SurfaceAge}" ValueText="{Binding SurfaceAgeValueText}" GuideText="{Binding SurfaceAgeGuideText}" HelperText="{Binding SurfaceAgeHelper}" />
+                                <controls:SliderFlyout Label="Stylization" Value="{Binding Stylization}" ValueText="{Binding StylizationValueText}" GuideText="{Binding StylizationGuideText}" HelperText="{Binding StylizationHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeStylizationFromPrompt}" />
+                                <controls:SliderFlyout Label="Realism" Value="{Binding Realism}" ValueText="{Binding RealismValueText}" GuideText="{Binding RealismGuideText}" HelperText="{Binding RealismHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeRealismFromPrompt}" />
+                                <controls:SliderFlyout Label="Texture Depth" Value="{Binding TextureDepth}" ValueText="{Binding TextureDepthValueText}" GuideText="{Binding TextureDepthGuideText}" HelperText="{Binding TextureDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeTextureDepthFromPrompt}" />
+                                <controls:SliderFlyout Label="Narrative Density" Value="{Binding NarrativeDensity}" ValueText="{Binding NarrativeDensityValueText}" GuideText="{Binding NarrativeDensityGuideText}" HelperText="{Binding NarrativeDensityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeNarrativeDensityFromPrompt}" />
+                                <controls:SliderFlyout Label="Symbolism" Value="{Binding Symbolism}" ValueText="{Binding SymbolismValueText}" GuideText="{Binding SymbolismGuideText}" HelperText="{Binding SymbolismHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeSymbolismFromPrompt}" />
+                                <controls:SliderFlyout Label="Surface Age" Value="{Binding SurfaceAge}" ValueText="{Binding SurfaceAgeValueText}" GuideText="{Binding SurfaceAgeGuideText}" HelperText="{Binding SurfaceAgeHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeSurfaceAgeFromPrompt}" />
                             </UniformGrid>
                         </StackPanel>
                     </Border>
@@ -685,17 +738,17 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowLegacyManualCompositionCard, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="Manual Composition" Style="{StaticResource SectionTitleTextStyle}" />
                             <UniformGrid Columns="2" Margin="0,2,0,0">
-                                <controls:SliderFlyout Label="Framing" Value="{Binding Framing}" ValueText="{Binding FramingValueText}" GuideText="{Binding FramingGuideText}" HelperText="{Binding FramingHelper}" />
-                                <controls:SliderFlyout Label="Camera Distance" Value="{Binding CameraDistance}" ValueText="{Binding CameraDistanceValueText}" GuideText="{Binding CameraDistanceGuideText}" HelperText="{Binding CameraDistanceHelper}" />
-                                <controls:SliderFlyout Label="Camera Angle" Value="{Binding CameraAngle}" ValueText="{Binding CameraAngleValueText}" GuideText="{Binding CameraAngleGuideText}" HelperText="{Binding CameraAngleHelper}" />
-                                <controls:SliderFlyout Label="Background Complexity" Value="{Binding BackgroundComplexity}" ValueText="{Binding BackgroundComplexityValueText}" GuideText="{Binding BackgroundComplexityGuideText}" HelperText="{Binding BackgroundComplexityHelper}" />
-                                <controls:SliderFlyout Label="Motion Energy" Value="{Binding MotionEnergy}" ValueText="{Binding MotionEnergyValueText}" GuideText="{Binding MotionEnergyGuideText}" HelperText="{Binding MotionEnergyHelper}" />
-                                <controls:SliderFlyout Label="Atmospheric Depth" Value="{Binding AtmosphericDepth}" ValueText="{Binding AtmosphericDepthValueText}" GuideText="{Binding AtmosphericDepthGuideText}" HelperText="{Binding AtmosphericDepthHelper}" />
-                                <controls:SliderFlyout Label="Chaos" Value="{Binding Chaos}" ValueText="{Binding ChaosValueText}" GuideText="{Binding ChaosGuideText}" HelperText="{Binding ChaosHelper}" />
+                                <controls:SliderFlyout Label="Framing" Value="{Binding Framing}" ValueText="{Binding FramingValueText}" GuideText="{Binding FramingGuideText}" HelperText="{Binding FramingHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeFramingFromPrompt}" />
+                                <controls:SliderFlyout Label="Camera Distance" Value="{Binding CameraDistance}" ValueText="{Binding CameraDistanceValueText}" GuideText="{Binding CameraDistanceGuideText}" HelperText="{Binding CameraDistanceHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeCameraDistanceFromPrompt}" />
+                                <controls:SliderFlyout Label="Camera Angle" Value="{Binding CameraAngle}" ValueText="{Binding CameraAngleValueText}" GuideText="{Binding CameraAngleGuideText}" HelperText="{Binding CameraAngleHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeCameraAngleFromPrompt}" />
+                                <controls:SliderFlyout Label="Background Complexity" Value="{Binding BackgroundComplexity}" ValueText="{Binding BackgroundComplexityValueText}" GuideText="{Binding BackgroundComplexityGuideText}" HelperText="{Binding BackgroundComplexityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeBackgroundComplexityFromPrompt}" />
+                                <controls:SliderFlyout Label="Motion Energy" Value="{Binding MotionEnergy}" ValueText="{Binding MotionEnergyValueText}" GuideText="{Binding MotionEnergyGuideText}" HelperText="{Binding MotionEnergyHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeMotionEnergyFromPrompt}" />
+                                <controls:SliderFlyout Label="Atmospheric Depth" Value="{Binding AtmosphericDepth}" ValueText="{Binding AtmosphericDepthValueText}" GuideText="{Binding AtmosphericDepthGuideText}" HelperText="{Binding AtmosphericDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeAtmosphericDepthFromPrompt}" />
+                                <controls:SliderFlyout Label="Chaos" Value="{Binding Chaos}" ValueText="{Binding ChaosValueText}" GuideText="{Binding ChaosGuideText}" HelperText="{Binding ChaosHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeChaosFromPrompt}" />
                             </UniformGrid>
                         </StackPanel>
                     </Border>
@@ -704,9 +757,9 @@
                         <StackPanel>
                             <TextBlock Text="Manual Mood" Style="{StaticResource SectionTitleTextStyle}" />
                             <UniformGrid Columns="2" Margin="0,2,0,0">
-                                <controls:SliderFlyout Label="Whimsy" Value="{Binding Whimsy}" ValueText="{Binding WhimsyValueText}" GuideText="{Binding WhimsyGuideText}" HelperText="{Binding WhimsyHelper}" />
-                                <controls:SliderFlyout Label="Tension" Value="{Binding Tension}" ValueText="{Binding TensionValueText}" GuideText="{Binding TensionGuideText}" HelperText="{Binding TensionHelper}" />
-                                <controls:SliderFlyout Label="Awe" Value="{Binding Awe}" ValueText="{Binding AweValueText}" GuideText="{Binding AweGuideText}" HelperText="{Binding AweHelper}" />
+                                <controls:SliderFlyout Label="Whimsy" Value="{Binding Whimsy}" ValueText="{Binding WhimsyValueText}" GuideText="{Binding WhimsyGuideText}" HelperText="{Binding WhimsyHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeWhimsyFromPrompt}" />
+                                <controls:SliderFlyout Label="Tension" Value="{Binding Tension}" ValueText="{Binding TensionValueText}" GuideText="{Binding TensionGuideText}" HelperText="{Binding TensionHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeTensionFromPrompt}" />
+                                <controls:SliderFlyout Label="Awe" Value="{Binding Awe}" ValueText="{Binding AweValueText}" GuideText="{Binding AweGuideText}" HelperText="{Binding AweHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeAweFromPrompt}" />
                             </UniformGrid>
                         </StackPanel>
                     </Border>
@@ -717,10 +770,10 @@
                             <TextBlock Text="Lighting" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding Lightings}" SelectedItem="{Binding Lighting}" Style="{StaticResource AppComboBoxStyle}" />
                             <UniformGrid Columns="2" Margin="0,3,0,0">
-                                <controls:SliderFlyout Label="Temperature" Value="{Binding Temperature}" ValueText="{Binding TemperatureValueText}" GuideText="{Binding TemperatureGuideText}" HelperText="{Binding TemperatureHelper}" />
-                                <controls:SliderFlyout Label="Lighting Intensity" Value="{Binding LightingIntensity}" ValueText="{Binding LightingIntensityValueText}" GuideText="{Binding LightingIntensityGuideText}" HelperText="{Binding LightingIntensityHelper}" />
-                                <controls:SliderFlyout Label="Saturation" Value="{Binding Saturation}" ValueText="{Binding SaturationValueText}" GuideText="{Binding SaturationGuideText}" HelperText="{Binding SaturationHelper}" />
-                                <controls:SliderFlyout Label="Contrast" Value="{Binding Contrast}" ValueText="{Binding ContrastValueText}" GuideText="{Binding ContrastGuideText}" HelperText="{Binding ContrastHelper}" />
+                                <controls:SliderFlyout Label="Temperature" Value="{Binding Temperature}" ValueText="{Binding TemperatureValueText}" GuideText="{Binding TemperatureGuideText}" HelperText="{Binding TemperatureHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeTemperatureFromPrompt}" />
+                                <controls:SliderFlyout Label="Lighting Intensity" Value="{Binding LightingIntensity}" ValueText="{Binding LightingIntensityValueText}" GuideText="{Binding LightingIntensityGuideText}" HelperText="{Binding LightingIntensityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeLightingIntensityFromPrompt}" />
+                                <controls:SliderFlyout Label="Saturation" Value="{Binding Saturation}" ValueText="{Binding SaturationValueText}" GuideText="{Binding SaturationGuideText}" HelperText="{Binding SaturationHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeSaturationFromPrompt}" />
+                                <controls:SliderFlyout Label="Contrast" Value="{Binding Contrast}" ValueText="{Binding ContrastValueText}" GuideText="{Binding ContrastGuideText}" HelperText="{Binding ContrastHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeContrastFromPrompt}" />
                             </UniformGrid>
                         </StackPanel>
                     </Border>
@@ -729,9 +782,9 @@
                         <StackPanel>
                             <TextBlock Text="Manual Image Finish" Style="{StaticResource SectionTitleTextStyle}" />
                             <UniformGrid Columns="2" Margin="0,2,0,0">
-                                <controls:SliderFlyout Label="Focus / Depth of Field" Value="{Binding FocusDepth}" ValueText="{Binding FocusDepthValueText}" GuideText="{Binding FocusDepthGuideText}" HelperText="{Binding FocusDepthHelper}" />
-                                <controls:SliderFlyout Label="Image Cleanliness" Value="{Binding ImageCleanliness}" ValueText="{Binding ImageCleanlinessValueText}" GuideText="{Binding ImageCleanlinessGuideText}" HelperText="{Binding ImageCleanlinessHelper}" />
-                                <controls:SliderFlyout Label="Detail Density" Value="{Binding DetailDensity}" ValueText="{Binding DetailDensityValueText}" GuideText="{Binding DetailDensityGuideText}" HelperText="{Binding DetailDensityHelper}" />
+                                <controls:SliderFlyout Label="Focus / Depth of Field" Value="{Binding FocusDepth}" ValueText="{Binding FocusDepthValueText}" GuideText="{Binding FocusDepthGuideText}" HelperText="{Binding FocusDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeFocusDepthFromPrompt}" />
+                                <controls:SliderFlyout Label="Image Cleanliness" Value="{Binding ImageCleanliness}" ValueText="{Binding ImageCleanlinessValueText}" GuideText="{Binding ImageCleanlinessGuideText}" HelperText="{Binding ImageCleanlinessHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeImageCleanlinessFromPrompt}" />
+                                <controls:SliderFlyout Label="Detail Density" Value="{Binding DetailDensity}" ValueText="{Binding DetailDensityValueText}" GuideText="{Binding DetailDensityGuideText}" HelperText="{Binding DetailDensityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeDetailDensityFromPrompt}" />
                             </UniformGrid>
                         </StackPanel>
                     </Border>
@@ -739,6 +792,22 @@
                     <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="Manual Output" Style="{StaticResource SectionTitleTextStyle}" />
+                            <Border Style="{StaticResource InfoChipBorderStyle}"
+                                    Margin="0,0,0,12"
+                                    Visibility="{Binding ShowEmbeddedLaneCompositionCard, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="Manual Composition" Style="{StaticResource FieldLabelTextStyle}" />
+                                    <UniformGrid Columns="2" Margin="0,8,0,0">
+                                        <controls:SliderFlyout Label="Framing" Value="{Binding Framing}" ValueText="{Binding FramingValueText}" GuideText="{Binding FramingGuideText}" HelperText="{Binding FramingHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeFramingFromPrompt}" />
+                                        <controls:SliderFlyout Label="Camera Distance" Value="{Binding CameraDistance}" ValueText="{Binding CameraDistanceValueText}" GuideText="{Binding CameraDistanceGuideText}" HelperText="{Binding CameraDistanceHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeCameraDistanceFromPrompt}" />
+                                        <controls:SliderFlyout Label="Camera Angle" Value="{Binding CameraAngle}" ValueText="{Binding CameraAngleValueText}" GuideText="{Binding CameraAngleGuideText}" HelperText="{Binding CameraAngleHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeCameraAngleFromPrompt}" />
+                                        <controls:SliderFlyout Label="Background Complexity" Value="{Binding BackgroundComplexity}" ValueText="{Binding BackgroundComplexityValueText}" GuideText="{Binding BackgroundComplexityGuideText}" HelperText="{Binding BackgroundComplexityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeBackgroundComplexityFromPrompt}" />
+                                        <controls:SliderFlyout Label="Motion Energy" Value="{Binding MotionEnergy}" ValueText="{Binding MotionEnergyValueText}" GuideText="{Binding MotionEnergyGuideText}" HelperText="{Binding MotionEnergyHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeMotionEnergyFromPrompt}" />
+                                        <controls:SliderFlyout Label="Atmospheric Depth" Value="{Binding AtmosphericDepth}" ValueText="{Binding AtmosphericDepthValueText}" GuideText="{Binding AtmosphericDepthGuideText}" HelperText="{Binding AtmosphericDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeAtmosphericDepthFromPrompt}" />
+                                        <controls:SliderFlyout Label="Chaos" Value="{Binding Chaos}" ValueText="{Binding ChaosValueText}" GuideText="{Binding ChaosGuideText}" HelperText="{Binding ChaosHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeChaosFromPrompt}" />
+                                    </UniformGrid>
+                                </StackPanel>
+                            </Border>
                             <TextBlock Text="Aspect Ratio" Style="{StaticResource FieldLabelTextStyle}" />
                             <ComboBox ItemsSource="{Binding AspectRatios}" SelectedItem="{Binding AspectRatio}" Style="{StaticResource AppComboBoxStyle}" />
                             <CheckBox Content="Print-ready" IsChecked="{Binding PrintReady}" Style="{StaticResource AppCheckBoxStyle}" />
@@ -747,7 +816,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualIntentControls, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Style="{StaticResource SectionCardStyle}" Visibility="{Binding ShowManualNegativeConstraints, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="Manual Negative Constraints" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Text="Common exclusions start enabled by default. Certain artists can relax individual constraints automatically when distortion is part of the intended look."
@@ -951,39 +1020,142 @@
                                                    Style="{StaticResource PromptPreviewDisplayTextStyle}" />
                                     </Border>
                                 </ScrollViewer>
+                                <StackPanel Margin="0,10,0,0">
+                                    <CheckBox x:Name="CompressPromptCheckBox"
+                                              Content="Compress Prompt"
+                                              IsChecked="{Binding CompressPromptSemantics, Mode=TwoWay}"
+                                              IsEnabled="{Binding CanUseCompressionControls}"
+                                              Style="{StaticResource AppCheckBoxStyle}" />
+                                    <StackPanel Margin="20,6,0,0"
+                                                Visibility="{Binding ShowCompressionTierTwo, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <CheckBox x:Name="ReduceRepeatedLaneWordsCheckBox"
+                                                  Content="Reduce repeated lane words"
+                                                  IsChecked="{Binding ReduceRepeatedLaneWords, Mode=TwoWay}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <StackPanel Margin="20,4,0,0"
+                                                    Visibility="{Binding ShowCompressionTierThree, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <CheckBox x:Name="TrimRepeatedLongWordsCheckBox"
+                                                      Content="Trim repeated long words"
+                                                      IsChecked="{Binding TrimRepeatedLongWords, Mode=TwoWay}"
+                                                      Style="{StaticResource AppCheckBoxStyle}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
                             </StackPanel>
 
-                            <Border Grid.Column="2"
-                                    Padding="14"
-                                    CornerRadius="18"
-                                    BorderThickness="1"
-                                    BorderBrush="{DynamicResource AccentBrush}"
-                                    Background="{DynamicResource SubtleSurfaceBrush}"
-                                    VerticalAlignment="Stretch"
-                                    Visibility="{Binding ShowVintageBendModifierPanel, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <StackPanel>
-                                    <TextBlock Text="Vintage Bend Modifiers" Style="{StaticResource FieldLabelTextStyle}" />
-                                    <TextBlock Text="Compact semantic world-state modifiers for the Vintage Bend pack."
-                                               Margin="0,4,0,10"
-                                               Style="{StaticResource BodyMutedTextStyle}"
-                                               TextWrapping="Wrap" />
-                                    <CheckBox Content="Eastern Bloc / GDR"
-                                              IsChecked="{Binding VintageBendEasternBlocGdr}"
-                                              Style="{StaticResource AppCheckBoxStyle}" />
-                                    <CheckBox Content="Thriller Undertone"
-                                              IsChecked="{Binding VintageBendThrillerUndertone}"
-                                              Style="{StaticResource AppCheckBoxStyle}" />
-                                    <CheckBox Content="Institutional Austerity"
-                                              IsChecked="{Binding VintageBendInstitutionalAusterity}"
-                                              Style="{StaticResource AppCheckBoxStyle}" />
-                                    <CheckBox Content="Surveillance-State Atmosphere"
-                                              IsChecked="{Binding VintageBendSurveillanceStateAtmosphere}"
-                                              Style="{StaticResource AppCheckBoxStyle}" />
-                                    <CheckBox Content="Period Artifacts"
-                                              IsChecked="{Binding VintageBendPeriodArtifacts}"
-                                              Style="{StaticResource AppCheckBoxStyle}" />
-                                </StackPanel>
-                            </Border>
+                            <StackPanel Grid.Column="2">
+                                <Border Padding="14"
+                                        CornerRadius="18"
+                                        BorderThickness="1"
+                                        BorderBrush="{DynamicResource AccentBrush}"
+                                        Background="{DynamicResource SubtleSurfaceBrush}"
+                                        VerticalAlignment="Stretch"
+                                        Visibility="{Binding ShowAnimeModifierPanel, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <TextBlock Text="Anime Lane" Style="{StaticResource FieldLabelTextStyle}" />
+                                        <TextBlock Text="Style family and era refine the anime lane without replacing the base intent."
+                                                   Margin="0,4,0,10"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="Anime Style" Style="{StaticResource FieldLabelTextStyle}" />
+                                        <ComboBox ItemsSource="{Binding AnimeStyles}"
+                                                  SelectedItem="{Binding AnimeStyle}"
+                                                  Style="{StaticResource AppComboBoxStyle}" />
+                                        <TextBlock Text="Anime Era" Style="{StaticResource FieldLabelTextStyle}" Margin="0,10,0,0" />
+                                        <ComboBox ItemsSource="{Binding AnimeEras}"
+                                                  SelectedItem="{Binding AnimeEra}"
+                                                  Style="{StaticResource AppComboBoxStyle}" />
+                                        <TextBlock Text="Anime Modifiers" Style="{StaticResource FieldLabelTextStyle}" Margin="0,10,0,0" />
+                                        <TextBlock Text="Accent injectors only. The lane keeps the strongest few and trims the rest."
+                                                   Margin="0,4,0,10"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   TextWrapping="Wrap" />
+                                        <StackPanel>
+                                            <CheckBox Content="Cel Shading" IsChecked="{Binding AnimeCelShading}" Style="{StaticResource AppCheckBoxStyle}" />
+                                            <CheckBox Content="Clean Line Art" IsChecked="{Binding AnimeCleanLineArt}" Style="{StaticResource AppCheckBoxStyle}" />
+                                            <CheckBox Content="Expressive Eyes" IsChecked="{Binding AnimeExpressiveEyes}" Style="{StaticResource AppCheckBoxStyle}" />
+                                            <CheckBox Content="Dynamic Action" IsChecked="{Binding AnimeDynamicAction}" Style="{StaticResource AppCheckBoxStyle}" />
+                                            <CheckBox Content="Cinematic Lighting" IsChecked="{Binding AnimeCinematicLighting}" Style="{StaticResource AppCheckBoxStyle}" />
+                                            <CheckBox Content="Stylized Hair" IsChecked="{Binding AnimeStylizedHair}" Style="{StaticResource AppCheckBoxStyle}" />
+                                            <CheckBox Content="Atmospheric Effects" IsChecked="{Binding AnimeAtmosphericEffects}" Style="{StaticResource AppCheckBoxStyle}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                                <Border Padding="14"
+                                        CornerRadius="18"
+                                        BorderThickness="1"
+                                        BorderBrush="{DynamicResource AccentBrush}"
+                                        Background="{DynamicResource SubtleSurfaceBrush}"
+                                        VerticalAlignment="Stretch"
+                                        Visibility="{Binding ShowComicBookModifierPanel, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <TextBlock Text="Comic Book Modifiers" Style="{StaticResource FieldLabelTextStyle}" />
+                                        <TextBlock Text="Compact subtype and ink-forward accents. Speech bubbles only trigger when quoted dialogue is present."
+                                                   Margin="0,4,0,10"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="Comic Book Style" Style="{StaticResource FieldLabelTextStyle}" />
+                                        <ComboBox ItemsSource="{Binding ComicBookStyles}"
+                                                  SelectedItem="{Binding ComicBookStyle}"
+                                                  Style="{StaticResource AppComboBoxStyle}" />
+                                        <TextBlock Text="Rendering Accents" Style="{StaticResource FieldLabelTextStyle}" Margin="0,10,0,0" />
+                                        <CheckBox Content="Bold Ink"
+                                                  IsChecked="{Binding ComicBookBoldInk}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Halftone Shading"
+                                                  IsChecked="{Binding ComicBookHalftoneShading}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Panel Framing"
+                                                  IsChecked="{Binding ComicBookPanelFraming}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Dynamic Poses"
+                                                  IsChecked="{Binding ComicBookDynamicPoses}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Speed Lines"
+                                                  IsChecked="{Binding ComicBookSpeedLines}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="High Contrast Lighting"
+                                                  IsChecked="{Binding ComicBookHighContrastLighting}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Speech Bubbles"
+                                                  IsChecked="{Binding ComicBookSpeechBubbles}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                    </StackPanel>
+                                </Border>
+                                <ContentControl Content="{Binding ActiveStandardLanePanel}"
+                                                ContentTemplate="{StaticResource StandardLanePanelTemplate}"
+                                                Visibility="{Binding ShowActiveStandardLanePanel, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <Border Padding="14"
+                                        CornerRadius="18"
+                                        BorderThickness="1"
+                                        BorderBrush="{DynamicResource AccentBrush}"
+                                        Background="{DynamicResource SubtleSurfaceBrush}"
+                                        VerticalAlignment="Stretch"
+                                        Visibility="{Binding ShowVintageBendModifierPanel, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <TextBlock Text="Vintage Bend Modifiers" Style="{StaticResource FieldLabelTextStyle}" />
+                                        <TextBlock Text="Compact semantic world-state modifiers for the Vintage Bend pack."
+                                                   Margin="0,4,0,10"
+                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                   TextWrapping="Wrap" />
+                                        <CheckBox Content="Eastern Bloc / GDR"
+                                                  IsChecked="{Binding VintageBendEasternBlocGdr}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Thriller Undertone"
+                                                  IsChecked="{Binding VintageBendThrillerUndertone}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Institutional Austerity"
+                                                  IsChecked="{Binding VintageBendInstitutionalAusterity}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Surveillance-State Atmosphere"
+                                                  IsChecked="{Binding VintageBendSurveillanceStateAtmosphere}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Period Artifacts"
+                                                  IsChecked="{Binding VintageBendPeriodArtifacts}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
                         </Grid>
                     </Border>
 

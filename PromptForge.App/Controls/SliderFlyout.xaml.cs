@@ -6,11 +6,14 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Animation;
+using PromptForge.App.Services;
 
 namespace PromptForge.App.Controls;
 
 public partial class SliderFlyout : UserControl
 {
+    private bool _suppressExcludeCheckboxEvents;
+
     public SliderFlyout()
     {
         InitializeComponent();
@@ -44,6 +47,12 @@ public partial class SliderFlyout : UserControl
 
     public static readonly DependencyProperty ButtonWidthProperty = DependencyProperty.Register(
         nameof(ButtonWidth), typeof(double), typeof(SliderFlyout), new PropertyMetadata(130d));
+
+    public static readonly DependencyProperty ShowExcludeFromPromptProperty = DependencyProperty.Register(
+        nameof(ShowExcludeFromPrompt), typeof(bool), typeof(SliderFlyout), new PropertyMetadata(false));
+
+    public static readonly DependencyProperty IsExcludedFromPromptProperty = DependencyProperty.Register(
+        nameof(IsExcludedFromPrompt), typeof(bool), typeof(SliderFlyout), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnIsExcludedFromPromptChanged));
 
     public string Label
     {
@@ -93,25 +102,86 @@ public partial class SliderFlyout : UserControl
         set => SetValue(ButtonWidthProperty, value);
     }
 
+    public bool ShowExcludeFromPrompt
+    {
+        get => (bool)GetValue(ShowExcludeFromPromptProperty);
+        set => SetValue(ShowExcludeFromPromptProperty, value);
+    }
+
+    public bool IsExcludedFromPrompt
+    {
+        get => (bool)GetValue(IsExcludedFromPromptProperty);
+        set => SetValue(IsExcludedFromPromptProperty, value);
+    }
+
+    public void CloseFlyout()
+    {
+        FlyoutButton.IsChecked = false;
+    }
+
+    public bool IsFlyoutSessionActive => FlyoutPopup.IsOpen || FlyoutButton.IsChecked == true;
+
+    public void RefreshExcludeBindingFromSource()
+    {
+        _suppressExcludeCheckboxEvents = true;
+        try
+        {
+            GetBindingExpression(IsExcludedFromPromptProperty)?.UpdateTarget();
+            GetBindingExpression(ShowExcludeFromPromptProperty)?.UpdateTarget();
+        }
+        finally
+        {
+            Dispatcher.BeginInvoke(() => _suppressExcludeCheckboxEvents = false, DispatcherPriority.Background);
+        }
+    }
+
     private void FlyoutButton_OnChecked(object sender, RoutedEventArgs e)
     {
+        UiEventLog.Write($"slider-flyout checked label='{Label}' value={Value} excluded={IsExcludedFromPrompt}");
         StartButtonMorphAnimation();
         StartButtonGlowAnimation();
     }
 
+    private void FlyoutButton_OnUnchecked(object sender, RoutedEventArgs e)
+    {
+        UiEventLog.Write($"slider-flyout unchecked label='{Label}' value={Value} excluded={IsExcludedFromPrompt}");
+    }
+
     private void FlyoutPopup_OnOpened(object sender, EventArgs e)
     {
+        UiEventLog.Write($"slider-flyout popup-opened label='{Label}' value={Value} excluded={IsExcludedFromPrompt}");
         StartPopupGlowAnimation();
         QueueButtonReturnAnimation();
     }
 
     private void FlyoutPopup_OnClosed(object sender, EventArgs e)
     {
+        UiEventLog.Write($"slider-flyout popup-closed label='{Label}' value={Value} excluded={IsExcludedFromPrompt}");
         _buttonReturnDelayTimer?.Stop();
         _buttonMorphStoryboard?.Stop();
         _popupGlowStoryboard?.Stop();
         ResetButtonMorphVisuals();
         ResetPopupGlowVisuals();
+    }
+
+    private void ExcludeFromPromptCheckBox_OnChecked(object sender, RoutedEventArgs e)
+    {
+        if (_suppressExcludeCheckboxEvents)
+        {
+            return;
+        }
+
+        UiEventLog.Write($"slider-flyout checkbox-checked label='{Label}' value={Value} excluded={IsExcludedFromPrompt} popupOpen={FlyoutPopup.IsOpen} buttonChecked={FlyoutButton.IsChecked}");
+    }
+
+    private void ExcludeFromPromptCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
+    {
+        if (_suppressExcludeCheckboxEvents)
+        {
+            return;
+        }
+
+        UiEventLog.Write($"slider-flyout checkbox-unchecked label='{Label}' value={Value} excluded={IsExcludedFromPrompt} popupOpen={FlyoutPopup.IsOpen} buttonChecked={FlyoutButton.IsChecked}");
     }
 
     private void StartButtonGlowAnimation()
@@ -366,5 +436,16 @@ public partial class SliderFlyout : UserControl
     private double GetDouble(string key)
     {
         return TryFindResource(key) is double value ? value : 1d;
+    }
+
+    private static void OnIsExcludedFromPromptChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+    {
+        if (dependencyObject is not SliderFlyout flyout)
+        {
+            return;
+        }
+
+        UiEventLog.Write(
+            $"slider-flyout exclude-changed label='{flyout.Label}' old={e.OldValue} new={e.NewValue} value={flyout.Value} popupOpen={flyout.FlyoutPopup.IsOpen} buttonChecked={flyout.FlyoutButton.IsChecked}");
     }
 }

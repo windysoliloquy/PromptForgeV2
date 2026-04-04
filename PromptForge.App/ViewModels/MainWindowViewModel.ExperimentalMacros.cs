@@ -66,6 +66,9 @@ public sealed partial class MainWindowViewModel
                 OnPropertyChanged(nameof(IsExperimentalMacroGuidedMode));
                 OnPropertyChanged(nameof(IsExperimentalManualAdvancedMode));
                 OnPropertyChanged(nameof(ShowManualIntentControls));
+                OnPropertyChanged(nameof(ShowLegacyManualCompositionCard));
+                OnPropertyChanged(nameof(ShowEmbeddedLaneCompositionCard));
+                OnPropertyChanged(nameof(ShowManualNegativeConstraints));
             }
         }
     }

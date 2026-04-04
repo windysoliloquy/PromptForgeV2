@@ -34,7 +34,8 @@
                           HorizontalAlignment="Stretch"
                           HorizontalContentAlignment="Stretch"
                           RenderTransformOrigin="0.5,0.5"
-                          Checked="FlyoutButton_OnChecked">
+                          Checked="FlyoutButton_OnChecked"
+                          Unchecked="FlyoutButton_OnUnchecked">
                 <ToggleButton.RenderTransform>
                     <ScaleTransform x:Name="FlyoutButtonScaleTransform"
                                     ScaleX="1"
@@ -114,6 +115,24 @@
                                 TickFrequency="1"
                                 IsSnapToTickEnabled="False"
                                 Style="{DynamicResource AppSliderStyle}" />
+                        <Border Margin="0,10,0,0"
+                                Padding="0,10,0,0"
+                                BorderThickness="0,1,0,0"
+                                BorderBrush="{DynamicResource AppCardBorderBrush}"
+                                Visibility="{Binding ShowExcludeFromPrompt, ElementName=Root, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel>
+                                <CheckBox x:Name="ExcludeFromPromptCheckBox"
+                                          Content="Exclude from prompt"
+                                          IsChecked="{Binding IsExcludedFromPrompt, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Checked="ExcludeFromPromptCheckBox_OnChecked"
+                                          Unchecked="ExcludeFromPromptCheckBox_OnUnchecked"
+                                          Style="{DynamicResource AppCheckBoxStyle}" />
+                            <TextBlock Text="Keeps the slider value, but omits this slider's positive-prompt phrase."
+                                       Style="{DynamicResource BodyMutedTextStyle}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Border>
                         <TextBlock Margin="0,8,0,0"
                                    Text="{Binding GuideText, ElementName=Root}"
                                    Style="{DynamicResource BodyMutedTextStyle}"

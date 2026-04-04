@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PromptForge.App", "PromptFo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PromptForge.LicenseTool", "PromptForge.LicenseTool\PromptForge.LicenseTool.csproj", "{A67BD4E5-AC76-4F17-A6D4-4BC3E36D8C08}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PromptForge.Diagnostics", "PromptForge.Diagnostics\PromptForge.Diagnostics.csproj", "{6D4AF8A6-8A2D-4BE6-94F3-8A497BC93E7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{A67BD4E5-AC76-4F17-A6D4-4BC3E36D8C08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A67BD4E5-AC76-4F17-A6D4-4BC3E36D8C08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A67BD4E5-AC76-4F17-A6D4-4BC3E36D8C08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D4AF8A6-8A2D-4BE6-94F3-8A497BC93E7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D4AF8A6-8A2D-4BE6-94F3-8A497BC93E7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D4AF8A6-8A2D-4BE6-94F3-8A497BC93E7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D4AF8A6-8A2D-4BE6-94F3-8A497BC93E7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
