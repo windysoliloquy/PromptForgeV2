@@ -29,7 +29,12 @@ Check these folders in order:
 
 ## If You Just Want To Share The App With Someone
 
-The easiest beginner-friendly option is usually to share the built output folder or zip it and send it through Google Drive.
+Do not share the plain `bin\Debug` or `bin\Release` build output for releases.
+Use the self-contained publish output instead:
+
+`artifacts\publish\PromptForge-win-x64\`
+
+The installer pipeline packages that publish folder because it includes the required .NET desktop runtime files for machines that do not already have them installed.
 
 The important file inside that folder is:
 

@@ -7,6 +7,20 @@ Add-Type -AssemblyName System.Drawing
 $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $toolPath = Join-Path $repoRoot 'PromptForge.LicenseTool\bin\Release\net8.0\PromptForge.LicenseTool.exe'
 $outputDirectory = Join-Path $env:USERPROFILE 'OneDrive\Desktop\unlocks'
+$appProjectPath = Join-Path $repoRoot 'PromptForge.App\PromptForge.App.csproj'
+$appVersion = 'unknown'
+
+if (Test-Path -LiteralPath $appProjectPath) {
+    try {
+        [xml]$projectXml = Get-Content -LiteralPath $appProjectPath
+        $propertyGroup = $projectXml.Project.PropertyGroup | Where-Object { $_.Version } | Select-Object -First 1
+        if ($propertyGroup -and -not [string]::IsNullOrWhiteSpace($propertyGroup.Version)) {
+            $appVersion = $propertyGroup.Version.Trim()
+        }
+    }
+    catch {
+    }
+}
 
 if (-not (Test-Path -LiteralPath $toolPath)) {
     [System.Windows.Forms.MessageBox]::Show(
@@ -18,7 +32,7 @@ if (-not (Test-Path -LiteralPath $toolPath)) {
 }
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Prompt Forge Unlock Generator'
+$form.Text = "Prompt Forge $appVersion Unlock Generator"
 $form.StartPosition = 'CenterScreen'
 $form.ClientSize = New-Object System.Drawing.Size(430, 155)
 $form.FormBorderStyle = 'FixedDialog'

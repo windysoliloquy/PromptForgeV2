@@ -1,5 +1,5 @@
 #ifndef SourceDir
-  #define SourceDir "..\..\AppOutput\PromptForge"
+  #define SourceDir "..\..\artifacts\publish\PromptForge-win-x64"
 #endif
 
 #ifndef OutputDir
@@ -7,11 +7,11 @@
 #endif
 
 #ifndef SetupBaseName
-  #define SetupBaseName "PromptForge-4.1.2-Setup"
+  #define SetupBaseName "PromptForge-4.1.4-Setup"
 #endif
 
 #ifndef AppVersion
-  #define AppVersion "4.1.2"
+  #define AppVersion "4.1.4"
 #endif
 
 #ifndef AppExeName

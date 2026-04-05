@@ -15,27 +15,28 @@ $ErrorActionPreference = 'Stop'
 Release checklist:
 1. Confirm Prompt Forge is not currently running, or the release copy step may fail on locked files.
 2. Confirm trusted-signing metadata exists at tools\trusted-signing\metadata.json.
-3. Confirm Inno Setup 6 is installed. Check Program Files first, then LocalAppData\Programs\Inno Setup 6 before assuming it is missing.
-4. Run this script from the repo root or by full path.
+3. Confirm Azure CLI is installed and logged in with the signing identity before signing.
+4. Confirm Inno Setup 6 is installed. Check Program Files first, then LocalAppData\Programs\Inno Setup 6 before assuming it is missing.
+5. Run this script from the repo root or by full path.
 
 Release order used here:
-1. Build Release output.
-2. Sign shipped app binaries in AppOutput\PromptForge.
-3. Build the installer from tools\installer\PromptForge.iss.
-4. Sign the generated installer exe.
+1. Publish self-contained Release output for win-x64.
+2. Validate the staged publish folder is self-contained.
+3. Sign shipped app binaries in artifacts\publish\PromptForge-win-x64.
+4. Build the installer from tools\installer\PromptForge.iss.
+5. Sign the generated installer exe.
 
 Typical command:
 powershell -ExecutionPolicy Bypass -File ".\tools\installer\Build-SignedRelease.ps1"
 #>
 
 $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-$solutionPath = Join-Path $repoRoot 'PromptForge.sln'
 $appProjectPath = Join-Path $repoRoot 'PromptForge.App\PromptForge.App.csproj'
 $issPath = Join-Path $PSScriptRoot 'PromptForge.iss'
 $signScript = Join-Path $repoRoot 'tools\trusted-signing\Sign-Artifact.ps1'
 
 if (-not $SourceDir) {
-    $SourceDir = Join-Path $repoRoot 'AppOutput\PromptForge'
+    $SourceDir = Join-Path $repoRoot 'artifacts\publish\PromptForge-win-x64'
 }
 
 if (-not $OutputDir) {
@@ -140,6 +141,40 @@ function Invoke-Signing {
     ) -FailureMessage "Signing failed for '$TargetPath' with exit code {0}."
 }
 
+function Assert-SelfContainedPublishDirectory {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$PublishDirectory
+    )
+
+    $resolvedPublishDirectory = (Resolve-Path -LiteralPath $PublishDirectory).Path
+    $runtimeConfigPath = Join-Path $resolvedPublishDirectory 'PromptForge.App.runtimeconfig.json'
+    $exePath = Join-Path $resolvedPublishDirectory 'PromptForge.App.exe'
+
+    if (-not (Test-Path -LiteralPath $exePath)) {
+        throw "Publish output is missing PromptForge.App.exe: '$exePath'."
+    }
+
+    if (-not (Test-Path -LiteralPath $runtimeConfigPath)) {
+        throw "Publish output is missing PromptForge.App.runtimeconfig.json: '$runtimeConfigPath'."
+    }
+
+    $runtimeConfig = Get-Content -LiteralPath $runtimeConfigPath -Raw | ConvertFrom-Json
+    $runtimeOptions = $runtimeConfig.runtimeOptions
+
+    if (-not $runtimeOptions) {
+        throw "Runtime config was missing runtimeOptions: '$runtimeConfigPath'."
+    }
+
+    if ($runtimeOptions.framework -or (($runtimeOptions.frameworks | Measure-Object).Count -gt 0)) {
+        throw "Release output is framework-dependent. Re-run publish as self-contained before packaging."
+    }
+
+    if ((($runtimeOptions.includedFrameworks | Measure-Object).Count -eq 0)) {
+        throw "Release output is not a valid self-contained publish. runtimeconfig.json did not include bundled frameworks."
+    }
+}
+
 $appVersion = Get-AppVersion
 $setupBaseName = "PromptForge-$appVersion-Setup"
 $binaryTargets = @(
@@ -149,14 +184,24 @@ $binaryTargets = @(
 )
 
 if (-not $SkipBuild) {
-    Write-Host "Building solution ($Configuration)..."
+    Write-Host "Publishing Prompt Forge ($Configuration, win-x64, self-contained)..."
     $dotNetExePath = Get-DotNetExePath
-    Invoke-NativeProcess -FilePath $dotNetExePath -ArgumentList @('build', $solutionPath, '-c', $Configuration) -FailureMessage 'dotnet build failed with exit code {0}.'
+    Invoke-NativeProcess -FilePath $dotNetExePath -ArgumentList @(
+        'publish',
+        $appProjectPath,
+        '-c', $Configuration,
+        '-r', 'win-x64',
+        '--self-contained', 'true',
+        '-p:PublishSingleFile=false',
+        '-o', $SourceDir
+    ) -FailureMessage 'dotnet publish failed with exit code {0}.'
 }
 
 if (-not (Test-Path -LiteralPath $SourceDir)) {
     throw "SourceDir was not found: '$SourceDir'."
 }
+
+Assert-SelfContainedPublishDirectory -PublishDirectory $SourceDir
 
 if (-not $SkipBinarySigning) {
     foreach ($target in $binaryTargets) {
