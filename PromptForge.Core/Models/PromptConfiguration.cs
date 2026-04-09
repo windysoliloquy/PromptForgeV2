@@ -55,6 +55,9 @@ public sealed class PromptConfiguration
     public bool ComicBookSpeedLines { get; set; }
     public bool ComicBookHighContrastLighting { get; set; }
     public bool ComicBookSpeechBubbles { get; set; }
+    public string SpeechBubbleMode { get; set; } = "Blank Bubbles for Later Editing";
+    public string SpeechBubbleSize { get; set; } = "Medium";
+    public bool StylizedSpeechBubbleShape { get; set; }
     public string CinematicSubtype { get; set; } = "general-film-still";
     public bool CinematicLetterboxedFraming { get; set; }
     public bool CinematicShallowDepthOfField { get; set; }
@@ -94,6 +97,21 @@ public sealed class PromptConfiguration
     public bool WatercolorInkAndWatercolor { get; set; }
     public bool WatercolorAtmosphericWash { get; set; }
     public bool WatercolorGouacheAccents { get; set; }
+    public string FantasyIllustrationRegister { get; set; } = "general-fantasy";
+    public bool FantasyIllustrationCharacterSketch { get; set; }
+    public bool FantasyIllustrationCharacterCentric { get; set; }
+    public bool FantasyIllustrationEnvironmentConcept { get; set; }
+    public bool FantasyIllustrationKeyArt { get; set; }
+    public bool FantasyIllustrationCleanBackground { get; set; }
+    public bool FantasyIllustrationSilhouetteReadability { get; set; }
+    public bool FantasyIllustrationPhotorealistic { get; set; }
+    public bool FantasyIllustrationCartoonArt { get; set; }
+    public bool FantasyIllustrationPropArtifactFocus { get; set; }
+    public bool FantasyIllustrationCreatureDesign { get; set; }
+    public bool EditorialIllustrationBlackAndWhiteMonochrome { get; set; }
+    public string GraphicDesignType { get; set; } = "general";
+    public bool GraphicDesignMinimalLayout { get; set; }
+    public bool GraphicDesignBoldHierarchy { get; set; }
     public string PhotographyType { get; set; } = "portrait";
     public string PhotographyEra { get; set; } = "contemporary";
     public bool PhotographyCandidCapture { get; set; }
@@ -119,6 +137,13 @@ public sealed class PromptConfiguration
     public bool FoodPhotographyHandServiceCue { get; set; }
     public bool FoodPhotographyIngredientScatter { get; set; }
     public bool FoodPhotographyCondensationEmphasis { get; set; }
+    public string LifestyleAdvertisingShotMode { get; set; } = "everyday-lifestyle";
+    public bool LifestyleAdvertisingNaturalInteraction { get; set; }
+    public bool LifestyleAdvertisingProductInUse { get; set; }
+    public bool LifestyleAdvertisingBrandColorAccent { get; set; }
+    public bool LifestyleAdvertisingPropContext { get; set; }
+    public bool LifestyleAdvertisingSunlitOptimism { get; set; }
+    public bool LifestyleAdvertisingMotionCandidness { get; set; }
     public string ArchitectureArchvizViewMode { get; set; } = "exterior";
     public bool ArchitectureArchvizHumanScaleCues { get; set; }
     public bool ArchitectureArchvizLandscapeEmphasis { get; set; }
@@ -179,6 +204,7 @@ public sealed class PromptConfiguration
     public bool VintageBendInstitutionalAusterity { get; set; }
     public bool VintageBendSurveillanceStateAtmosphere { get; set; }
     public bool VintageBendPeriodArtifacts { get; set; }
+    public bool VintageBendUrbanCivilian { get; set; }
     public StandardLaneStateCollection StandardLaneStates { get; set; } = new();
 
     public PromptConfiguration Clone()
@@ -238,6 +264,9 @@ public sealed class PromptConfiguration
         ComicBookSpeedLines = ComicBookSpeedLines,
         ComicBookHighContrastLighting = ComicBookHighContrastLighting,
         ComicBookSpeechBubbles = ComicBookSpeechBubbles,
+        SpeechBubbleMode = SpeechBubbleMode,
+        SpeechBubbleSize = SpeechBubbleSize,
+        StylizedSpeechBubbleShape = StylizedSpeechBubbleShape,
         CinematicSubtype = CinematicSubtype,
         CinematicLetterboxedFraming = CinematicLetterboxedFraming,
         CinematicShallowDepthOfField = CinematicShallowDepthOfField,
@@ -277,6 +306,21 @@ public sealed class PromptConfiguration
         WatercolorInkAndWatercolor = WatercolorInkAndWatercolor,
         WatercolorAtmosphericWash = WatercolorAtmosphericWash,
         WatercolorGouacheAccents = WatercolorGouacheAccents,
+        FantasyIllustrationRegister = FantasyIllustrationRegister,
+        FantasyIllustrationCharacterSketch = FantasyIllustrationCharacterSketch,
+        FantasyIllustrationCharacterCentric = FantasyIllustrationCharacterCentric,
+        FantasyIllustrationEnvironmentConcept = FantasyIllustrationEnvironmentConcept,
+        FantasyIllustrationKeyArt = FantasyIllustrationKeyArt,
+        FantasyIllustrationCleanBackground = FantasyIllustrationCleanBackground,
+        FantasyIllustrationSilhouetteReadability = FantasyIllustrationSilhouetteReadability,
+        FantasyIllustrationPhotorealistic = FantasyIllustrationPhotorealistic,
+        FantasyIllustrationCartoonArt = FantasyIllustrationCartoonArt,
+        FantasyIllustrationPropArtifactFocus = FantasyIllustrationPropArtifactFocus,
+        FantasyIllustrationCreatureDesign = FantasyIllustrationCreatureDesign,
+        EditorialIllustrationBlackAndWhiteMonochrome = EditorialIllustrationBlackAndWhiteMonochrome,
+        GraphicDesignType = GraphicDesignType,
+        GraphicDesignMinimalLayout = GraphicDesignMinimalLayout,
+        GraphicDesignBoldHierarchy = GraphicDesignBoldHierarchy,
         PhotographyType = PhotographyType,
         PhotographyEra = PhotographyEra,
         PhotographyCandidCapture = PhotographyCandidCapture,
@@ -302,6 +346,13 @@ public sealed class PromptConfiguration
         FoodPhotographyHandServiceCue = FoodPhotographyHandServiceCue,
         FoodPhotographyIngredientScatter = FoodPhotographyIngredientScatter,
         FoodPhotographyCondensationEmphasis = FoodPhotographyCondensationEmphasis,
+        LifestyleAdvertisingShotMode = LifestyleAdvertisingShotMode,
+        LifestyleAdvertisingNaturalInteraction = LifestyleAdvertisingNaturalInteraction,
+        LifestyleAdvertisingProductInUse = LifestyleAdvertisingProductInUse,
+        LifestyleAdvertisingBrandColorAccent = LifestyleAdvertisingBrandColorAccent,
+        LifestyleAdvertisingPropContext = LifestyleAdvertisingPropContext,
+        LifestyleAdvertisingSunlitOptimism = LifestyleAdvertisingSunlitOptimism,
+        LifestyleAdvertisingMotionCandidness = LifestyleAdvertisingMotionCandidness,
         ArchitectureArchvizViewMode = ArchitectureArchvizViewMode,
         ArchitectureArchvizHumanScaleCues = ArchitectureArchvizHumanScaleCues,
         ArchitectureArchvizLandscapeEmphasis = ArchitectureArchvizLandscapeEmphasis,
@@ -362,6 +413,7 @@ public sealed class PromptConfiguration
             VintageBendInstitutionalAusterity = VintageBendInstitutionalAusterity,
             VintageBendSurveillanceStateAtmosphere = VintageBendSurveillanceStateAtmosphere,
             VintageBendPeriodArtifacts = VintageBendPeriodArtifacts,
+            VintageBendUrbanCivilian = VintageBendUrbanCivilian,
             StandardLaneStates = StandardLaneStates.Clone(),
         };
     }

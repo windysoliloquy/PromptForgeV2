@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -138,6 +139,7 @@ public partial class SliderFlyout : UserControl
     private void FlyoutButton_OnChecked(object sender, RoutedEventArgs e)
     {
         UiEventLog.Write($"slider-flyout checked label='{Label}' value={Value} excluded={IsExcludedFromPrompt}");
+        LogPopupGeometry("button-checked");
         StartButtonMorphAnimation();
         StartButtonGlowAnimation();
     }
@@ -145,23 +147,39 @@ public partial class SliderFlyout : UserControl
     private void FlyoutButton_OnUnchecked(object sender, RoutedEventArgs e)
     {
         UiEventLog.Write($"slider-flyout unchecked label='{Label}' value={Value} excluded={IsExcludedFromPrompt}");
+        LogPopupGeometry("button-unchecked");
     }
 
     private void FlyoutPopup_OnOpened(object sender, EventArgs e)
     {
         UiEventLog.Write($"slider-flyout popup-opened label='{Label}' value={Value} excluded={IsExcludedFromPrompt}");
+        LogPopupGeometry("popup-opened");
+        FreezePopupPlacementAtCurrentPosition();
+        QueuePopupGeometryLog("popup-opened-layout");
         StartPopupGlowAnimation();
         QueueButtonReturnAnimation();
     }
 
     private void FlyoutPopup_OnClosed(object sender, EventArgs e)
     {
+        LogPopupGeometry("popup-closing");
         UiEventLog.Write($"slider-flyout popup-closed label='{Label}' value={Value} excluded={IsExcludedFromPrompt}");
+        RestorePopupPlacement();
         _buttonReturnDelayTimer?.Stop();
         _buttonMorphStoryboard?.Stop();
         _popupGlowStoryboard?.Stop();
         ResetButtonMorphVisuals();
         ResetPopupGlowVisuals();
+    }
+
+    private void ValueSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        var isUserActive = sender is Slider slider && (slider.IsMouseCaptureWithin || slider.IsKeyboardFocusWithin);
+        UiEventLog.Write(
+            $"slider-flyout value-changed label='{Label}' old={FormatNumber(e.OldValue)} new={FormatNumber(e.NewValue)} rootValue={Value} userActive={isUserActive} popupOpen={FlyoutPopup.IsOpen} buttonChecked={FlyoutButton.IsChecked}");
+
+        LogPopupGeometry("value-changed-immediate");
+        QueuePopupGeometryLog("value-changed-layout");
     }
 
     private void ExcludeFromPromptCheckBox_OnChecked(object sender, RoutedEventArgs e)
@@ -275,6 +293,7 @@ public partial class SliderFlyout : UserControl
             return;
         }
 
+        LogPopupGeometry("button-return-delay-complete");
         StartButtonReturnAnimation();
     }
 
@@ -298,7 +317,11 @@ public partial class SliderFlyout : UserControl
         AddDouble(storyboard, FlyoutButtonScaleTransform, ScaleTransform.ScaleYProperty, collapseScaleY, 1d, returnDuration);
         AddDouble(storyboard, FlyoutButton, UIElement.OpacityProperty, returnStartOpacity, 1d, returnDuration);
 
-        storyboard.Completed += (_, _) => ResetButtonMorphVisuals();
+        storyboard.Completed += (_, _) =>
+        {
+            ResetButtonMorphVisuals();
+            LogPopupGeometry("button-return-complete");
+        };
         _buttonMorphStoryboard = storyboard;
         storyboard.Begin();
     }
@@ -340,9 +363,89 @@ public partial class SliderFlyout : UserControl
         AddDouble(storyboard, BottomEdgeTrace, FrameworkElement.WidthProperty, 0d, overlayWidth, edgeDuration, bottomStart);
         AddDouble(storyboard, LeftEdgeTrace, FrameworkElement.HeightProperty, 0d, overlayHeight, edgeDuration, leftStart);
 
-        storyboard.Completed += (_, _) => FreezePopupGlowVisuals(overlayWidth, overlayHeight, peakOpacity);
+        storyboard.Completed += (_, _) =>
+        {
+            FreezePopupGlowVisuals(overlayWidth, overlayHeight, peakOpacity);
+            LogPopupGeometry("popup-glow-complete");
+        };
         _popupGlowStoryboard = storyboard;
         storyboard.Begin();
+    }
+
+    private void QueuePopupGeometryLog(string eventName)
+    {
+        Dispatcher.BeginInvoke(() => LogPopupGeometry(eventName), DispatcherPriority.ApplicationIdle);
+    }
+
+    private void FreezePopupPlacementAtCurrentPosition()
+    {
+        var popupScreenPoint = TryPointToScreen(PopupBaseBorder, new Point(0, 0));
+        if (popupScreenPoint is null)
+        {
+            return;
+        }
+
+        var rootRelativePoint = Root.PointFromScreen(popupScreenPoint.Value);
+        FlyoutPopup.PlacementTarget = Root;
+        FlyoutPopup.Placement = PlacementMode.RelativePoint;
+        FlyoutPopup.HorizontalOffset = rootRelativePoint.X;
+        FlyoutPopup.VerticalOffset = rootRelativePoint.Y;
+
+        UiEventLog.Write(
+            $"slider-flyout placement-frozen label='{Label}' hOffset={FormatNumber(FlyoutPopup.HorizontalOffset)} vOffset={FormatNumber(FlyoutPopup.VerticalOffset)} rootRelative={FormatPoint(rootRelativePoint)} screen={FormatPoint(popupScreenPoint)}");
+    }
+
+    private void RestorePopupPlacement()
+    {
+        FlyoutPopup.PlacementTarget = FlyoutPlacementAnchor;
+        FlyoutPopup.Placement = PlacementMode.Bottom;
+        FlyoutPopup.HorizontalOffset = 0d;
+        FlyoutPopup.VerticalOffset = 0d;
+    }
+
+    private void LogPopupGeometry(string eventName)
+    {
+        try
+        {
+            var buttonPoint = TryPointToScreen(FlyoutButton, new Point(0, 0));
+            var popupPoint = FlyoutPopup.IsOpen ? TryPointToScreen(PopupBaseBorder, new Point(0, 0)) : null;
+
+            UiEventLog.Write(
+                $"slider-flyout geometry event='{eventName}' label='{Label}' value={Value} popupOpen={FlyoutPopup.IsOpen} buttonChecked={FlyoutButton.IsChecked} placement={FlyoutPopup.Placement} hOffset={FormatNumber(FlyoutPopup.HorizontalOffset)} vOffset={FormatNumber(FlyoutPopup.VerticalOffset)} buttonActual={FormatSize(FlyoutButton.ActualWidth, FlyoutButton.ActualHeight)} buttonScreen={FormatPoint(buttonPoint)} popupActual={FormatSize(PopupBaseBorder.ActualWidth, PopupBaseBorder.ActualHeight)} popupScreen={FormatPoint(popupPoint)} rootActual={FormatSize(ActualWidth, ActualHeight)}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            UiEventLog.Write($"slider-flyout geometry-failed event='{eventName}' label='{Label}' reason='{ex.Message.Replace("'", "''", StringComparison.Ordinal)}'");
+        }
+    }
+
+    private static Point? TryPointToScreen(Visual visual, Point point)
+    {
+        return PresentationSource.FromVisual(visual) is null
+            ? null
+            : visual.PointToScreen(point);
+    }
+
+    private static string FormatPoint(Point? point)
+    {
+        return point is null
+            ? "n/a"
+            : $"{FormatNumber(point.Value.X)},{FormatNumber(point.Value.Y)}";
+    }
+
+    private static string FormatPoint(Point point)
+    {
+        return $"{FormatNumber(point.X)},{FormatNumber(point.Y)}";
+    }
+
+    private static string FormatSize(double width, double height)
+    {
+        return $"{FormatNumber(width)}x{FormatNumber(height)}";
+    }
+
+    private static string FormatNumber(double value)
+    {
+        return value.ToString("0.###", CultureInfo.InvariantCulture);
     }
 
     private void ResetButtonGlowVisuals()

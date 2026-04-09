@@ -1,0 +1,15 @@
+Prompt Forge mojibake log
+Date: 2026-04-06
+
+Encountered during the Anime semantic wording install pass:
+
+1. Shell-display artifact while reading Anime era text
+   Displayed text encountered:
+   `Classic Anime (1960sâ€“1970s)`
+   Verified source files:
+   - `PromptForge.Core/Services/LaneRegistry.cs`
+   - `PromptForge.Core/Services/SliderLanguageCatalog.cs`
+   Clean source text:
+   `Classic Anime (1960s–1970s)`
+   Action:
+   No source patch was required for this label because the files already contain the clean en dash form. This was a readout/display artifact during inspection, not a persisted source-string mojibake defect.

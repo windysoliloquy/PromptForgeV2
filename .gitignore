@@ -14,8 +14,12 @@ __pycache__/
 cache/
 .appdata/
 .dotnet-home/
+.dotnet-cli/
+.codex-temp/
 .localappdata/
 .nuget/
+quarantine/
+PromptForge.App/NuGet/
 
 # Packaged artifacts and shortcuts
 *.zip

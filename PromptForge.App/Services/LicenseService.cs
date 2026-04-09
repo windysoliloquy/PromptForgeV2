@@ -32,6 +32,7 @@ public sealed class LicenseService : ILicenseService
     public UnlockState CurrentState => CloneState(_currentState);
     public string PurchasePrice => "$19.99";
     public string PurchaseEmail => "windysoliloquy@gmail.com";
+    public string GetActivationRequestCode() => PromptForgeMachineBindingService.GetCurrentMachineToken();
 
     public string BuildPurchaseMailtoUri()
     {
@@ -42,19 +43,13 @@ public sealed class LicenseService : ILicenseService
 
     public UnlockImportResult ImportUnlockFile(string filePath)
     {
-        PromptForgeLicense? license;
-
-        try
-        {
-            var json = File.ReadAllText(filePath);
-            license = JsonSerializer.Deserialize<PromptForgeLicense>(json, JsonOptions);
-        }
-        catch
+        var parseResult = TryParseUnlockFile(filePath, out var license, out var parseMessage);
+        if (!parseResult)
         {
             return new UnlockImportResult
             {
                 Success = false,
-                Message = "The selected unlock file could not be read.",
+                Message = parseMessage,
             };
         }
 
@@ -67,6 +62,15 @@ public sealed class LicenseService : ILicenseService
             };
         }
 
+        if (!ValidateMachineBinding(license!, out var machineBindingMessage))
+        {
+            return new UnlockImportResult
+            {
+                Success = false,
+                Message = machineBindingMessage,
+            };
+        }
+
         var unlockState = new UnlockState
         {
             IsUnlocked = true,
@@ -74,6 +78,14 @@ public sealed class LicenseService : ILicenseService
             PurchaserEmail = license.PurchaserEmail.Trim(),
             LicenseId = license.LicenseId.Trim(),
             IssuedUtc = license.IssuedUtc.ToUniversalTime(),
+            LicenseMode = PromptForgeLicenseCodec.GetNormalizedLicenseMode(license),
+            MachineToken = PromptForgeMachineBindingService.NormalizeMachineToken(license.MachineToken),
+            EntitlementProfile = license.EntitlementProfile.Trim(),
+            AllowedLanes = license.AllowedLanes
+                .Where(lane => !string.IsNullOrWhiteSpace(lane))
+                .Select(lane => lane.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList(),
             ValidationToken = license.ValidationToken.Trim(),
         };
 
@@ -96,9 +108,7 @@ public sealed class LicenseService : ILicenseService
         {
             Success = true,
             CleanupSucceeded = cleanupSucceeded,
-            Message = cleanupSucceeded
-                ? "Activation succeeded. Prompt Forge Full is now unlocked on this machine."
-                : "Activation succeeded. Prompt Forge Full is now unlocked, but the original unlock file could not be removed automatically.",
+            Message = BuildSuccessfulImportMessage(unlockState, cleanupSucceeded),
         };
     }
 
@@ -129,10 +139,15 @@ public sealed class LicenseService : ILicenseService
                 PurchaserEmail = state.PurchaserEmail,
                 LicenseId = state.LicenseId,
                 IssuedUtc = state.IssuedUtc,
+                LicenseMode = state.LicenseMode,
+                MachineToken = state.MachineToken,
+                EntitlementProfile = state.EntitlementProfile,
+                AllowedLanes = state.AllowedLanes,
                 ValidationToken = state.ValidationToken,
             };
 
             return PromptForgeLicenseCodec.TryValidate(license, out _)
+                && ValidateMachineBinding(license, out _)
                 ? state
                 : CreateLockedState();
         }
@@ -145,6 +160,67 @@ public sealed class LicenseService : ILicenseService
     private void SaveState(UnlockState state)
     {
         File.WriteAllText(_statePath, JsonSerializer.Serialize(state, JsonOptions));
+    }
+
+    private static bool TryParseUnlockFile(string filePath, out PromptForgeLicense? license, out string message)
+    {
+        license = null;
+        message = string.Empty;
+
+        string rawText;
+        try
+        {
+            rawText = File.ReadAllText(filePath);
+        }
+        catch
+        {
+            message = "The selected unlock file could not be read.";
+            return false;
+        }
+
+        if (TryDeserializeLicense(rawText, out license))
+        {
+            return true;
+        }
+
+        if (TryExtractJsonObject(rawText, out var embeddedJson)
+            && TryDeserializeLicense(embeddedJson, out license))
+        {
+            return true;
+        }
+
+        message = "The selected unlock file could not be recognized. If it came from an email, import the attached JSON file directly instead of copying the message body.";
+        return false;
+    }
+
+    private static bool TryDeserializeLicense(string rawText, out PromptForgeLicense? license)
+    {
+        try
+        {
+            var normalized = rawText.Trim().Trim('\uFEFF');
+            license = JsonSerializer.Deserialize<PromptForgeLicense>(normalized, JsonOptions);
+            return license is not null;
+        }
+        catch
+        {
+            license = null;
+            return false;
+        }
+    }
+
+    private static bool TryExtractJsonObject(string rawText, out string json)
+    {
+        json = string.Empty;
+
+        var start = rawText.IndexOf('{');
+        var end = rawText.LastIndexOf('}');
+        if (start < 0 || end <= start)
+        {
+            return false;
+        }
+
+        json = rawText[start..(end + 1)];
+        return true;
     }
 
     // Best-effort cleanup only: this adds friction but does not guarantee secure erasure.
@@ -189,7 +265,43 @@ public sealed class LicenseService : ILicenseService
             PurchaserEmail = state.PurchaserEmail,
             LicenseId = state.LicenseId,
             IssuedUtc = state.IssuedUtc,
+            LicenseMode = state.LicenseMode,
+            MachineToken = state.MachineToken,
+            EntitlementProfile = state.EntitlementProfile,
+            AllowedLanes = [.. state.AllowedLanes],
             ValidationToken = state.ValidationToken,
         };
+    }
+
+    private static bool ValidateMachineBinding(PromptForgeLicense license, out string message)
+    {
+        if (!PromptForgeLicenseCodec.IsMachineBound(license))
+        {
+            message = string.Empty;
+            return true;
+        }
+
+        if (PromptForgeMachineBindingService.IsCurrentMachineToken(license.MachineToken))
+        {
+            message = string.Empty;
+            return true;
+        }
+
+        message = "This unlock file is valid, but it was issued for a different machine.";
+        return false;
+    }
+
+    private static string BuildSuccessfulImportMessage(UnlockState unlockState, bool cleanupSucceeded)
+    {
+        var modeLead = string.Equals(unlockState.LicenseMode, PromptForgeLicenseModes.MachineBound, StringComparison.Ordinal)
+            ? "Activation succeeded. Prompt Forge Full is now unlocked on this machine."
+            : "Activation succeeded. Prompt Forge Full is now unlocked.";
+
+        if (cleanupSucceeded)
+        {
+            return modeLead;
+        }
+
+        return $"{modeLead} The original unlock file could not be removed automatically.";
     }
 }

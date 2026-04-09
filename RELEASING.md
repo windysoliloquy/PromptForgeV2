@@ -36,9 +36,9 @@ powershell -ExecutionPolicy Bypass -File .\tools\installer\Build-SignedRelease.p
 powershell -ExecutionPolicy Bypass -File .\tools\release\Prepare-PublicRelease.ps1 `
   -SourceBranch local/restore-source `
   -PublicBranch main `
-  -ReleaseVersion 4.1.4 `
-  -InstallerPath .\artifacts\installer\PromptForge-4.1.4-Setup.exe `
-  -ReleaseNotesPath .\artifacts\installer\PromptForge-4.1.4-release-notes.md
+  -ReleaseVersion 5.0.0 `
+  -InstallerPath .\artifacts\installer\PromptForge-5.0.0-Setup.exe `
+  -ReleaseNotesPath .\artifacts\installer\PromptForge-5.0.0-release-notes.md
 ```
 
 6. Review the resulting `main` branch contents carefully.

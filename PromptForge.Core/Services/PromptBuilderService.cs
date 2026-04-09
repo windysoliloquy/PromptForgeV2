@@ -2,12 +2,17 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using PromptForge.App.Models;
+using PromptForge.App.Services.Lanes;
 
 namespace PromptForge.App.Services;
 
 public sealed class PromptBuilderService : IPromptBuilderService
 {
     private const string DefaultNegativePrompt = "no blurry detail, no muddy lighting, no distorted anatomy, no extra limbs, no text artifacts, no oversaturated color, no flat composition, no messy background, no poorly defined material texture";
+    private const string EnableUiEventLogEnvironmentVariable = "PROMPTFORGE_ENABLE_UI_EVENT_LOG";
+    private static readonly Regex HyphenatedLanguageTokenRegex = new(@"(?<=[\p{L}\p{N}])-language\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+    private static readonly Regex LanguageTokenRegex = new(@"\blanguage\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+    private static readonly Regex ExtraWhitespaceRegex = new(@"\s{2,}", RegexOptions.CultureInvariant | RegexOptions.Compiled);
     private readonly IArtistProfileService _artistProfileService;
 
     public PromptBuilderService(IArtistProfileService artistProfileService)
@@ -31,6 +36,9 @@ public sealed class PromptBuilderService : IPromptBuilderService
         }
 
         var effectiveConfiguration = ApplyIntentMode(configuration);
+        WriteOverrideSliderDebug(
+            effectiveConfiguration,
+            $"builder-decision inputIntent='{configuration.IntentMode}' effectiveIntent='{effectiveConfiguration.IntentMode}' stylization={effectiveConfiguration.Stylization} narrativeDensity={effectiveConfiguration.NarrativeDensity} contrast={effectiveConfiguration.Contrast}");
         return BuildStandardPrompt(effectiveConfiguration);
     }
 
@@ -38,19 +46,25 @@ public sealed class PromptBuilderService : IPromptBuilderService
     {
         var phrases = new List<PromptFragment>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        WriteFantasyIllustrationDebug(
+            configuration,
+            $"builder-start register='{configuration.FantasyIllustrationRegister}' characterSketch={configuration.FantasyIllustrationCharacterSketch} narrativeValue={configuration.NarrativeDensity} narrativeExclude={configuration.ExcludeNarrativeDensityFromPrompt}");
+
         var useVintageBend = IntentModeCatalog.IsVintageBend(configuration.IntentMode);
         var useAnimeLane = IntentModeCatalog.IsAnime(configuration.IntentMode);
         var useWatercolorLane = IntentModeCatalog.IsWatercolor(configuration.IntentMode);
         var useChildrensBookLane = IntentModeCatalog.IsChildrensBook(configuration.IntentMode);
-        var useComicBookLane = IntentModeCatalog.IsComicBook(configuration.IntentMode);
         var useCinematicLane = IntentModeCatalog.IsCinematic(configuration.IntentMode);
         var useProductPhotographyLane = IntentModeCatalog.IsProductPhotography(configuration.IntentMode);
         var useFoodPhotographyLane = IntentModeCatalog.IsFoodPhotography(configuration.IntentMode);
+        var useLifestyleAdvertisingPhotographyLane = IntentModeCatalog.IsLifestyleAdvertisingPhotography(configuration.IntentMode);
         var useArchitectureArchvizLane = IntentModeCatalog.IsArchitectureArchviz(configuration.IntentMode);
         var usePhotographyLane = IntentModeCatalog.IsPhotography(configuration.IntentMode);
         var useThreeDRenderLane = IntentModeCatalog.IsThreeDRender(configuration.IntentMode);
         var useConceptArtLane = IntentModeCatalog.IsConceptArt(configuration.IntentMode);
         var usePixelArtLane = IntentModeCatalog.IsPixelArt(configuration.IntentMode);
+        var useFantasyIllustrationLane = IntentModeCatalog.IsFantasyIllustration(configuration.IntentMode);
+        var useLaneContributor = LanePromptContributorRegistry.TryGet(configuration.IntentMode, out var laneContributor);
 
         AddUnique(phrases, seen, BuildSubjectSection(configuration), preserveFromCompression: true);
         AddUnique(phrases, seen, BuildRelationshipSection(configuration), preserveFromCompression: true);
@@ -68,9 +82,9 @@ public sealed class PromptBuilderService : IPromptBuilderService
                 AddUnique(phrases, seen, phrase);
             }
         }
-        else if (useComicBookLane)
+        else if (useLaneContributor)
         {
-            foreach (var phrase in BuildComicBookSection(configuration))
+            foreach (var phrase in laneContributor.BuildEarlyDescriptors(configuration))
             {
                 AddUnique(phrases, seen, phrase.Text, phrase.PreserveFromCompression);
             }
@@ -117,6 +131,13 @@ public sealed class PromptBuilderService : IPromptBuilderService
                 AddUnique(phrases, seen, phrase.Text, phrase.PreserveFromCompression);
             }
         }
+        else if (useLifestyleAdvertisingPhotographyLane)
+        {
+            foreach (var phrase in BuildLifestyleAdvertisingPhotographySection(configuration))
+            {
+                AddUnique(phrases, seen, phrase.Text, phrase.PreserveFromCompression);
+            }
+        }
         else if (useArchitectureArchvizLane)
         {
             foreach (var phrase in BuildArchitectureArchvizSection(configuration))
@@ -148,7 +169,7 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
         foreach (var phrase in BuildCompositionSection(configuration)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildMoodSection(configuration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildLightingAndColorSection(configuration, useVintageBend, useProductPhotographyLane, useFoodPhotographyLane, useArchitectureArchvizLane, usePhotographyLane, useCinematicLane, useThreeDRenderLane, useConceptArtLane)) AddUnique(phrases, seen, phrase);
+        foreach (var phrase in BuildLightingAndColorSection(configuration, useVintageBend, useProductPhotographyLane, useFoodPhotographyLane, useLifestyleAdvertisingPhotographyLane, useArchitectureArchvizLane, usePhotographyLane, useCinematicLane, useThreeDRenderLane, useConceptArtLane, useFantasyIllustrationLane)) AddUnique(phrases, seen, phrase);
         foreach (var phrase in BuildImageFinishSection(configuration)) AddUnique(phrases, seen, phrase);
         if (useVintageBend)
         {
@@ -163,9 +184,18 @@ public sealed class PromptBuilderService : IPromptBuilderService
             phrases = PromptCompressionService.Apply(phrases, configuration).ToList();
         }
 
+        phrases = CleanPromptOutputFragments(phrases).ToList();
+        var positivePrompt = string.Join(", ", phrases.Select(fragment => fragment.Text));
+        WriteOverrideSliderDebug(
+            configuration,
+            $"builder-final intent='{configuration.IntentMode}' stylization={configuration.Stylization} narrativeDensity={configuration.NarrativeDensity} contrast={configuration.Contrast} prompt='{FormatPromptForDebug(positivePrompt)}'");
+        WriteFantasyIllustrationDebug(
+            configuration,
+            $"builder-final narrativeExclude={configuration.ExcludeNarrativeDensityFromPrompt} prompt='{FormatPromptForDebug(positivePrompt)}'");
+
         return new PromptResult
         {
-            PositivePrompt = string.Join(", ", phrases.Select(fragment => fragment.Text)),
+            PositivePrompt = positivePrompt,
             NegativePrompt = configuration.UseNegativePrompt ? BuildNegativePrompt(configuration) : string.Empty,
         };
     }
@@ -193,6 +223,7 @@ public sealed class PromptBuilderService : IPromptBuilderService
             AddUnique(phrases, seen, phrase);
         }
 
+        phrases = CleanPromptOutputFragments(phrases).ToList();
         return new PromptResult
         {
             PositivePrompt = string.Join(", ", phrases),
@@ -297,17 +328,19 @@ public sealed class PromptBuilderService : IPromptBuilderService
         }
     }
 
-    private static IEnumerable<string> BuildChildrensBookSection(PromptConfiguration configuration)
+    private static IEnumerable<PromptFragment> BuildLifestyleAdvertisingPhotographySection(PromptConfiguration configuration)
     {
-        foreach (var phrase in SliderLanguageCatalog.ResolveChildrensBookDescriptors(configuration))
+        var preserve = true;
+        foreach (var phrase in SliderLanguageCatalog.ResolveLifestyleAdvertisingPhotographyDescriptors(configuration))
         {
-            yield return phrase;
+            yield return new PromptFragment(phrase, preserve);
+            preserve = false;
         }
     }
 
-    private static IEnumerable<PromptFragment> BuildComicBookSection(PromptConfiguration configuration)
+    private static IEnumerable<string> BuildChildrensBookSection(PromptConfiguration configuration)
     {
-        foreach (var phrase in SliderLanguageCatalog.ResolveComicBookDescriptors(configuration))
+        foreach (var phrase in SliderLanguageCatalog.ResolveChildrensBookDescriptors(configuration))
         {
             yield return phrase;
         }
@@ -733,7 +766,17 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
         if (!configuration.ExcludeNarrativeDensityFromPrompt)
         {
-            yield return MapNarrativeDensity(configuration.NarrativeDensity, configuration);
+            var narrativePhrase = MapNarrativeDensity(configuration.NarrativeDensity, configuration);
+            WriteFantasyIllustrationDebug(
+                configuration,
+                $"composition-narrative emit=true value={configuration.NarrativeDensity} phrase='{FormatPromptForDebug(narrativePhrase)}'");
+            yield return narrativePhrase;
+        }
+        else
+        {
+            WriteFantasyIllustrationDebug(
+                configuration,
+                $"composition-narrative emit=false value={configuration.NarrativeDensity} register='{configuration.FantasyIllustrationRegister}' characterSketch={configuration.FantasyIllustrationCharacterSketch}");
         }
 
         if (!configuration.ExcludeAtmosphericDepthFromPrompt)
@@ -776,7 +819,7 @@ public sealed class PromptBuilderService : IPromptBuilderService
         if (configuration.Whimsy >= 70 && configuration.Tension >= 50) yield return "comedic interpersonal tension";
     }
 
-    private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration, bool useVintageBend, bool useProductPhotography, bool useFoodPhotography, bool useArchitectureArchviz, bool usePhotography, bool useCinematic, bool useThreeDRender, bool useConceptArt)
+    private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration, bool useVintageBend, bool useProductPhotography, bool useFoodPhotography, bool useLifestyleAdvertisingPhotography, bool useArchitectureArchviz, bool usePhotography, bool useCinematic, bool useThreeDRender, bool useConceptArt, bool useFantasyIllustration)
     {
         if (!configuration.ExcludeTemperatureFromPrompt)
         {
@@ -794,10 +837,14 @@ public sealed class PromptBuilderService : IPromptBuilderService
             ? SliderLanguageCatalog.ResolveCinematicLightingDescriptor(configuration)
             : useConceptArt
                 ? SliderLanguageCatalog.ResolveConceptArtLightingDescriptor(configuration)
+            : useFantasyIllustration
+                ? ResolveFantasyIllustrationLightingOrFallback(configuration)
             : useProductPhotography
                 ? SliderLanguageCatalog.ResolveProductPhotographyLightingDescriptor(configuration)
             : useFoodPhotography
                 ? SliderLanguageCatalog.ResolveFoodPhotographyLightingDescriptor(configuration)
+            : useLifestyleAdvertisingPhotography
+                ? SliderLanguageCatalog.ResolveLifestyleAdvertisingPhotographyLightingDescriptor(configuration)
             : useArchitectureArchviz
                 ? SliderLanguageCatalog.ResolveArchitectureArchvizLightingDescriptor(configuration)
             : usePhotography
@@ -814,6 +861,12 @@ public sealed class PromptBuilderService : IPromptBuilderService
         {
             yield return MapContrast(configuration.Contrast, configuration);
         }
+    }
+
+    private static string ResolveFantasyIllustrationLightingOrFallback(PromptConfiguration configuration)
+    {
+        var laneLighting = SliderLanguageCatalog.ResolveFantasyIllustrationLightingDescriptor(configuration);
+        return string.IsNullOrWhiteSpace(laneLighting) ? Lower(configuration.Lighting) : laneLighting;
     }
 
     private static IEnumerable<string> BuildImageFinishSection(PromptConfiguration configuration)
@@ -849,6 +902,67 @@ public sealed class PromptBuilderService : IPromptBuilderService
     private static string MapMotionEnergy(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.MotionEnergy, value, configuration);
 
     private static string MapNarrativeDensity(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.NarrativeDensity, value, configuration);
+
+    private static void WriteFantasyIllustrationDebug(PromptConfiguration configuration, string message)
+    {
+        if (!IsUiEventLogEnabled() || !IntentModeCatalog.IsFantasyIllustration(configuration.IntentMode))
+        {
+            return;
+        }
+
+        try
+        {
+            var path = System.IO.Path.Combine(AppContext.BaseDirectory, "ui-event-log.txt");
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
+            System.IO.File.AppendAllText(path, $"{DateTime.Now:HH:mm:ss.fff} | fantasy-debug {message}{Environment.NewLine}");
+        }
+        catch
+        {
+            // Debug logging must never affect prompt generation.
+        }
+    }
+
+    private static void WriteOverrideSliderDebug(PromptConfiguration configuration, string message)
+    {
+        if (!IsUiEventLogEnabled() || !ShouldLogOverrideSliderDiagnostics(configuration.IntentMode))
+        {
+            return;
+        }
+
+        try
+        {
+            var path = System.IO.Path.Combine(AppContext.BaseDirectory, "ui-event-log.txt");
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
+            System.IO.File.AppendAllText(path, $"{DateTime.Now:HH:mm:ss.fff} | override-sliders {message}{Environment.NewLine}");
+        }
+        catch
+        {
+            // Debug logging must never affect prompt generation.
+        }
+    }
+
+    private static bool IsUiEventLogEnabled()
+    {
+        var value = Environment.GetEnvironmentVariable(EnableUiEventLogEnvironmentVariable);
+        return string.Equals(value, "1", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ShouldLogOverrideSliderDiagnostics(string? intentMode)
+    {
+        return IntentModeCatalog.IsFantasyIllustration(intentMode)
+            || IntentModeCatalog.IsEditorialIllustration(intentMode)
+            || IntentModeCatalog.IsComicBook(intentMode)
+            || IntentModeCatalog.IsWatercolor(intentMode);
+    }
+
+    private static string FormatPromptForDebug(string? value)
+    {
+        var singleLine = string.IsNullOrWhiteSpace(value)
+            ? string.Empty
+            : Regex.Replace(value, "\\s+", " ").Trim().Replace("'", "''", StringComparison.Ordinal);
+        return singleLine.Length <= 320 ? singleLine : $"{singleLine[..320]}...";
+    }
 
     private static string MapAtmosphericDepth(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.AtmosphericDepth, value, configuration);
 
@@ -1343,14 +1457,14 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private static void AddUnique(ICollection<string> phrases, ISet<string> seen, string value, bool preserveFromCompression = false)
     {
-        var cleaned = Clean(value);
+        var cleaned = CleanPromptOutputFragment(value);
         if (string.IsNullOrWhiteSpace(cleaned) || !seen.Add(cleaned)) return;
         phrases.Add(cleaned);
     }
 
     private static void AddUnique(ICollection<PromptFragment> phrases, ISet<string> seen, string value, bool preserveFromCompression = false)
     {
-        var cleaned = Clean(value);
+        var cleaned = CleanPromptOutputFragment(value);
         if (string.IsNullOrWhiteSpace(cleaned) || !seen.Add(cleaned))
         {
             return;
@@ -1489,6 +1603,49 @@ public sealed class PromptBuilderService : IPromptBuilderService
             || phrase.Contains("stylized hair", StringComparison.OrdinalIgnoreCase)
             || phrase.Contains("expressive characters", StringComparison.OrdinalIgnoreCase)
             || phrase.Contains("atmospheric effects", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string CleanPromptOutputFragment(string? value)
+    {
+        var cleaned = Clean(value);
+        if (string.IsNullOrWhiteSpace(cleaned))
+        {
+            return string.Empty;
+        }
+
+        cleaned = HyphenatedLanguageTokenRegex.Replace(cleaned, string.Empty);
+        cleaned = LanguageTokenRegex.Replace(cleaned, string.Empty);
+        return ExtraWhitespaceRegex.Replace(cleaned, " ").Trim().Trim(',');
+    }
+
+    private static IEnumerable<PromptFragment> CleanPromptOutputFragments(IEnumerable<PromptFragment> fragments)
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var fragment in fragments)
+        {
+            var cleaned = CleanPromptOutputFragment(fragment.Text);
+            if (string.IsNullOrWhiteSpace(cleaned) || !seen.Add(cleaned))
+            {
+                continue;
+            }
+
+            yield return new PromptFragment(cleaned, fragment.PreserveFromCompression);
+        }
+    }
+
+    private static IEnumerable<string> CleanPromptOutputFragments(IEnumerable<string> fragments)
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var fragment in fragments)
+        {
+            var cleaned = CleanPromptOutputFragment(fragment);
+            if (string.IsNullOrWhiteSpace(cleaned) || !seen.Add(cleaned))
+            {
+                continue;
+            }
+
+            yield return cleaned;
+        }
     }
 
     private static string Clean(string? value)

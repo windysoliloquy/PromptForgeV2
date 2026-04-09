@@ -141,6 +141,23 @@ public static class PromptCompressionService
                     ("food photography framing", "framing"),
                     ("food photography focus", "focus"),
                     ("food photography detail", "detail"))),
+            [IntentModeCatalog.LifestyleAdvertisingPhotographyName] = new(
+                1,
+                2,
+                Roots("lifestyle photography", "advertising photography", "campaign photography"),
+                SetOf(
+                    "everyday lifestyle photography",
+                    "premium brand campaign photography",
+                    "business lifestyle photography",
+                    "home life photography",
+                    "wellness lifestyle photography"),
+                SetOf("lifestyle image language", "advertising image language", "campaign image language", "lifestyle advertising photography"),
+                Rewrite(
+                    ("lifestyle photography framing", "framing"),
+                    ("lifestyle photography focus", "focus"),
+                    ("lifestyle photography detail", "detail"),
+                    ("advertising photography framing", "framing"),
+                    ("campaign photography framing", "framing"))),
             [IntentModeCatalog.ArchitectureArchvizName] = new(
                 1,
                 2,

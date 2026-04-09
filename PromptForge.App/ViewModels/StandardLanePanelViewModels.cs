@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Collections.ObjectModel;
 using PromptForge.App.Models;
 
@@ -6,29 +7,38 @@ namespace PromptForge.App.ViewModels;
 public sealed class StandardLanePanelViewModel : ViewModelBase
 {
     private readonly StandardLaneStateViewModel _laneState;
+    private readonly string _defaultDescription;
 
     public StandardLanePanelViewModel(LaneDefinition definition, StandardLaneStateViewModel laneState)
     {
         _laneState = laneState;
         LaneId = definition.Id;
         Title = definition.Panel.Title;
-        Description = definition.Panel.ModifierDescription;
+        _defaultDescription = definition.Panel.ModifierDescription;
         AccentSectionTitle = definition.Panel.AccentSectionTitle ?? string.Empty;
         Layout = definition.Panel.Layout;
         SubtypeSelectors = new ObservableCollection<StandardLaneSubtypeSelectorViewModel>(definition.SubtypeSelectors.Select(selector => new StandardLaneSubtypeSelectorViewModel(_laneState, selector)));
+        foreach (var selector in SubtypeSelectors)
+        {
+            selector.PropertyChanged += OnSubtypeSelectorPropertyChanged;
+        }
+
         Modifiers = new ObservableCollection<StandardLaneModifierViewModel>(definition.Modifiers.Select(modifier => new StandardLaneModifierViewModel(_laneState, modifier)));
     }
 
     public string LaneId { get; }
     public string Title { get; }
-    public string Description { get; }
+    public string Description => SubtypeSelectors
+        .Select(selector => selector.SelectedOptionDescription)
+        .FirstOrDefault(description => !string.IsNullOrWhiteSpace(description))
+        ?? _defaultDescription;
     public string AccentSectionTitle { get; }
     public LanePanelLayout Layout { get; }
     public ObservableCollection<StandardLaneSubtypeSelectorViewModel> SubtypeSelectors { get; }
     public ObservableCollection<StandardLaneModifierViewModel> Modifiers { get; }
     public bool HasSubtypeSelectors => SubtypeSelectors.Count > 0;
     public bool HasModifiers => Modifiers.Count > 0;
-    public bool HasAccentSectionTitle => !string.IsNullOrWhiteSpace(AccentSectionTitle);
+    public bool HasAccentSectionTitle => HasModifiers && !string.IsNullOrWhiteSpace(AccentSectionTitle);
 
     public void ReplaceState(StandardLaneState state)
     {
@@ -46,6 +56,17 @@ public sealed class StandardLanePanelViewModel : ViewModelBase
         foreach (var modifier in Modifiers)
         {
             modifier.SyncFromSource();
+        }
+
+        OnPropertyChanged(nameof(Description));
+    }
+
+    private void OnSubtypeSelectorPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.Equals(e.PropertyName, nameof(StandardLaneSubtypeSelectorViewModel.SelectedValue), StringComparison.Ordinal) ||
+            string.Equals(e.PropertyName, nameof(StandardLaneSubtypeSelectorViewModel.SelectedOptionDescription), StringComparison.Ordinal))
+        {
+            OnPropertyChanged(nameof(Description));
         }
     }
 }
@@ -73,7 +94,7 @@ public sealed class StandardLaneStateViewModel
 
     public IReadOnlyList<StandardLaneSubtypeOptionViewModel> GetSelectorOptions(LaneSubtypeSelectorDefinition selector)
     {
-        return selector.Options.Select(static option => new StandardLaneSubtypeOptionViewModel(option.Key, option.Label)).ToArray();
+        return selector.Options.Select(static option => new StandardLaneSubtypeOptionViewModel(option.Key, option.Label, option.SupportDescriptorHint ?? string.Empty)).ToArray();
     }
 
     public string GetSelectorValue(LaneSubtypeSelectorDefinition selector)
@@ -106,7 +127,7 @@ public sealed class StandardLaneStateViewModel
     }
 }
 
-public sealed record StandardLaneSubtypeOptionViewModel(string Key, string Label);
+public sealed record StandardLaneSubtypeOptionViewModel(string Key, string Label, string Description);
 
 public sealed class StandardLaneSubtypeSelectorViewModel : ViewModelBase
 {
@@ -125,6 +146,7 @@ public sealed class StandardLaneSubtypeSelectorViewModel : ViewModelBase
 
     public string Label { get; }
     public ObservableCollection<StandardLaneSubtypeOptionViewModel> Options { get; }
+    public string SelectedOptionDescription => Options.FirstOrDefault(option => string.Equals(option.Key, SelectedValue, StringComparison.Ordinal))?.Description ?? string.Empty;
 
     public string SelectedValue
     {
@@ -134,6 +156,7 @@ public sealed class StandardLaneSubtypeSelectorViewModel : ViewModelBase
             if (SetProperty(ref _selectedValue, value))
             {
                 _laneState.SetSelectorValue(_selector, value);
+                OnPropertyChanged(nameof(SelectedOptionDescription));
             }
         }
     }
@@ -145,6 +168,7 @@ public sealed class StandardLaneSubtypeSelectorViewModel : ViewModelBase
         {
             _selectedValue = current;
             OnPropertyChanged(nameof(SelectedValue));
+            OnPropertyChanged(nameof(SelectedOptionDescription));
         }
     }
 }

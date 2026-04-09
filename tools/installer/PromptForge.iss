@@ -7,11 +7,11 @@
 #endif
 
 #ifndef SetupBaseName
-  #define SetupBaseName "PromptForge-4.1.4-Setup"
+  #define SetupBaseName "PromptForge-5.0.0-Setup"
 #endif
 
 #ifndef AppVersion
-  #define AppVersion "4.1.4"
+  #define AppVersion "5.0.0"
 #endif
 
 #ifndef AppExeName
@@ -49,7 +49,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"
 
 [Files]
-Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb,*.xml,*.md,*.ps1,*.pem,PromptForge.LicenseTool.exe,PromptForge.LicenseTool.dll,PromptForge.LicenseTool.deps.json,PromptForge.LicenseTool.runtimeconfig.json,ui-event-log.txt"
 
 [Icons]
 Name: "{autoprograms}\Prompt Forge"; Filename: "{app}\{#AppExeName}"

@@ -23,6 +23,11 @@ public static class PromptForgeLicenseCodec
 
     public static bool TryValidate(PromptForgeLicense? license, out string message)
     {
+        return TryValidate(license, PublicKeyPem.Value, out message);
+    }
+
+    public static bool TryValidate(PromptForgeLicense? license, string publicKeyPem, out string message)
+    {
         if (license is null)
         {
             message = "The selected unlock file is empty or invalid.";
@@ -44,13 +49,66 @@ public static class PromptForgeLicenseCodec
             return false;
         }
 
-        if (!VerifyValidationToken(license))
+        if (VerifyValidationToken(BuildCanonicalPayload(license), license.ValidationToken, publicKeyPem))
         {
-            message = "Unlock file validation failed. Please check the file and try again.";
+            if (!HasValidCurrentSchema(license))
+            {
+                message = "Unlock file validation failed. Please check the file and try again.";
+                return false;
+            }
+
+            message = string.Empty;
+            return true;
+        }
+
+        if (IsLegacyLicenseShape(license) && VerifyValidationToken(BuildLegacyCanonicalPayload(license), license.ValidationToken, publicKeyPem))
+        {
+            message = string.Empty;
+            return true;
+        }
+
+        message = "Unlock file validation failed. Please check the file and try again.";
+        return false;
+    }
+
+    public static bool IsMachineBound(PromptForgeLicense? license)
+    {
+        return string.Equals(PromptForgeLicenseModes.Normalize(license?.LicenseMode), PromptForgeLicenseModes.MachineBound, StringComparison.Ordinal);
+    }
+
+    public static string GetNormalizedLicenseMode(PromptForgeLicense? license)
+    {
+        if (license is null)
+        {
+            return string.Empty;
+        }
+
+        var normalizedMode = PromptForgeLicenseModes.Normalize(license.LicenseMode);
+        return string.IsNullOrWhiteSpace(normalizedMode) && IsLegacyLicenseShape(license)
+            ? PromptForgeLicenseModes.Temporary
+            : normalizedMode;
+    }
+
+    private static bool HasValidCurrentSchema(PromptForgeLicense license)
+    {
+        var normalizedMode = PromptForgeLicenseModes.Normalize(license.LicenseMode);
+        if (string.IsNullOrWhiteSpace(normalizedMode))
+        {
+            return IsLegacyLicenseShape(license);
+        }
+
+        if (!string.Equals(normalizedMode, PromptForgeLicenseModes.Temporary, StringComparison.Ordinal)
+            && !string.Equals(normalizedMode, PromptForgeLicenseModes.MachineBound, StringComparison.Ordinal))
+        {
             return false;
         }
 
-        message = string.Empty;
+        if (string.Equals(normalizedMode, PromptForgeLicenseModes.MachineBound, StringComparison.Ordinal)
+            && string.IsNullOrWhiteSpace(PromptForgeMachineBindingService.NormalizeMachineToken(license.MachineToken)))
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -60,18 +118,53 @@ public static class PromptForgeLicenseCodec
             ProductName,
             license.PurchaserEmail.Trim().ToLowerInvariant(),
             license.LicenseId.Trim(),
+            license.IssuedUtc.ToUniversalTime().ToString("O"),
+            PromptForgeLicenseModes.Normalize(license.LicenseMode),
+            PromptForgeMachineBindingService.NormalizeMachineToken(license.MachineToken),
+            license.EntitlementProfile.Trim(),
+            BuildAllowedLanePayload(license.AllowedLanes));
+    }
+
+    private static string BuildLegacyCanonicalPayload(PromptForgeLicense license)
+    {
+        return string.Join('\n',
+            ProductName,
+            license.PurchaserEmail.Trim().ToLowerInvariant(),
+            license.LicenseId.Trim(),
             license.IssuedUtc.ToUniversalTime().ToString("O"));
     }
 
-    private static bool VerifyValidationToken(PromptForgeLicense license)
+    private static string BuildAllowedLanePayload(IReadOnlyCollection<string>? allowedLanes)
+    {
+        if (allowedLanes is null || allowedLanes.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return string.Join('|', allowedLanes
+            .Where(lane => !string.IsNullOrWhiteSpace(lane))
+            .Select(lane => lane.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(lane => lane, StringComparer.OrdinalIgnoreCase));
+    }
+
+    private static bool IsLegacyLicenseShape(PromptForgeLicense license)
+    {
+        return string.IsNullOrWhiteSpace(license.LicenseMode)
+            && string.IsNullOrWhiteSpace(license.MachineToken)
+            && string.IsNullOrWhiteSpace(license.EntitlementProfile)
+            && (license.AllowedLanes?.Count ?? 0) == 0;
+    }
+
+    private static bool VerifyValidationToken(string payload, string validationToken, string publicKeyPem)
     {
         try
         {
-            var signatureBytes = Convert.FromBase64String(license.ValidationToken.Trim());
-            var payloadBytes = Encoding.UTF8.GetBytes(BuildCanonicalPayload(license));
+            var signatureBytes = Convert.FromBase64String(validationToken.Trim());
+            var payloadBytes = Encoding.UTF8.GetBytes(payload);
 
             using var rsa = RSA.Create();
-            rsa.ImportFromPem(PublicKeyPem.Value);
+            rsa.ImportFromPem(publicKeyPem);
             return rsa.VerifyData(payloadBytes, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
         }
         catch

@@ -14,13 +14,19 @@ public static class LaneRegistry
         CreatePhotographyLane(),
         CreateProductPhotographyLane(),
         CreateFoodPhotographyLane(),
+        CreateLifestyleAdvertisingPhotographyLane(),
         CreateArchitectureArchvizLane(),
         CreateThreeDRenderLane(),
         CreateConceptArtLane(),
         CreatePixelArtLane(),
+        CreateFantasyIllustrationLane(),
+        CreateEditorialIllustrationLane(),
+        CreateGraphicDesignLane(),
+        CreateTattooArtLane(),
         CreateWatercolorLane(),
     ];
 
+    private static readonly IReadOnlyDictionary<string, LaneDefinition> ById = Definitions.ToDictionary(static definition => definition.Id, StringComparer.OrdinalIgnoreCase);
     private static readonly IReadOnlyDictionary<string, LaneDefinition> ByIntentName = BuildByIntentName(Definitions);
     private static readonly IReadOnlyDictionary<string, ILanePolicy> Policies = new Dictionary<string, ILanePolicy>(StringComparer.OrdinalIgnoreCase)
     {
@@ -106,6 +112,30 @@ public static class LaneRegistry
         return selector?.Options.FirstOrDefault(static option => option.IsDefault)?.Key ?? fallback;
     }
 
+    public static bool TryGetSubtypeDefaultNudges(string intentName, string selectorKey, string selectedValue, out LanePromptDefaults defaults)
+    {
+        defaults = null!;
+
+        if (!TryGetByIntentName(intentName, out var lane) &&
+            !ById.TryGetValue(intentName, out lane!))
+        {
+            return false;
+        }
+
+        var selector = lane.SubtypeSelectors.FirstOrDefault(item => string.Equals(item.Key, selectorKey, StringComparison.OrdinalIgnoreCase));
+        var option = selector?.Options.FirstOrDefault(option =>
+            string.Equals(option.Key, selectedValue, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(option.Label, selectedValue, StringComparison.OrdinalIgnoreCase));
+
+        if (option?.DefaultNudges is null)
+        {
+            return false;
+        }
+
+        defaults = option.DefaultNudges;
+        return true;
+    }
+
     private static IReadOnlyDictionary<string, LaneDefinition> BuildByIntentName(IEnumerable<LaneDefinition> definitions)
     {
         var result = new Dictionary<string, LaneDefinition>(StringComparer.OrdinalIgnoreCase);
@@ -125,9 +155,9 @@ public static class LaneRegistry
         return new(key, label, propertyName, options);
     }
 
-    private static LaneSubtypeOptionDefinition Option(string key, string label, bool isDefault = false)
+    private static LaneSubtypeOptionDefinition Option(string key, string label, bool isDefault = false, LanePromptDefaults? defaultNudges = null, string? supportDescriptorHint = null)
     {
-        return new(key, label, isDefault);
+        return new(key, label, isDefault, SupportDescriptorHint: supportDescriptorHint, DefaultNudges: defaultNudges);
     }
 
     private static LaneModifierDefinition Modifier(string key, string label, string propertyName, string descriptorHint, string weightGroup, int capContribution = 1, bool preserveFromCompression = false, string? triggerRequirement = null)
@@ -152,12 +182,38 @@ public static class LaneRegistry
                 Modifier("institutional-austerity", "Institutional Austerity", nameof(PromptConfiguration.VintageBendInstitutionalAusterity), "austere public-institution mood", "world-state"),
                 Modifier("surveillance-state-atmosphere", "Surveillance-State Atmosphere", nameof(PromptConfiguration.VintageBendSurveillanceStateAtmosphere), "state-watchfulness atmosphere", "world-state"),
                 Modifier("period-artifacts", "Period Artifacts", nameof(PromptConfiguration.VintageBendPeriodArtifacts), "period-correct documentary artifacts", "world-state"),
+                Modifier("urban-civilian", "Urban Civilian", nameof(PromptConfiguration.VintageBendUrbanCivilian), "urban civilian context", "world-state"),
             ],
             WeightGroups:
             [
-                new LaneWeightGroupDefinition("world-state", 3, 4, ["eastern-bloc-gdr", "thriller-undertone", "institutional-austerity", "surveillance-state-atmosphere", "period-artifacts"]),
+                new LaneWeightGroupDefinition("world-state", 3, 4, ["eastern-bloc-gdr", "thriller-undertone", "institutional-austerity", "surveillance-state-atmosphere", "period-artifacts", "urban-civilian"]),
             ],
-            Defaults: new LanePromptDefaults(),
+            Defaults: new LanePromptDefaults
+            {
+                Stylization = 34,
+                Realism = 62,
+                TextureDepth = 42,
+                NarrativeDensity = 38,
+                Symbolism = 18,
+                SurfaceAge = 22,
+                Framing = 46,
+                CameraDistance = 50,
+                CameraAngle = 50,
+                BackgroundComplexity = 34,
+                MotionEnergy = 26,
+                FocusDepth = 44,
+                ImageCleanliness = 34,
+                DetailDensity = 40,
+                AtmosphericDepth = 28,
+                Chaos = 20,
+                Whimsy = 6,
+                Tension = 34,
+                Awe = 14,
+                Saturation = 30,
+                Contrast = 42,
+                Temperature = 24,
+                LightingIntensity = 42,
+            },
             ModifierCap: 4,
             BehaviorFlags: LaneBehaviorFlags.ShowManualControls | LaneBehaviorFlags.ShowModifierPanel | LaneBehaviorFlags.ShowSidecar | LaneBehaviorFlags.RequiresPolicyHook,
             PolicyKey: "vintage-bend");
@@ -210,22 +266,26 @@ public static class LaneRegistry
             ],
             Defaults: new LanePromptDefaults
             {
-                Stylization = 62,
-                Realism = 44,
+                Stylization = 66,
+                Realism = 36,
                 TextureDepth = 24,
-                NarrativeDensity = 52,
-                SurfaceAge = 16,
-                Chaos = 24,
-                MotionEnergy = 54,
-                BackgroundComplexity = 46,
-                AtmosphericDepth = 44,
-                ImageCleanliness = 66,
-                DetailDensity = 54,
-                FocusDepth = 54,
+                NarrativeDensity = 42,
+                Symbolism = 22,
+                SurfaceAge = 10,
+                Framing = 48,
+                Chaos = 18,
+                MotionEnergy = 48,
+                BackgroundComplexity = 38,
+                AtmosphericDepth = 40,
+                FocusDepth = 50,
+                ImageCleanliness = 78,
+                DetailDensity = 52,
                 Whimsy = 28,
-                Tension = 40,
-                Awe = 56,
-                Saturation = 62,
+                Tension = 18,
+                Awe = 44,
+                Temperature = 50,
+                LightingIntensity = 58,
+                Saturation = 56,
                 Contrast = 58,
                 Lighting = "Soft glow",
             },
@@ -502,6 +562,71 @@ public static class LaneRegistry
             BehaviorFlags: LaneBehaviorFlags.ShowManualControls | LaneBehaviorFlags.ShowModifierPanel | LaneBehaviorFlags.ShowSidecar);
     }
 
+    private static LaneDefinition CreateLifestyleAdvertisingPhotographyLane()
+    {
+        return new(
+            Id: "lifestyle-advertising-photography",
+            DisplayTitle: "Lifestyle / Advertising Photography",
+            IntentNames: [IntentModeCatalog.LifestyleAdvertisingPhotographyName],
+            Summary: "Human-centered commercial photography built for believable aspiration, brand-friendly realism, and campaign-ready social or editorial use.",
+            AnchorLabel: "lifestyle advertising photography",
+            Panel: new("Lifestyle / Advertising Photography", "Commercial human-centered photography for ads, campaigns, websites, and social brand imagery.", "Campaign Accents", "Adds controlled commercial cues without turning the lane into fashion-editorial sludge.", "Brand / Lifestyle Accents", LanePanelLayout.SplitColumns),
+            SubtypeSelectors:
+            [
+                Selector("shot-mode", "Shot Mode", nameof(PromptConfiguration.LifestyleAdvertisingShotMode),
+                [
+                    Option("everyday-lifestyle", "Everyday Lifestyle", isDefault: true),
+                    Option("premium-brand-campaign", "Premium Brand Campaign"),
+                    Option("business-lifestyle", "Business / Work Lifestyle"),
+                    Option("home-family-life", "Home / Family Life"),
+                    Option("wellness-leisure", "Wellness / Leisure Lifestyle"),
+                ]),
+            ],
+            Modifiers:
+            [
+                Modifier("natural-interaction", "Natural Interaction", nameof(PromptConfiguration.LifestyleAdvertisingNaturalInteraction), "natural human interaction", "interaction-cues"),
+                Modifier("product-in-use", "Product-in-Use Cue", nameof(PromptConfiguration.LifestyleAdvertisingProductInUse), "product-in-use cue", "brand-cues"),
+                Modifier("brand-color-accent", "Brand Color Accent", nameof(PromptConfiguration.LifestyleAdvertisingBrandColorAccent), "restrained brand-color accent", "brand-cues"),
+                Modifier("prop-context", "Lifestyle Prop Context", nameof(PromptConfiguration.LifestyleAdvertisingPropContext), "lifestyle prop context", "environment-cues"),
+                Modifier("sunlit-optimism", "Sunlit Optimism", nameof(PromptConfiguration.LifestyleAdvertisingSunlitOptimism), "sunlit optimism", "environment-cues"),
+                Modifier("motion-candidness", "Motion / Candidness", nameof(PromptConfiguration.LifestyleAdvertisingMotionCandidness), "candid motion trace", "interaction-cues"),
+            ],
+            WeightGroups:
+            [
+                new LaneWeightGroupDefinition("interaction-cues", 1, 1, ["natural-interaction", "motion-candidness"]),
+                new LaneWeightGroupDefinition("brand-cues", 1, 2, ["product-in-use", "brand-color-accent"]),
+                new LaneWeightGroupDefinition("environment-cues", 1, 2, ["prop-context", "sunlit-optimism"]),
+            ],
+            Defaults: new LanePromptDefaults
+            {
+                Stylization = 24,
+                Realism = 84,
+                TextureDepth = 42,
+                NarrativeDensity = 34,
+                Symbolism = 6,
+                AtmosphericDepth = 18,
+                SurfaceAge = 8,
+                Chaos = 10,
+                Framing = 54,
+                CameraDistance = 48,
+                CameraAngle = 46,
+                BackgroundComplexity = 36,
+                MotionEnergy = 26,
+                FocusDepth = 28,
+                ImageCleanliness = 82,
+                DetailDensity = 64,
+                Whimsy = 18,
+                Tension = 10,
+                Awe = 18,
+                LightingIntensity = 62,
+                Saturation = 54,
+                Contrast = 52,
+                Lighting = "Soft daylight",
+            },
+            ModifierCap: 2,
+            BehaviorFlags: LaneBehaviorFlags.ShowManualControls | LaneBehaviorFlags.ShowModifierPanel | LaneBehaviorFlags.ShowSidecar);
+    }
+
     private static LaneDefinition CreateThreeDRenderLane()
     {
         return new(
@@ -603,22 +728,29 @@ public static class LaneRegistry
             Defaults: new LanePromptDefaults
             {
                 ArtStyle = "Concept Art",
-                Stylization = 52,
-                Realism = 56,
-                TextureDepth = 48,
-                NarrativeDensity = 58,
-                SurfaceAge = 10,
-                BackgroundComplexity = 50,
-                MotionEnergy = 22,
-                FocusDepth = 54,
-                ImageCleanliness = 60,
-                DetailDensity = 56,
-                Whimsy = 18,
-                Tension = 34,
-                Awe = 48,
-                AtmosphericDepth = 48,
-                Saturation = 54,
-                Contrast = 52,
+                Stylization = 58,
+                Realism = 46,
+                TextureDepth = 34,
+                NarrativeDensity = 38,
+                Symbolism = 20,
+                SurfaceAge = 8,
+                Framing = 46,
+                CameraDistance = 48,
+                CameraAngle = 42,
+                BackgroundComplexity = 36,
+                MotionEnergy = 20,
+                FocusDepth = 52,
+                ImageCleanliness = 58,
+                DetailDensity = 44,
+                AtmosphericDepth = 28,
+                Chaos = 18,
+                Whimsy = 12,
+                Tension = 22,
+                Awe = 26,
+                Temperature = 50,
+                LightingIntensity = 48,
+                Saturation = 44,
+                Contrast = 54,
                 Lighting = "Soft daylight",
             },
             ModifierCap: 4,
@@ -664,22 +796,25 @@ public static class LaneRegistry
             Defaults: new LanePromptDefaults
             {
                 ArtStyle = "Pixel Art",
-                Stylization = 60,
-                Realism = 30,
-                TextureDepth = 34,
-                NarrativeDensity = 40,
-                SurfaceAge = 8,
-                BackgroundComplexity = 42,
-                MotionEnergy = 18,
-                FocusDepth = 46,
-                ImageCleanliness = 60,
-                DetailDensity = 52,
-                Whimsy = 16,
-                Tension = 18,
-                Awe = 32,
-                AtmosphericDepth = 24,
-                Saturation = 54,
-                Contrast = 60,
+                Stylization = 66,
+                Realism = 22,
+                TextureDepth = 22,
+                NarrativeDensity = 30,
+                Symbolism = 14,
+                SurfaceAge = 6,
+                Framing = 44,
+                CameraDistance = 44,
+                BackgroundComplexity = 30,
+                MotionEnergy = 20,
+                FocusDepth = 54,
+                ImageCleanliness = 72,
+                DetailDensity = 42,
+                AtmosphericDepth = 16,
+                Whimsy = 20,
+                Tension = 16,
+                Awe = 24,
+                Saturation = 48,
+                Contrast = 66,
                 Lighting = "Soft daylight",
             },
             ModifierCap: 4,
@@ -722,26 +857,364 @@ public static class LaneRegistry
             Defaults: new LanePromptDefaults
             {
                 Stylization = 58,
-                Realism = 46,
-                TextureDepth = 56,
+                Realism = 39,
+                TextureDepth = 60,
                 NarrativeDensity = 44,
                 SurfaceAge = 12,
                 BackgroundComplexity = 48,
                 MotionEnergy = 16,
-                FocusDepth = 52,
+                FocusDepth = 39,
                 ImageCleanliness = 54,
                 DetailDensity = 46,
                 Whimsy = 24,
                 Tension = 26,
                 Awe = 58,
-                AtmosphericDepth = 52,
-                Saturation = 50,
-                Contrast = 42,
+                AtmosphericDepth = 60,
+                Saturation = 36,
+                Contrast = 36,
                 Lighting = "Soft daylight",
             },
             ModifierCap: 4,
             BehaviorFlags: LaneBehaviorFlags.ShowManualControls | LaneBehaviorFlags.ShowModifierPanel | LaneBehaviorFlags.ShowSidecar);
     }
+
+    private static LaneDefinition CreateFantasyIllustrationLane()
+    {
+        return new(
+            Id: "fantasy-illustration",
+            DisplayTitle: "Fantasy Illustration",
+            IntentNames: [IntentModeCatalog.FantasyIllustrationName],
+            Summary: "Storied worldbuilding, crafted material presence, legend-bearing atmosphere, and emblematic narrative suggestion.",
+            AnchorLabel: "fantasy illustration",
+            Panel: new("Fantasy Illustration", "Legend-driven illustrative language with a shared baseline semantic map and future subtype expansion.", "Accents", "Select a fantasy register to tune the lane's slider defaults and semantic language.", "Subtype", LanePanelLayout.SingleColumn),
+            SubtypeSelectors:
+            [
+                Selector("fantasy-register", "Fantasy Register", nameof(PromptConfiguration.FantasyIllustrationRegister),
+                [
+                    Option("general-fantasy", "General Fantasy", isDefault: true, supportDescriptorHint: "Storied worldbuilding, crafted material presence, legend-bearing atmosphere, and emblematic narrative suggestion."),
+                    Option("low-magic", "Low Magic", defaultNudges: new LanePromptDefaults
+                    {
+                        Stylization = 54,
+                        Realism = 60,
+                        TextureDepth = 64,
+                        NarrativeDensity = 58,
+                        Symbolism = 46,
+                        SurfaceAge = 62,
+                        Framing = 55,
+                        CameraDistance = 57,
+                        CameraAngle = 47,
+                        BackgroundComplexity = 58,
+                        MotionEnergy = 42,
+                        AtmosphericDepth = 63,
+                        Chaos = 32,
+                        FocusDepth = 56,
+                        ImageCleanliness = 52,
+                        DetailDensity = 62,
+                        Whimsy = 18,
+                        Tension = 40,
+                        Awe = 50,
+                        LightingIntensity = 47,
+                        Saturation = 42,
+                        Contrast = 51,
+                        Lighting = "Soft daylight",
+                    }, supportDescriptorHint: "Grounded, weathered, omen-bearing, materially believable."),
+                    Option("high-magic", "High Magic", defaultNudges: new LanePromptDefaults
+                    {
+                        Stylization = 66,
+                        Realism = 46,
+                        TextureDepth = 61,
+                        NarrativeDensity = 60,
+                        Symbolism = 61,
+                        SurfaceAge = 50,
+                        Framing = 56,
+                        CameraDistance = 58,
+                        CameraAngle = 48,
+                        BackgroundComplexity = 61,
+                        MotionEnergy = 48,
+                        AtmosphericDepth = 68,
+                        Chaos = 36,
+                        FocusDepth = 56,
+                        ImageCleanliness = 56,
+                        DetailDensity = 64,
+                        Whimsy = 24,
+                        Tension = 40,
+                        Awe = 68,
+                        LightingIntensity = 61,
+                        Saturation = 57,
+                        Contrast = 57,
+                        Lighting = "Soft glow",
+                    }, supportDescriptorHint: "Visible enchantment, ritual order, luminous systems, ceremonial grandeur."),
+                    Option("magitech", "Magitech", defaultNudges: new LanePromptDefaults
+                    {
+                        Stylization = 61,
+                        Realism = 55,
+                        TextureDepth = 67,
+                        NarrativeDensity = 59,
+                        Symbolism = 52,
+                        SurfaceAge = 56,
+                        Framing = 56,
+                        CameraDistance = 58,
+                        CameraAngle = 48,
+                        BackgroundComplexity = 66,
+                        MotionEnergy = 49,
+                        AtmosphericDepth = 61,
+                        Chaos = 35,
+                        FocusDepth = 56,
+                        ImageCleanliness = 61,
+                        DetailDensity = 70,
+                        Whimsy = 20,
+                        Tension = 44,
+                        Awe = 58,
+                        LightingIntensity = 56,
+                        Saturation = 50,
+                        Contrast = 59,
+                        Lighting = "Dramatic studio light",
+                    }, supportDescriptorHint: "Constructed magical infrastructure, engineered systems, operational stakes."),
+                    Option("sword-and-sorcery", "Sword-and-Sorcery", defaultNudges: new LanePromptDefaults
+                    {
+                        Stylization = 62,
+                        Realism = 56,
+                        TextureDepth = 66,
+                        NarrativeDensity = 60,
+                        Symbolism = 50,
+                        SurfaceAge = 63,
+                        Framing = 58,
+                        CameraDistance = 57,
+                        CameraAngle = 49,
+                        BackgroundComplexity = 60,
+                        MotionEnergy = 52,
+                        AtmosphericDepth = 58,
+                        Chaos = 41,
+                        FocusDepth = 55,
+                        ImageCleanliness = 49,
+                        DetailDensity = 65,
+                        Whimsy = 12,
+                        Tension = 54,
+                        Awe = 56,
+                        LightingIntensity = 53,
+                        Saturation = 51,
+                        Contrast = 61,
+                        Lighting = "Warm directional light",
+                    }, supportDescriptorHint: "Hard-edged pulp, steel-first danger, cruel decadence, ruin-shadowed brutality."),
+                ]),
+            ],
+            Modifiers:
+            [
+                Modifier("character-sketch", "Character Sketch", nameof(PromptConfiguration.FantasyIllustrationCharacterSketch), "character-design presentation", "presentation-accents"),
+                Modifier("character-centric", "Character-Centric", nameof(PromptConfiguration.FantasyIllustrationCharacterCentric), "character-first presentation", "presentation-accents"),
+                Modifier("environment-concept", "Environment Concept", nameof(PromptConfiguration.FantasyIllustrationEnvironmentConcept), "environment concept presentation", "presentation-accents"),
+                Modifier("key-art", "Key Art", nameof(PromptConfiguration.FantasyIllustrationKeyArt), "fantasy key art presentation", "presentation-accents"),
+                Modifier("clean-background", "Clean Background", nameof(PromptConfiguration.FantasyIllustrationCleanBackground), "simplified backdrop treatment", "presentation-accents"),
+                Modifier("silhouette-readability", "Silhouette Readability", nameof(PromptConfiguration.FantasyIllustrationSilhouetteReadability), "clean silhouette priority", "presentation-accents"),
+                Modifier("photorealistic", "Photorealistic", nameof(PromptConfiguration.FantasyIllustrationPhotorealistic), "photorealistic fantasy rendering", "presentation-accents"),
+                Modifier("cartoon-art", "Cartoon Art", nameof(PromptConfiguration.FantasyIllustrationCartoonArt), "cartoon fantasy illustration treatment", "presentation-accents"),
+                Modifier("prop-artifact-focus", "Prop / Artifact Focus", nameof(PromptConfiguration.FantasyIllustrationPropArtifactFocus), "prop-first presentation", "presentation-accents"),
+                Modifier("creature-design", "Creature Design", nameof(PromptConfiguration.FantasyIllustrationCreatureDesign), "creature-design presentation", "presentation-accents"),
+            ],
+            WeightGroups:
+            [
+                new LaneWeightGroupDefinition("presentation-accents", 4, 10, ["character-sketch", "character-centric", "environment-concept", "key-art", "clean-background", "silhouette-readability", "photorealistic", "cartoon-art", "prop-artifact-focus", "creature-design"]),
+            ],
+            Defaults: new LanePromptDefaults
+            {
+                Stylization = 58,
+                Realism = 52,
+                TextureDepth = 61,
+                NarrativeDensity = 57,
+                Symbolism = 49,
+                SurfaceAge = 55,
+                Framing = 56,
+                CameraDistance = 58,
+                CameraAngle = 47,
+                BackgroundComplexity = 59,
+                MotionEnergy = 41,
+                AtmosphericDepth = 60,
+                Chaos = 34,
+                FocusDepth = 56,
+                ImageCleanliness = 54,
+                DetailDensity = 63,
+                Whimsy = 24,
+                Tension = 38,
+                Awe = 54,
+                LightingIntensity = 51,
+                Saturation = 48,
+                Contrast = 52,
+                Lighting = "Soft daylight",
+            },
+            ModifierCap: 10,
+            BehaviorFlags: LaneBehaviorFlags.ShowManualControls | LaneBehaviorFlags.ShowSidecar);
+    }
+
+    private static LaneDefinition CreateEditorialIllustrationLane()
+    {
+        return new(
+            Id: "editorial-illustration",
+            DisplayTitle: "Editorial Illustration",
+            IntentNames: [IntentModeCatalog.EditorialIllustrationName],
+            Summary: "Concept-first illustration language for articles, essays, covers, op-eds, and publication-oriented visual storytelling.",
+            AnchorLabel: "editorial illustration",
+            Panel: new(
+                "Editorial Illustration",
+                "A publication-focused illustration lane for articles, essays, covers, and commentary. It emphasizes clear visual metaphor, controlled symbolism, and polished storytelling so ideas read quickly without drifting into spectacle, fantasy excess, or heavy concept-art worldbuilding.",
+                "Accents",
+                "A publication-focused illustration lane for articles, essays, covers, and commentary. It emphasizes clear visual metaphor, controlled symbolism, and polished storytelling so ideas read quickly without drifting into spectacle, fantasy excess, or heavy concept-art worldbuilding.",
+                null,
+                LanePanelLayout.SingleColumn),
+            SubtypeSelectors: [],
+            Modifiers:
+            [
+                Modifier("black-and-white-monochrome", "Black and White / Monochrome", nameof(PromptConfiguration.EditorialIllustrationBlackAndWhiteMonochrome), "black-and-white monochrome treatment", "presentation-overlays"),
+            ],
+            WeightGroups:
+            [
+                new LaneWeightGroupDefinition("presentation-overlays", 1, 1, ["black-and-white-monochrome"]),
+            ],
+            Defaults: new LanePromptDefaults
+            {
+                Stylization = 52,
+                Realism = 46,
+                TextureDepth = 42,
+                NarrativeDensity = 58,
+                Symbolism = 64,
+                SurfaceAge = 10,
+                Chaos = 22,
+                Framing = 50,
+                CameraDistance = 48,
+                CameraAngle = 50,
+                BackgroundComplexity = 30,
+                MotionEnergy = 28,
+                AtmosphericDepth = 36,
+                FocusDepth = 44,
+                ImageCleanliness = 72,
+                DetailDensity = 50,
+                Whimsy = 26,
+                Tension = 38,
+                Awe = 24,
+                LightingIntensity = 54,
+                Saturation = 48,
+                Contrast = 54,
+                Lighting = "Soft daylight",
+            },
+            ModifierCap: 1,
+            BehaviorFlags: LaneBehaviorFlags.ShowManualControls | LaneBehaviorFlags.ShowSidecar);
+    }
+
+    private static LaneDefinition CreateTattooArtLane()
+    {
+        return new(
+            Id: "tattoo-art",
+            DisplayTitle: "Tattoo Art",
+            IntentNames: [IntentModeCatalog.TattooArtName],
+            Summary: "Flat, printable tattoo-flash design language for clean concept sheets and transfer-ready art foundations.",
+            AnchorLabel: "tattoo flash design",
+            Panel: new(
+                "Tattoo Art",
+                "Flat flash-design language for clean, front-facing tattoo concepts without body-wrap distortion.",
+                "Accents",
+                "For a simple line-art drawing, specify that directly in the Subject field along with the subject itself. Most professional tattoo artists already use tools that can convert artwork into pure line art, and most image models tend to drift away from basic black-and-white output unless that constraint is stated very directly. This lane is better suited for shaping clean flash-design foundations than for acting as a line-art converter.",
+                "Accents",
+                LanePanelLayout.SingleColumn),
+            SubtypeSelectors: [],
+            Modifiers: [],
+            WeightGroups: [],
+            Defaults: new LanePromptDefaults
+            {
+                Stylization = 45,
+                Realism = 21,
+                TextureDepth = 25,
+                NarrativeDensity = 0,
+                Symbolism = 25,
+                SurfaceAge = 10,
+                Framing = 10,
+                CameraDistance = 21,
+                CameraAngle = 5,
+                BackgroundComplexity = 5,
+                MotionEnergy = 24,
+                AtmosphericDepth = 1,
+                Chaos = 10,
+                FocusDepth = 5,
+                ImageCleanliness = 85,
+                DetailDensity = 42,
+                Whimsy = 10,
+                Tension = 17,
+                Awe = 15,
+                Temperature = 51,
+                LightingIntensity = 35,
+                Saturation = 43,
+                Contrast = 65,
+                Lighting = "Soft daylight",
+            },
+            ModifierCap: 0,
+            BehaviorFlags: LaneBehaviorFlags.ShowManualControls | LaneBehaviorFlags.ShowSidecar);
+    }
+
+    private static LaneDefinition CreateGraphicDesignLane()
+    {
+        return new(
+            Id: "graphic-design",
+            DisplayTitle: "Graphic Design",
+            IntentNames: [IntentModeCatalog.GraphicDesignName],
+            Summary: "Structured visual-communication language for layout-driven compositions with clear hierarchy, grouping, and polished presentation.",
+            AnchorLabel: "graphic design composition",
+            Panel: new(
+                "Graphic Design",
+                "Layout-first visual communication with hierarchy, grouping, and polished presentation discipline.",
+                "Accents",
+                "Reserved for later pass. No lane modifiers in this baseline install.",
+                "Accents",
+                LanePanelLayout.SingleColumn),
+            SubtypeSelectors:
+            [
+                Selector("design-type", "Design Type", nameof(PromptConfiguration.GraphicDesignType),
+                [
+                    Option("general", "General Graphic Design", isDefault: true),
+                    Option("poster", "Poster"),
+                    Option("social-media", "Social Media Graphic"),
+                    Option("cover-design", "Cover Design"),
+                    Option("flyer-handout", "Flyer / Handout"),
+                    Option("brand-identity", "Brand / Identity"),
+                ]),
+            ],
+            Modifiers:
+            [
+                Modifier("minimal-layout", "Minimal Layout", nameof(PromptConfiguration.GraphicDesignMinimalLayout), "minimal layout discipline", "layout-accents"),
+                Modifier("bold-hierarchy", "Bold Hierarchy", nameof(PromptConfiguration.GraphicDesignBoldHierarchy), "bold visual hierarchy", "layout-accents"),
+            ],
+            WeightGroups:
+            [
+                new LaneWeightGroupDefinition("layout-accents", 2, 2, ["minimal-layout", "bold-hierarchy"]),
+            ],
+            Defaults: new LanePromptDefaults
+            {
+                Stylization = 56,
+                Realism = 34,
+                TextureDepth = 24,
+                NarrativeDensity = 34,
+                Symbolism = 36,
+                SurfaceAge = 10,
+                Framing = 46,
+                CameraDistance = 42,
+                CameraAngle = 10,
+                BackgroundComplexity = 28,
+                MotionEnergy = 34,
+                AtmosphericDepth = 14,
+                Chaos = 18,
+                FocusDepth = 48,
+                ImageCleanliness = 82,
+                DetailDensity = 44,
+                Whimsy = 18,
+                Tension = 28,
+                Awe = 26,
+                Temperature = 50,
+                LightingIntensity = 42,
+                Saturation = 50,
+                Contrast = 66,
+                Lighting = "Soft daylight",
+            },
+            ModifierCap: 2,
+            BehaviorFlags: LaneBehaviorFlags.ShowManualControls | LaneBehaviorFlags.ShowSidecar);
+    }
+
     private static LaneDefinition CreateChildrensBookLane()
     {
         return new(
@@ -815,11 +1288,81 @@ public static class LaneRegistry
                 Selector("style", "Comic Book Style", nameof(PromptConfiguration.ComicBookStyle),
                 [
                     Option("general-comic", "General Comic", isDefault: true),
-                    Option("superhero-comic", "Superhero Comic"),
-                    Option("noir-comic", "Noir Comic"),
-                    Option("graphic-novel", "Graphic Novel"),
-                    Option("vintage-comic", "Vintage Comic"),
-                    Option("modern-comic", "Modern Comic"),
+                    Option("superhero-comic", "Superhero Comic", defaultNudges: new LanePromptDefaults
+                    {
+                        Stylization = 78,
+                        Realism = 44,
+                        TextureDepth = 40,
+                        NarrativeDensity = 58,
+                        Symbolism = 28,
+                        BackgroundComplexity = 42,
+                        MotionEnergy = 74,
+                        Tension = 62,
+                        Awe = 68,
+                        Contrast = 78,
+                        CameraDistance = 58,
+                        CameraAngle = 34,
+                    }),
+                    Option("noir-comic", "Noir Comic", defaultNudges: new LanePromptDefaults
+                    {
+                        Stylization = 70,
+                        Realism = 52,
+                        TextureDepth = 44,
+                        NarrativeDensity = 56,
+                        Symbolism = 30,
+                        BackgroundComplexity = 38,
+                        MotionEnergy = 42,
+                        Tension = 64,
+                        Awe = 34,
+                        Contrast = 86,
+                        CameraDistance = 46,
+                        CameraAngle = 36,
+                    }),
+                    Option("graphic-novel", "Graphic Novel", defaultNudges: new LanePromptDefaults
+                    {
+                        Stylization = 62,
+                        Realism = 58,
+                        TextureDepth = 42,
+                        NarrativeDensity = 62,
+                        Symbolism = 26,
+                        BackgroundComplexity = 44,
+                        MotionEnergy = 46,
+                        Tension = 58,
+                        Awe = 38,
+                        Contrast = 70,
+                        CameraDistance = 48,
+                        CameraAngle = 42,
+                    }),
+                    Option("vintage-comic", "Vintage Comic", defaultNudges: new LanePromptDefaults
+                    {
+                        Stylization = 72,
+                        Realism = 40,
+                        TextureDepth = 52,
+                        NarrativeDensity = 54,
+                        Symbolism = 24,
+                        BackgroundComplexity = 38,
+                        MotionEnergy = 64,
+                        Tension = 54,
+                        Awe = 52,
+                        Contrast = 80,
+                        CameraDistance = 52,
+                        CameraAngle = 38,
+                    }),
+                    Option("modern-comic", "Modern Comic", defaultNudges: new LanePromptDefaults
+                    {
+                        Stylization = 68,
+                        Realism = 50,
+                        TextureDepth = 36,
+                        NarrativeDensity = 56,
+                        Symbolism = 22,
+                        BackgroundComplexity = 42,
+                        MotionEnergy = 62,
+                        Tension = 56,
+                        Awe = 50,
+                        Contrast = 76,
+                        CameraDistance = 52,
+                        CameraAngle = 40,
+                    }),
                 ]),
             ],
             Modifiers:
@@ -839,21 +1382,28 @@ public static class LaneRegistry
             ],
             Defaults: new LanePromptDefaults
             {
-                Stylization = 60,
-                Realism = 44,
-                TextureDepth = 46,
-                NarrativeDensity = 60,
-                SurfaceAge = 14,
-                BackgroundComplexity = 44,
-                MotionEnergy = 56,
+                Stylization = 66,
+                Realism = 39,
+                TextureDepth = 38,
+                NarrativeDensity = 52,
+                Symbolism = 20,
+                SurfaceAge = 12,
+                Framing = 54,
+                CameraDistance = 50,
+                CameraAngle = 42,
+                BackgroundComplexity = 40,
+                MotionEnergy = 60,
                 FocusDepth = 52,
-                ImageCleanliness = 58,
-                DetailDensity = 48,
-                Whimsy = 18,
-                Tension = 52,
+                ImageCleanliness = 60,
+                DetailDensity = 46,
+                AtmosphericDepth = 28,
+                Chaos = 22,
+                Whimsy = 14,
+                Tension = 50,
                 Awe = 44,
-                AtmosphericDepth = 34,
-                Saturation = 58,
+                Temperature = 50,
+                LightingIntensity = 58,
+                Saturation = 56,
                 Contrast = 72,
                 Lighting = "Dramatic studio light",
             },
@@ -901,23 +1451,30 @@ public static class LaneRegistry
             Defaults: new LanePromptDefaults
             {
                 ArtStyle = "Cinematic",
-                Stylization = 50,
-                Realism = 66,
-                TextureDepth = 40,
-                NarrativeDensity = 60,
-                SurfaceAge = 10,
-                BackgroundComplexity = 46,
-                MotionEnergy = 42,
-                FocusDepth = 58,
-                ImageCleanliness = 62,
-                DetailDensity = 50,
-                Whimsy = 16,
-                Tension = 44,
-                Awe = 46,
-                AtmosphericDepth = 54,
-                Saturation = 56,
-                Contrast = 62,
-                Lighting = "Soft cinematic daylight",
+                Stylization = 58,
+                Realism = 54,
+                TextureDepth = 30,
+                NarrativeDensity = 42,
+                Symbolism = 24,
+                SurfaceAge = 8,
+                Framing = 46,
+                CameraDistance = 48,
+                CameraAngle = 42,
+                BackgroundComplexity = 34,
+                MotionEnergy = 24,
+                FocusDepth = 52,
+                ImageCleanliness = 58,
+                DetailDensity = 42,
+                AtmosphericDepth = 30,
+                Chaos = 18,
+                Whimsy = 10,
+                Tension = 28,
+                Awe = 30,
+                Temperature = 50,
+                LightingIntensity = 50,
+                Saturation = 48,
+                Contrast = 58,
+                Lighting = "Soft daylight",
             },
             ModifierCap: 4,
             BehaviorFlags: LaneBehaviorFlags.ShowManualControls | LaneBehaviorFlags.ShowModifierPanel | LaneBehaviorFlags.ShowSidecar);

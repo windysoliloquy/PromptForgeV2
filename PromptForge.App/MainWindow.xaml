@@ -354,7 +354,10 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Padding="0">
+        <Border Grid.Column="0"
+                Style="{StaticResource CardBorderStyle}"
+                Padding="0"
+                Visibility="{Binding ShowAuthoringWorkspace, Converter={StaticResource BooleanToVisibilityConverter}}">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="16">
                     <Border Style="{StaticResource AppHeaderBorderStyle}" Padding="16,18,16,16" Margin="0,0,0,4">
@@ -392,7 +395,38 @@
                             <TextBlock Text="Start with a bundled direction, or switch to Custom or Vintage Bend to reveal the full manual slider structure. Artist influence always stays available as a separate layer."
                                        Style="{StaticResource BodyMutedTextStyle}"
                                        TextWrapping="Wrap" />
-                            <TextBlock Text="Intent Mode" Style="{StaticResource FieldLabelTextStyle}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Intent Mode" Style="{StaticResource FieldLabelTextStyle}" />
+                                <StackPanel Grid.Column="1"
+                                            Orientation="Horizontal"
+                                            VerticalAlignment="Center">
+                                    <CheckBox IsChecked="{Binding OverrideDefaultSliderPositions}"
+                                              Style="{StaticResource AppCheckBoxStyle}"
+                                              ToolTipService.InitialShowDelay="150"
+                                              ToolTipService.ShowDuration="17000">
+                                        <CheckBox.ToolTip>
+                                            <ToolTip Placement="Bottom"
+                                                     HorizontalOffset="8"
+                                                     VerticalOffset="4"
+                                                     MaxWidth="420">
+                                                <Border Padding="10"
+                                                        MaxWidth="420">
+                                                    <TextBlock Text="Overriding default slider positions with current positions can degrade overall performance of the intended lane, but it can also create fun and unexpected effects. Some slider settings may clash with descriptors from other lanes, so use with caution."
+                                                               TextWrapping="Wrap" />
+                                                </Border>
+                                            </ToolTip>
+                                        </CheckBox.ToolTip>
+                                    </CheckBox>
+                                    <TextBlock Text="Override default slider positions"
+                                               Margin="6,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource FieldLabelTextStyle}" />
+                                </StackPanel>
+                            </Grid>
                             <ComboBox ItemsSource="{Binding IntentModes}"
                                       SelectedIndex="{Binding IntentModeSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       DropDownOpened="OnIntentModeDropDownOpened"
@@ -415,87 +449,88 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SectionCardStyle}"
-                            Visibility="{Binding ShowExperimentalMacroControls, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <StackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="168" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                    <TextBlock Text="Experimental Controls" Style="{StaticResource SectionTitleTextStyle}" />
-                                    <TextBlock Text="Macro / Guided steers the governed Experimental engine through perceptual bundles. Manual / Advanced exposes the underlying raw sliders without leaving Experimental."
-                                               Style="{StaticResource BodyMutedTextStyle}"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Mode" Style="{StaticResource FieldLabelTextStyle}" />
-                                    <ComboBox ItemsSource="{Binding ExperimentalControlModes}"
-                                              SelectedItem="{Binding ExperimentalControlMode}"
-                                              Style="{StaticResource AppComboBoxStyle}" />
-                                </StackPanel>
-                            </Grid>
-
-                            <StackPanel Margin="0,12,0,0"
-                                        Visibility="{Binding IsExperimentalMacroGuidedMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Border Style="{StaticResource CardBorderStyle}"
-                                        Background="{DynamicResource SubtleSurfaceBrush}"
-                                        BorderBrush="{DynamicResource SemanticChipBorderBrush}"
-                                        Padding="12"
-                                        Margin="0,0,0,10">
-                                    <StackPanel>
-                                        <controls:MacroPad Title="View Construction"
-                                                           HelperText="Shape composition with framing width on the horizontal axis and vantage on the vertical axis."
-                                                           HorizontalStartLabel="Intimate"
-                                                           HorizontalEndLabel="Expansive"
-                                                           VerticalLowLabel="Low vantage"
-                                                           VerticalHighLabel="High vantage"
-                                                           XValue="{Binding ViewConstructionHorizontal}"
-                                                           YValue="{Binding ViewConstructionVertical}" />
-                                        <TextBlock Text="Distance Bias" Style="{StaticResource FieldLabelTextStyle}" />
-                                        <Slider Minimum="0"
-                                                Maximum="100"
-                                                Value="{Binding ViewConstructionDistanceBias}"
-                                                Style="{StaticResource AppSliderStyle}" />
-                                        <DockPanel LastChildFill="False">
-                                            <TextBlock Text="Close" Style="{StaticResource ChipLabelTextStyle}" />
-                                            <TextBlock Text="Distant" Style="{StaticResource ChipLabelTextStyle}" DockPanel.Dock="Right" />
-                                        </DockPanel>
-                                        <TextBlock Text="{Binding ViewConstructionMacroSummary}"
+                    <StackPanel Visibility="{Binding ShowVintageBendAuthoringSections, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Border Style="{StaticResource SectionCardStyle}"
+                                Visibility="{Binding ShowExperimentalMacroControls, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="168" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                        <TextBlock Text="Experimental Controls" Style="{StaticResource SectionTitleTextStyle}" />
+                                        <TextBlock Text="Macro / Guided steers the governed Experimental engine through perceptual bundles. Manual / Advanced exposes the underlying raw sliders without leaving Experimental."
                                                    Style="{StaticResource BodyMutedTextStyle}"
-                                                   Margin="0,8,0,0" />
+                                                   TextWrapping="Wrap" />
                                     </StackPanel>
-                                </Border>
-
-                                <Border Style="{StaticResource CardBorderStyle}"
-                                        Background="{DynamicResource SubtleSurfaceBrush}"
-                                        BorderBrush="{DynamicResource SemanticChipBorderBrush}"
-                                        Padding="12"
-                                        Margin="0,0,0,10">
-                                    <StackPanel>
-                                        <TextBlock Text="Light Atmosphere" Style="{StaticResource FieldLabelTextStyle}" Margin="0,0,0,6" />
-                                        <TextBlock Text="Choose the lighting regime, then shape it with temperature on the horizontal axis and intensity on the vertical axis."
-                                                   Style="{StaticResource BodyMutedTextStyle}"
-                                                   TextWrapping="Wrap"
-                                                   Margin="0,0,0,10" />
-                                        <TextBlock Text="Lighting Preset" Style="{StaticResource FieldLabelTextStyle}" />
-                                        <ComboBox ItemsSource="{Binding Lightings}"
-                                                  SelectedItem="{Binding Lighting}"
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Mode" Style="{StaticResource FieldLabelTextStyle}" />
+                                        <ComboBox ItemsSource="{Binding ExperimentalControlModes}"
+                                                  SelectedItem="{Binding ExperimentalControlMode}"
                                                   Style="{StaticResource AppComboBoxStyle}" />
-                                        <controls:MacroPad Title="Atmosphere Pad"
-                                                           HelperText="Cool to warm shapes color temperature. Soft to radiant shapes intensity with moderate color/contrast lift."
-                                                           HorizontalStartLabel="Cool"
-                                                           HorizontalEndLabel="Warm"
-                                                           VerticalLowLabel="Soft"
-                                                           VerticalHighLabel="Radiant"
-                                                           XValue="{Binding LightAtmosphereHorizontal}"
-                                                           YValue="{Binding LightAtmosphereVertical}" />
-                                        <TextBlock Text="{Binding LightAtmosphereMacroSummary}"
-                                                   Style="{StaticResource BodyMutedTextStyle}"
-                                                   Margin="0,8,0,0" />
                                     </StackPanel>
-                                </Border>
+                                </Grid>
+
+                                <StackPanel Margin="0,12,0,0"
+                                            Visibility="{Binding IsExperimentalMacroGuidedMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Border Style="{StaticResource CardBorderStyle}"
+                                            Background="{DynamicResource SubtleSurfaceBrush}"
+                                            BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                                            Padding="12"
+                                            Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <controls:MacroPad Title="View Construction"
+                                                               HelperText="Shape composition with framing width on the horizontal axis and vantage on the vertical axis."
+                                                               HorizontalStartLabel="Intimate"
+                                                               HorizontalEndLabel="Expansive"
+                                                               VerticalLowLabel="Low vantage"
+                                                               VerticalHighLabel="High vantage"
+                                                               XValue="{Binding ViewConstructionHorizontal}"
+                                                               YValue="{Binding ViewConstructionVertical}" />
+                                            <TextBlock Text="Distance Bias" Style="{StaticResource FieldLabelTextStyle}" />
+                                            <Slider Minimum="0"
+                                                    Maximum="100"
+                                                    Value="{Binding ViewConstructionDistanceBias}"
+                                                    Style="{StaticResource AppSliderStyle}" />
+                                            <DockPanel LastChildFill="False">
+                                                <TextBlock Text="Close" Style="{StaticResource ChipLabelTextStyle}" />
+                                                <TextBlock Text="Distant" Style="{StaticResource ChipLabelTextStyle}" DockPanel.Dock="Right" />
+                                            </DockPanel>
+                                            <TextBlock Text="{Binding ViewConstructionMacroSummary}"
+                                                       Style="{StaticResource BodyMutedTextStyle}"
+                                                       Margin="0,8,0,0" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Style="{StaticResource CardBorderStyle}"
+                                            Background="{DynamicResource SubtleSurfaceBrush}"
+                                            BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                                            Padding="12"
+                                            Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="Light Atmosphere" Style="{StaticResource FieldLabelTextStyle}" Margin="0,0,0,6" />
+                                            <TextBlock Text="Choose the lighting regime, then shape it with temperature on the horizontal axis and intensity on the vertical axis."
+                                                       Style="{StaticResource BodyMutedTextStyle}"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,0,0,10" />
+                                            <TextBlock Text="Lighting Preset" Style="{StaticResource FieldLabelTextStyle}" />
+                                            <ComboBox ItemsSource="{Binding Lightings}"
+                                                      SelectedItem="{Binding Lighting}"
+                                                      Style="{StaticResource AppComboBoxStyle}" />
+                                            <controls:MacroPad Title="Atmosphere Pad"
+                                                               HelperText="Cool to warm shapes color temperature. Soft to radiant shapes intensity with moderate color/contrast lift."
+                                                               HorizontalStartLabel="Cool"
+                                                               HorizontalEndLabel="Warm"
+                                                               VerticalLowLabel="Soft"
+                                                               VerticalHighLabel="Radiant"
+                                                               XValue="{Binding LightAtmosphereHorizontal}"
+                                                               YValue="{Binding LightAtmosphereVertical}" />
+                                            <TextBlock Text="{Binding LightAtmosphereMacroSummary}"
+                                                       Style="{StaticResource BodyMutedTextStyle}"
+                                                       Margin="0,8,0,0" />
+                                        </StackPanel>
+                                    </Border>
 
                                 <Border Style="{StaticResource CardBorderStyle}"
                                         Background="{DynamicResource SubtleSurfaceBrush}"
@@ -834,6 +869,7 @@
                             <CheckBox Content="Avoid blurry detail" IsChecked="{Binding AvoidBlurryDetail}" Style="{StaticResource AppCheckBoxStyle}" />
                         </StackPanel>
                     </Border>
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </Border>
@@ -984,9 +1020,14 @@
                 </Grid>
             </Border>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <StackPanel>
-                    <Border Style="{StaticResource CardBorderStyle}" Padding="20">
+            <ScrollViewer x:Name="RightPaneScrollViewer"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Visibility="{Binding ShowVintageBendAuthoringSections, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid Width="{Binding ActualWidth, ElementName=RightPaneScrollViewer}">
+                    <StackPanel>
+                    <Border Style="{StaticResource CardBorderStyle}"
+                            Padding="20">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -1117,9 +1158,60 @@
                                         <CheckBox Content="High Contrast Lighting"
                                                   IsChecked="{Binding ComicBookHighContrastLighting}"
                                                   Style="{StaticResource AppCheckBoxStyle}" />
-                                        <CheckBox Content="Speech Bubbles"
+                                        <CheckBox x:Name="ComicBookSpeechBubblesToggle"
+                                                  Content="Speech Bubbles"
                                                   IsChecked="{Binding ComicBookSpeechBubbles}"
                                                   Style="{StaticResource AppCheckBoxStyle}" />
+                                        <Popup Placement="Right"
+                                               PlacementTarget="{Binding ElementName=ComicBookSpeechBubblesToggle}"
+                                               HorizontalOffset="12"
+                                               VerticalOffset="-16"
+                                               AllowsTransparency="True"
+                                               PopupAnimation="Fade"
+                                               StaysOpen="False"
+                                               IsOpen="{Binding IsSpeechBubbleOptionsOpen, Mode=TwoWay}">
+                                            <Border Width="320"
+                                                    Padding="16"
+                                                    Style="{StaticResource CardBorderStyle}"
+                                                    SnapsToDevicePixels="True">
+                                                <StackPanel>
+                                                    <TextBlock Text="Speech Bubble Options"
+                                                               Style="{StaticResource SectionTitleTextStyle}" />
+                                                    <TextBlock Text="{Binding SpeechBubbleHelperText}"
+                                                               Margin="0,6,0,12"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <Border Padding="10"
+                                                            Margin="0,0,0,12"
+                                                            CornerRadius="10"
+                                                            BorderThickness="1"
+                                                            BorderBrush="{DynamicResource AccentBrush}"
+                                                            Background="{DynamicResource SubtleSurfaceBrush}"
+                                                            Visibility="{Binding ShowSpeechBubbleWarning, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <TextBlock Text="{Binding SpeechBubbleWarningText}"
+                                                                   Style="{StaticResource BodyMutedTextStyle}"
+                                                                   TextWrapping="Wrap" />
+                                                    </Border>
+
+                                                    <TextBlock Text="Bubble Mode" Style="{StaticResource FieldLabelTextStyle}" />
+                                                    <ComboBox ItemsSource="{Binding SpeechBubbleModes}"
+                                                              SelectedItem="{Binding SpeechBubbleMode}"
+                                                              Style="{StaticResource AppComboBoxStyle}" />
+
+                                                    <StackPanel Margin="0,12,0,0"
+                                                                Visibility="{Binding ShowBlankSpeechBubbleOptions, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <TextBlock Text="Bubble Size" Style="{StaticResource FieldLabelTextStyle}" />
+                                                        <ComboBox ItemsSource="{Binding SpeechBubbleSizes}"
+                                                                  SelectedItem="{Binding SpeechBubbleSize}"
+                                                                  Style="{StaticResource AppComboBoxStyle}" />
+                                                        <CheckBox Content="Stylized Bubble Shape"
+                                                                  IsChecked="{Binding StylizedSpeechBubbleShape}"
+                                                                  Margin="0,10,0,0"
+                                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </Popup>
                                     </StackPanel>
                                 </Border>
                                 <ContentControl Content="{Binding ActiveStandardLanePanel}"
@@ -1138,20 +1230,11 @@
                                                    Margin="0,4,0,10"
                                                    Style="{StaticResource BodyMutedTextStyle}"
                                                    TextWrapping="Wrap" />
-                                        <CheckBox Content="Eastern Bloc / GDR"
-                                                  IsChecked="{Binding VintageBendEasternBlocGdr}"
-                                                  Style="{StaticResource AppCheckBoxStyle}" />
-                                        <CheckBox Content="Thriller Undertone"
-                                                  IsChecked="{Binding VintageBendThrillerUndertone}"
-                                                  Style="{StaticResource AppCheckBoxStyle}" />
-                                        <CheckBox Content="Institutional Austerity"
-                                                  IsChecked="{Binding VintageBendInstitutionalAusterity}"
-                                                  Style="{StaticResource AppCheckBoxStyle}" />
-                                        <CheckBox Content="Surveillance-State Atmosphere"
-                                                  IsChecked="{Binding VintageBendSurveillanceStateAtmosphere}"
-                                                  Style="{StaticResource AppCheckBoxStyle}" />
                                         <CheckBox Content="Period Artifacts"
                                                   IsChecked="{Binding VintageBendPeriodArtifacts}"
+                                                  Style="{StaticResource AppCheckBoxStyle}" />
+                                        <CheckBox Content="Urban Civilian"
+                                                  IsChecked="{Binding VintageBendUrbanCivilian}"
                                                   Style="{StaticResource AppCheckBoxStyle}" />
                                     </StackPanel>
                                 </Border>
@@ -1159,7 +1242,10 @@
                         </Grid>
                     </Border>
 
-                    <Border Style="{StaticResource CardBorderStyle}" Padding="20" Margin="0,16,0,0" Visibility="{Binding ShowArtistBlendSummary, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Style="{StaticResource CardBorderStyle}"
+                            Padding="20"
+                            Margin="0,16,0,0"
+                            Visibility="{Binding ShowArtistBlendSummary, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="Artist Blend Summary" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Margin="0,4,0,10" Text="{Binding ArtistBlendSummaryTitle}" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
@@ -1173,7 +1259,10 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource CardBorderStyle}" Padding="20" Margin="0,16,0,0" Visibility="{Binding ShowNegativePrompt, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Style="{StaticResource CardBorderStyle}"
+                            Padding="20"
+                            Margin="0,16,0,0"
+                            Visibility="{Binding ShowNegativePrompt, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="Negative Prompt" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBox Text="{Binding NegativePromptPreview, Mode=OneWay}"
@@ -1202,7 +1291,51 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
+                </Grid>
             </ScrollViewer>
+
+            <Border Style="{StaticResource CardBorderStyle}"
+                    Padding="24"
+                    Margin="0,16,0,0"
+                    Visibility="{Binding ShowVintageBendLockedPane, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="{Binding VintageBendLockedHeadline}"
+                               Style="{StaticResource SectionTitleTextStyle}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}"
+                    Padding="24"
+                    Margin="0,16,0,0"
+                    Visibility="{Binding ShowDemoExpiredLockScreen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Demo Locked"
+                               Style="{StaticResource SectionTitleTextStyle}" />
+                    <TextBlock Margin="0,6,0,0"
+                               Text="The Prompt Forge demo has reached its export limit on this machine."
+                               Style="{StaticResource BodyMutedTextStyle}"
+                               TextWrapping="Wrap" />
+                    <TextBlock Margin="0,10,0,0"
+                               Text="Prompt output and authoring controls are now hidden until the full version is unlocked."
+                               Style="{StaticResource BodyMutedTextStyle}"
+                               TextWrapping="Wrap" />
+                    <Border Style="{StaticResource InfoChipBorderStyle}"
+                            Margin="0,16,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding DemoModeHeadline}"
+                                       Style="{StaticResource ChipValueTextStyle}" />
+                            <TextBlock Text="{Binding DemoModeBody}"
+                                       Margin="0,5,0,0"
+                                       Style="{StaticResource BodyMutedTextStyle}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Margin="0,16,0,0"
+                               Text="Use the Version button above to import an unlock file and restore the full workspace."
+                               Style="{StaticResource BodyMutedTextStyle}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
         </DockPanel>
         <Grid Panel.ZIndex="50"
               Grid.ColumnSpan="3"

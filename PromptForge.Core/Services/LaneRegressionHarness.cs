@@ -11,10 +11,15 @@ public static class LaneRegressionHarness
         IntentModeCatalog.PhotographyName,
         IntentModeCatalog.ProductPhotographyName,
         IntentModeCatalog.FoodPhotographyName,
+        IntentModeCatalog.LifestyleAdvertisingPhotographyName,
         IntentModeCatalog.ArchitectureArchvizName,
         IntentModeCatalog.ThreeDRenderName,
         IntentModeCatalog.ConceptArtName,
         IntentModeCatalog.PixelArtName,
+        IntentModeCatalog.FantasyIllustrationName,
+        IntentModeCatalog.EditorialIllustrationName,
+        IntentModeCatalog.GraphicDesignName,
+        IntentModeCatalog.TattooArtName,
     ];
 
     public static IReadOnlyList<string> Run(IPromptBuilderService promptBuilderService)
@@ -117,6 +122,22 @@ public static class LaneRegressionHarness
                 }
             }
 
+            if (string.Equals(lane.Id, "lifestyle-advertising-photography", StringComparison.OrdinalIgnoreCase))
+            {
+                if (assembledPrompt.Contains("lifestyle image language", StringComparison.OrdinalIgnoreCase)
+                    || assembledPrompt.Contains("advertising image language", StringComparison.OrdinalIgnoreCase)
+                    || assembledPrompt.Contains("campaign image language", StringComparison.OrdinalIgnoreCase))
+                {
+                    failures.Add("Lifestyle / Advertising Photography compression did not remove weak meta language.");
+                }
+
+                if (assembledPrompt.Contains("lifestyle photography framing", StringComparison.OrdinalIgnoreCase)
+                    || assembledPrompt.Contains("lifestyle photography focus", StringComparison.OrdinalIgnoreCase))
+                {
+                    failures.Add("Lifestyle / Advertising Photography compression left behind repeated lifestyle-photography root language.");
+                }
+            }
+
             if (string.Equals(lane.Id, "architecture-archviz", StringComparison.OrdinalIgnoreCase))
             {
                 if (assembledPrompt.Contains("archviz image language", StringComparison.OrdinalIgnoreCase)
@@ -181,10 +202,15 @@ public static class LaneRegressionHarness
             var mode when string.Equals(mode, IntentModeCatalog.PhotographyName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolvePhotographyDescriptors(configuration),
             var mode when string.Equals(mode, IntentModeCatalog.ProductPhotographyName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveProductPhotographyDescriptors(configuration),
             var mode when string.Equals(mode, IntentModeCatalog.FoodPhotographyName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveFoodPhotographyDescriptors(configuration),
+            var mode when string.Equals(mode, IntentModeCatalog.LifestyleAdvertisingPhotographyName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveLifestyleAdvertisingPhotographyDescriptors(configuration),
             var mode when string.Equals(mode, IntentModeCatalog.ArchitectureArchvizName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveArchitectureArchvizDescriptors(configuration),
             var mode when string.Equals(mode, IntentModeCatalog.ThreeDRenderName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveThreeDRenderDescriptors(configuration),
             var mode when string.Equals(mode, IntentModeCatalog.ConceptArtName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveConceptArtDescriptors(configuration),
             var mode when string.Equals(mode, IntentModeCatalog.PixelArtName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolvePixelArtDescriptors(configuration),
+            var mode when string.Equals(mode, IntentModeCatalog.FantasyIllustrationName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveFantasyIllustrationDescriptors(configuration),
+            var mode when string.Equals(mode, IntentModeCatalog.EditorialIllustrationName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveEditorialIllustrationDescriptors(configuration),
+            var mode when string.Equals(mode, IntentModeCatalog.GraphicDesignName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveGraphicDesignDescriptors(configuration),
+            var mode when string.Equals(mode, IntentModeCatalog.TattooArtName, StringComparison.OrdinalIgnoreCase) => SliderLanguageCatalog.ResolveTattooArtDescriptors(configuration),
             _ => Array.Empty<string>(),
         };
     }

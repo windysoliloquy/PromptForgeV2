@@ -13,10 +13,15 @@ public static class StandardLaneBindingValidator
         IntentModeCatalog.PhotographyName,
         IntentModeCatalog.ProductPhotographyName,
         IntentModeCatalog.FoodPhotographyName,
+        IntentModeCatalog.LifestyleAdvertisingPhotographyName,
         IntentModeCatalog.ArchitectureArchvizName,
         IntentModeCatalog.ThreeDRenderName,
         IntentModeCatalog.ConceptArtName,
         IntentModeCatalog.PixelArtName,
+        IntentModeCatalog.FantasyIllustrationName,
+        IntentModeCatalog.EditorialIllustrationName,
+        IntentModeCatalog.GraphicDesignName,
+        IntentModeCatalog.TattooArtName,
         IntentModeCatalog.WatercolorName,
     ];
 

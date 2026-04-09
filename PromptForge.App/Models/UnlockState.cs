@@ -7,5 +7,9 @@ public sealed class UnlockState
     public string PurchaserEmail { get; set; } = string.Empty;
     public string LicenseId { get; set; } = string.Empty;
     public DateTime IssuedUtc { get; set; }
+    public string LicenseMode { get; set; } = string.Empty;
+    public string MachineToken { get; set; } = string.Empty;
+    public string EntitlementProfile { get; set; } = string.Empty;
+    public List<string> AllowedLanes { get; set; } = [];
     public string ValidationToken { get; set; } = string.Empty;
 }

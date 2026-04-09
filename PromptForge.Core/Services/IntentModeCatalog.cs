@@ -15,10 +15,15 @@ public static class IntentModeCatalog
     public const string PhotographicName = "Photographic";
     public const string ProductPhotographyName = "Product Photography";
     public const string FoodPhotographyName = "Food Photography";
+    public const string LifestyleAdvertisingPhotographyName = "Lifestyle / Advertising Photography";
     public const string ArchitectureArchvizName = "Architecture / Archviz";
     public const string ThreeDRenderName = "3D Render";
     public const string ConceptArtName = "Concept Art";
     public const string PixelArtName = "Pixel Art";
+    public const string FantasyIllustrationName = "Fantasy Illustration";
+    public const string EditorialIllustrationName = "Editorial Illustration";
+    public const string GraphicDesignName = "Graphic Design";
+    public const string TattooArtName = "Tattoo Art";
 
     private static readonly IReadOnlyDictionary<string, IntentModeDefinition> Definitions =
         BuildDefinitions();
@@ -84,6 +89,21 @@ public static class IntentModeCatalog
             Contrast: 54,
             Lighting: "Soft daylight",
             Summary: "built-space visualization with spatial clarity, material realism, development polish, and market-ready architectural imagery");
+
+        var lifestyleAdvertisingPhotography = new IntentModeDefinition(
+            LifestyleAdvertisingPhotographyName,
+            Whimsy: 18,
+            Tension: 10,
+            Awe: 18,
+            Chaos: 10,
+            MotionEnergy: 26,
+            AtmosphericDepth: 38,
+            NarrativeDensity: 34,
+            Symbolism: 6,
+            Saturation: 54,
+            Contrast: 52,
+            Lighting: "Soft daylight",
+            Summary: "human-centered commercial photography built for believable aspiration, brand-friendly realism, and campaign-ready social or editorial use");
 
         return new Dictionary<string, IntentModeDefinition>(StringComparer.OrdinalIgnoreCase)
         {
@@ -161,6 +181,7 @@ public static class IntentModeCatalog
             [PhotographicName] = photography,
             [ProductPhotographyName] = productPhotography,
             [FoodPhotographyName] = foodPhotography,
+            [LifestyleAdvertisingPhotographyName] = lifestyleAdvertisingPhotography,
             [ArchitectureArchvizName] = architectureArchviz,
             [ThreeDRenderName] = new(
                 ThreeDRenderName,
@@ -204,6 +225,76 @@ public static class IntentModeCatalog
                 Contrast: 60,
                 Lighting: "Soft daylight",
                 Summary: "pixel art presentation with palette discipline, sprite-readable structure, and crisp game-oriented clarity"),
+            [FantasyIllustrationName] = new(
+                FantasyIllustrationName,
+                Whimsy: 24,
+                Tension: 38,
+                Awe: 54,
+                Chaos: 34,
+                MotionEnergy: 41,
+                AtmosphericDepth: 60,
+                NarrativeDensity: 57,
+                Symbolism: 49,
+                Saturation: 48,
+                Contrast: 52,
+                Lighting: "Soft daylight",
+                Summary: "storied worldbuilding, crafted material presence, legend-bearing atmosphere, and emblematic narrative suggestion"),
+            [EditorialIllustrationName] = new(
+                EditorialIllustrationName,
+                Whimsy: 26,
+                Tension: 38,
+                Awe: 24,
+                Chaos: 22,
+                MotionEnergy: 28,
+                AtmosphericDepth: 36,
+                NarrativeDensity: 58,
+                Symbolism: 64,
+                Saturation: 48,
+                Contrast: 54,
+                Lighting: "Soft daylight",
+                Summary: "concept-first illustration language for articles, essays, covers, op-eds, and publication-oriented visual storytelling"),
+            [GraphicDesignName] = new(
+                GraphicDesignName,
+                Whimsy: 18,
+                Tension: 28,
+                Awe: 26,
+                Chaos: 18,
+                MotionEnergy: 34,
+                AtmosphericDepth: 14,
+                NarrativeDensity: 34,
+                Symbolism: 36,
+                Saturation: 50,
+                Contrast: 66,
+                Lighting: "Soft daylight",
+                Summary: "structured visual-communication language for layout-driven compositions with clear hierarchy, grouping, and polished presentation"),
+            [TattooArtName] = new(
+                TattooArtName,
+                Whimsy: 22,
+                Tension: 34,
+                Awe: 30,
+                Chaos: 24,
+                MotionEnergy: 52,
+                AtmosphericDepth: 8,
+                NarrativeDensity: 38,
+                Symbolism: 42,
+                Saturation: 50,
+                Contrast: 64,
+                Lighting: "Soft daylight",
+                Summary: "flat, printable tattoo-flash design language for clean concept sheets and transfer-ready art foundations"),
+            [VintageBendName] = new(
+                VintageBendName,
+                Whimsy: 6,
+                Tension: 34,
+                Awe: 14,
+                Chaos: 20,
+                MotionEnergy: 26,
+                AtmosphericDepth: 28,
+                NarrativeDensity: 38,
+                Symbolism: 18,
+                Saturation: 30,
+                Contrast: 42,
+                Lighting: "Soft daylight",
+                Summary: "period documentary-thriller imagery with East German institutional realism, practical room light, analog restraint, and watchful procedural tension"),
         };
     }
 
@@ -218,10 +309,15 @@ public static class IntentModeCatalog
         PhotographyName,
         ProductPhotographyName,
         FoodPhotographyName,
+        LifestyleAdvertisingPhotographyName,
         ArchitectureArchvizName,
         ThreeDRenderName,
         ConceptArtName,
         PixelArtName,
+        FantasyIllustrationName,
+        EditorialIllustrationName,
+        GraphicDesignName,
+        TattooArtName,
         VintageBendName,
         ExperimentalName,
     };
@@ -277,6 +373,11 @@ public static class IntentModeCatalog
         return string.Equals(intentMode, FoodPhotographyName, StringComparison.OrdinalIgnoreCase);
     }
 
+    public static bool IsLifestyleAdvertisingPhotography(string? intentMode)
+    {
+        return string.Equals(intentMode, LifestyleAdvertisingPhotographyName, StringComparison.OrdinalIgnoreCase);
+    }
+
     public static bool IsArchitectureArchviz(string? intentMode)
     {
         return string.Equals(intentMode, ArchitectureArchvizName, StringComparison.OrdinalIgnoreCase);
@@ -295,6 +396,26 @@ public static class IntentModeCatalog
     public static bool IsPixelArt(string? intentMode)
     {
         return string.Equals(intentMode, PixelArtName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsFantasyIllustration(string? intentMode)
+    {
+        return string.Equals(intentMode, FantasyIllustrationName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsEditorialIllustration(string? intentMode)
+    {
+        return string.Equals(intentMode, EditorialIllustrationName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsGraphicDesign(string? intentMode)
+    {
+        return string.Equals(intentMode, GraphicDesignName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsTattooArt(string? intentMode)
+    {
+        return string.Equals(intentMode, TattooArtName, StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool TryGet(string? intentMode, out IntentModeDefinition definition)

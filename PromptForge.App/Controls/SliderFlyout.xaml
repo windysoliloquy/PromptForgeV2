@@ -27,7 +27,7 @@
         <sys:Double x:Key="SliderEdgeTraceThickness">1.5</sys:Double>
     </UserControl.Resources>
     <Grid>
-        <Grid>
+        <Grid x:Name="FlyoutPlacementAnchor">
             <ToggleButton x:Name="FlyoutButton"
                           Style="{DynamicResource SliderFlyoutButtonStyle}"
                           MinHeight="84"
@@ -82,7 +82,7 @@
         </Grid>
 
         <Popup x:Name="FlyoutPopup"
-               PlacementTarget="{Binding ElementName=FlyoutButton}"
+               PlacementTarget="{Binding ElementName=FlyoutPlacementAnchor}"
                Placement="Bottom"
                AllowsTransparency="True"
                StaysOpen="False"
@@ -109,11 +109,13 @@
                                    Style="{DynamicResource BodyMutedTextStyle}"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,12" />
-                        <Slider Minimum="{Binding Minimum, ElementName=Root}"
+                        <Slider x:Name="ValueSlider"
+                                Minimum="{Binding Minimum, ElementName=Root}"
                                 Maximum="{Binding Maximum, ElementName=Root}"
                                 Value="{Binding Value, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 TickFrequency="1"
                                 IsSnapToTickEnabled="False"
+                                ValueChanged="ValueSlider_OnValueChanged"
                                 Style="{DynamicResource AppSliderStyle}" />
                         <Border Margin="0,10,0,0"
                                 Padding="0,10,0,0"

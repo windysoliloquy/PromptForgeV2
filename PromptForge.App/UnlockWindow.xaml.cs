@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.Win32;
+using PromptForge.App.Models;
 using PromptForge.App.Services;
 
 namespace PromptForge.App;
@@ -85,6 +86,7 @@ public partial class UnlockWindow : Window
     {
         var state = _licenseService.CurrentState;
         var isFullVersion = !DemoModeOptions.IsDemoMode || _licenseService.IsUnlocked;
+        ActivationRequestCodeTextBox.Text = _licenseService.GetActivationRequestCode();
 
         StatusHeadlineTextBlock.Text = isFullVersion
             ? "Version: Full"
@@ -95,9 +97,21 @@ public partial class UnlockWindow : Window
             : "Demo mode is active.";
 
         LicenseSummaryTextBlock.Text = _licenseService.IsUnlocked
-            ? $"Unlocked for {state.PurchaserEmail}.{Environment.NewLine}License ID: {state.LicenseId}{Environment.NewLine}Issued: {state.IssuedUtc.ToLocalTime():f}"
+            ? BuildUnlockedSummary(state)
             : isFullVersion
                 ? "This build is already running as the full version."
                 : "No license imported yet.";
+    }
+
+    private static string BuildUnlockedSummary(UnlockState state)
+    {
+        var mode = string.IsNullOrWhiteSpace(state.LicenseMode)
+            ? PromptForgeLicenseModes.Temporary
+            : state.LicenseMode;
+        var entitlementProfile = string.IsNullOrWhiteSpace(state.EntitlementProfile)
+            ? "Full"
+            : state.EntitlementProfile;
+
+        return $"Unlocked for {state.PurchaserEmail}.{Environment.NewLine}License ID: {state.LicenseId}{Environment.NewLine}Issued: {state.IssuedUtc.ToLocalTime():f}{Environment.NewLine}Mode: {mode}{Environment.NewLine}Entitlement: {entitlementProfile}";
     }
 }

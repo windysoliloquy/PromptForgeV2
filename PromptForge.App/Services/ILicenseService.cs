@@ -8,6 +8,7 @@ public interface ILicenseService
     UnlockState CurrentState { get; }
     string PurchasePrice { get; }
     string PurchaseEmail { get; }
+    string GetActivationRequestCode();
     string BuildPurchaseMailtoUri();
     UnlockImportResult ImportUnlockFile(string filePath);
     void Refresh();
