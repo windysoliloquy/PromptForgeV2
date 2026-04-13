@@ -1,7 +1,7 @@
 # Prompt Forge Releases
 
 This branch is release-only.
-
+This is a demo locked software without issued lisence and should not be in anyones fork or used in anyone's software
 The source code is kept off the public branch on purpose. This branch should only contain signed installers, release notes, and minimal public-facing documentation.
 
 Current release:
