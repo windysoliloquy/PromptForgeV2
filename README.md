@@ -6,7 +6,7 @@ The source code is kept off the public branch on purpose. This branch should onl
 
 Current release:
 
-- Version: 4.1.4
-- Installer: PromptForge-4.1.4-Setup.exe
+- Version: 5.1.0
+- Installer: PromptForge-5.1.0-Setup.exe
 
 Release assets live in `artifacts/installer`.
