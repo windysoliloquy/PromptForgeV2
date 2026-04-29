@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Request Prompt Forge Unlock</title>
+    <meta
+      name="description"
+      content="Submit your Prompt Forge purchase details and machine request code to receive your unlock file."
+    />
+    <link rel="icon" href="/assets/promptforge-icon.png" />
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/">
+          <img src="/assets/images/promptforge-brand-emblem.png" alt="" />
+          <span class="brand-lockup">
+            <span class="brand-wordmark">Prompt Forge</span>
+            <span class="brand-tagline">Native Windows workstation</span>
+          </span>
+        </a>
+        <div class="nav-links">
+          <a href="/#gallery">Gallery</a>
+          <a href="/#pricing">Pricing</a>
+          <a href="/download/">Download</a>
+          <a href="/unlock/">How Unlock Works</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="page">
+      <section class="page-title">
+        <p class="eyebrow">How unlock works</p>
+        <h1>Request your unlock file.</h1>
+        <p class="lede">
+          Use this after upgrading through Prompt Forge. Public download is separate; this form is for the activation
+          step that removes the demo cap and puts the full instrument on your machine.
+        </p>
+      </section>
+
+      <section class="section">
+        <div class="unlock-layout">
+          <div class="unlock-intro">
+            <div class="notice">
+              <strong>Manual by design</strong>
+              <p>Unlock is handled directly so your license can be delivered cleanly, your support email stays connected to you, and serious users can be guided toward the right Prompt Forge community or group-session path.</p>
+            </div>
+
+            <div class="panel unlock-guidance">
+              <h2>Use this form after upgrading</h2>
+              <p>Use this form after starting the upgrade path in Prompt Forge. Your unlock file is delivered manually to the email connected to your purchase and support path.</p>
+              <p>Find the request code inside Prompt Forge after using the in-app upgrade and unlock flow. Copy that machine request code into the form below.</p>
+            </div>
+          </div>
+
+          <form
+            class="form-panel unlock-form-panel"
+            name="prompt-forge-unlock-request"
+            method="POST"
+            action="/thanks/"
+            netlify
+            data-netlify="true"
+            netlify-honeypot="bot-field"
+          >
+            <input type="hidden" name="form-name" value="prompt-forge-unlock-request" />
+            <p class="hidden">
+              <label>Do not fill this out: <input name="bot-field" /></label>
+            </p>
+
+            <div class="form-intro">
+              <h2>Send your machine request code</h2>
+              <p>The goal here is simple: connect the right email to the right install so the correct machine-bound unlock file can be prepared and sent back cleanly.</p>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="purchaser-email">Purchaser email</label>
+                <input id="purchaser-email" name="purchaser-email" type="email" autocomplete="email" required />
+              </div>
+
+              <div class="field">
+                <label for="payment-email">Payment email if different</label>
+                <input id="payment-email" name="payment-email" type="email" autocomplete="email" />
+              </div>
+
+              <div class="field">
+                <label for="selected-tier">Selected tier</label>
+                <select id="selected-tier" name="selected-tier" required>
+                  <option value="">Choose one</option>
+                  <option value="Prompt Forge App Unlock - 19.99">Prompt Forge App Unlock - $19.99</option>
+                  <option value="Premium Higher Tier - 49.99">Premium / Higher Tier - $49.99</option>
+                  <option value="Other">Other / already arranged</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="purchase-reference">Purchase reference</label>
+                <input id="purchase-reference" name="purchase-reference" type="text" placeholder="Receipt ID, invoice note, or support reference" />
+              </div>
+
+              <div class="field full">
+                <label for="machine-request-code">Machine request code</label>
+                <textarea
+                  id="machine-request-code"
+                  name="machine-request-code"
+                  placeholder="Paste the machine request code from Prompt Forge here."
+                  required
+                ></textarea>
+              </div>
+
+              <div class="field full">
+                <label for="notes">Optional notes</label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  placeholder="Anything else needed to match the purchase or deliver the right unlock."
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button class="button" type="submit">Submit Unlock Request</button>
+            </div>
+
+            <div class="fallback-cta">
+              <p><strong>Need the app first?</strong></p>
+              <a class="button secondary" href="/download/">Download Free Demo</a>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="two-grid">
+          <article class="panel">
+            <h3>Where do I get the request code?</h3>
+            <p>Install and open Prompt Forge, then use the in-app upgrade and unlock flow. Copy the machine request code shown there.</p>
+          </article>
+          <article class="panel">
+            <h3>What happens next?</h3>
+            <p>Your unlock file is delivered manually. Import it into Prompt Forge to activate the paid state on that machine.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span>Unlock delivery is handled manually so the correct machine-bound file can be prepared for your install.</span>
+        <span><a href="/">Home</a> | <a href="/download/">Download</a> | <a href="mailto:WindySoliloquy@gmail.com" data-link="supportEmail" data-text>Support</a></span>
+      </div>
+    </footer>
+
+    <script src="/assets/site.js"></script>
+  </body>
+</html>

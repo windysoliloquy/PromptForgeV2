@@ -8,10 +8,10 @@
     <LangVersion>12.0</LangVersion>
     <RootNamespace>PromptForge.App</RootNamespace>
     <AssemblyName>PromptForge.App</AssemblyName>
-    <Version>5.0.0</Version>
-    <AssemblyVersion>5.0.0.0</AssemblyVersion>
-    <FileVersion>5.0.0.0</FileVersion>
-    <InformationalVersion>5.0.0</InformationalVersion>
+    <Version>5.1.2</Version>
+    <AssemblyVersion>5.1.2.0</AssemblyVersion>
+    <FileVersion>5.1.2.0</FileVersion>
+    <InformationalVersion>5.1.2</InformationalVersion>
     <ApplicationIcon>Assets\PromptForge.ico</ApplicationIcon>
     <LocalRunOutputDir>$(MSBuildProjectDirectory)\..\AppOutput\PromptForge\</LocalRunOutputDir>
   </PropertyGroup>
@@ -42,6 +42,99 @@
   <ItemGroup>
     <Resource Include="Assets\PromptForge.ico" />
     <Resource Include="Assets\PromptForgeIcon-256.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_d_c.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_d_l.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_d_r.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_h_c.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_h_l.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_h_r.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_n_c.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_n_l.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_n_r.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_p_c.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_p_l.png" />
+    <Resource Include="Assets\HoverDeck\Buttons\hd_copy_prompt_plate_p_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_d_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_d_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_d_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_h_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_h_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_h_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_n_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_n_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_n_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_p_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_p_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_primary_p_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_d_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_d_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_d_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_h_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_h_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_h_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_n_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_n_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_n_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_p_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_p_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Actions\hd_companion_action_secondary_p_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\ActionsPopupFrame\hd_actions_popup_frame_b.png" />
+    <Resource Include="Assets\HoverDeck\Companion\ActionsPopupFrame\hd_actions_popup_frame_bl.png" />
+    <Resource Include="Assets\HoverDeck\Companion\ActionsPopupFrame\hd_actions_popup_frame_br.png" />
+    <Resource Include="Assets\HoverDeck\Companion\ActionsPopupFrame\hd_actions_popup_frame_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\ActionsPopupFrame\hd_actions_popup_frame_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\ActionsPopupFrame\hd_actions_popup_frame_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\ActionsPopupFrame\hd_actions_popup_frame_t.png" />
+    <Resource Include="Assets\HoverDeck\Companion\ActionsPopupFrame\hd_actions_popup_frame_tl.png" />
+    <Resource Include="Assets\HoverDeck\Companion\ActionsPopupFrame\hd_actions_popup_frame_tr.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Frame\hd_companion_popup_frame_obsidian_n_b.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Frame\hd_companion_popup_frame_obsidian_n_bl.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Frame\hd_companion_popup_frame_obsidian_n_br.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Frame\hd_companion_popup_frame_obsidian_n_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Frame\hd_companion_popup_frame_obsidian_n_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Frame\hd_companion_popup_frame_obsidian_n_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Frame\hd_companion_popup_frame_obsidian_n_t.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Frame\hd_companion_popup_frame_obsidian_n_tl.png" />
+    <Resource Include="Assets\HoverDeck\Companion\Frame\hd_companion_popup_frame_obsidian_n_tr.png" />
+    <Resource Include="Assets\HoverDeck\Companion\LanePopupFrame\hd_lane_popup_frame_b.png" />
+    <Resource Include="Assets\HoverDeck\Companion\LanePopupFrame\hd_lane_popup_frame_bl.png" />
+    <Resource Include="Assets\HoverDeck\Companion\LanePopupFrame\hd_lane_popup_frame_br.png" />
+    <Resource Include="Assets\HoverDeck\Companion\LanePopupFrame\hd_lane_popup_frame_c.png" />
+    <Resource Include="Assets\HoverDeck\Companion\LanePopupFrame\hd_lane_popup_frame_l.png" />
+    <Resource Include="Assets\HoverDeck\Companion\LanePopupFrame\hd_lane_popup_frame_r.png" />
+    <Resource Include="Assets\HoverDeck\Companion\LanePopupFrame\hd_lane_popup_frame_t.png" />
+    <Resource Include="Assets\HoverDeck\Companion\LanePopupFrame\hd_lane_popup_frame_tl.png" />
+    <Resource Include="Assets\HoverDeck\Companion\LanePopupFrame\hd_lane_popup_frame_tr.png" />
+    <Resource Include="Assets\HoverDeck\Gates\hd_hide_gate_obsidian_d.png" />
+    <Resource Include="Assets\HoverDeck\Gates\hd_hide_gate_obsidian_h.png" />
+    <Resource Include="Assets\HoverDeck\Gates\hd_hide_gate_obsidian_n.png" />
+    <Resource Include="Assets\HoverDeck\Gates\hd_hide_gate_obsidian_p.png" />
+    <Resource Include="Assets\HoverDeck\Header\hd_header_plate_obsidian_a_c.png" />
+    <Resource Include="Assets\HoverDeck\Header\hd_header_plate_obsidian_a_l.png" />
+    <Resource Include="Assets\HoverDeck\Header\hd_header_plate_obsidian_a_r.png" />
+    <Resource Include="Assets\HoverDeck\Header\hd_header_plate_obsidian_f_c.png" />
+    <Resource Include="Assets\HoverDeck\Header\hd_header_plate_obsidian_f_l.png" />
+    <Resource Include="Assets\HoverDeck\Header\hd_header_plate_obsidian_f_r.png" />
+    <Resource Include="Assets\HoverDeck\Header\hd_header_plate_obsidian_n_c.png" />
+    <Resource Include="Assets\HoverDeck\Header\hd_header_plate_obsidian_n_l.png" />
+    <Resource Include="Assets\HoverDeck\Header\hd_header_plate_obsidian_n_r.png" />
+    <Resource Include="Assets\HoverDeck\Launcher\hd_launcher_stub_obsidian_a.png" />
+    <Resource Include="Assets\HoverDeck\Launcher\hd_launcher_stub_obsidian_h.png" />
+    <Resource Include="Assets\HoverDeck\Launcher\hd_launcher_stub_obsidian_n.png" />
+    <Resource Include="Assets\HoverDeck\Launcher\hd_launcher_stub_obsidian_p.png" />
+    <Resource Include="Assets\HoverDeck\Rows\hd_row_plate_collapsed_obsidian_a_c.png" />
+    <Resource Include="Assets\HoverDeck\Rows\hd_row_plate_collapsed_obsidian_a_l.png" />
+    <Resource Include="Assets\HoverDeck\Rows\hd_row_plate_collapsed_obsidian_a_r.png" />
+    <Resource Include="Assets\HoverDeck\Rows\hd_row_plate_collapsed_obsidian_h_c.png" />
+    <Resource Include="Assets\HoverDeck\Rows\hd_row_plate_collapsed_obsidian_h_l.png" />
+    <Resource Include="Assets\HoverDeck\Rows\hd_row_plate_collapsed_obsidian_h_r.png" />
+    <Resource Include="Assets\HoverDeck\Rows\hd_row_plate_collapsed_obsidian_n_c.png" />
+    <Resource Include="Assets\HoverDeck\Rows\hd_row_plate_collapsed_obsidian_n_l.png" />
+    <Resource Include="Assets\HoverDeck\Rows\hd_row_plate_collapsed_obsidian_n_r.png" />
+    <Resource Include="Assets\HoverDeck\Targets\hd_helper_target_gold_24_d.png" />
+    <Resource Include="Assets\HoverDeck\Targets\hd_helper_target_gold_24_h.png" />
+    <Resource Include="Assets\HoverDeck\Targets\hd_helper_target_gold_24_n.png" />
+    <Resource Include="Assets\HoverDeck\Targets\hd_helper_target_gold_24_p.png" />
   </ItemGroup>
 
   <Target Name="CopyLocalRunOutput" AfterTargets="Build">

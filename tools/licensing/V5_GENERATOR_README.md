@@ -11,6 +11,7 @@ This folder contains the staged V5 unlock-generator launcher.
 
 ## Intended future behavior
 
-- `Temporary` will issue a signed portable trusted-user unlock
-- `MachineBound` will require a request code and issue a signed machine-locked unlock
-- entitlement profile selection will map to signed lane access
+- keep issuing signed portable `Temporary` unlocks
+- keep requiring a request code for `MachineBound` unlocks
+- keep writing lane selections as signed `AllowedLanes`
+- future expansion may add broader entitlement-profile-to-lane mapping beyond explicit `AllowedLanes`

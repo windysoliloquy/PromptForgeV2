@@ -169,7 +169,7 @@ public static partial class SliderLanguageCatalog
             DetailDensity => new[] { "sparse information load", "light descriptive detail", "measured information density", "rich descriptive load", "dense visual packing" },
             AtmosphericDepth => new[] { "flat picture-plane space", "slight aerial recession", "air-filled depth", "luminous spatial layering", "deep receding atmosphere" },
             Chaos => new[] { "controlled arrangement", "restless imbalance", "volatile scene pressure", "directed disorder", "orchestrated instability" },
-            Whimsy => new[] { "serious tonal posture", "light charm", "expressive play", "strong whimsical bounce", "bold comic exaggeration" },
+            Whimsy => new[] { "serious tonal posture", "light charm", "expressive play", "strong playful bounce", "bold comic exaggeration" },
             Tension => new[] { "low dramatic strain", "light friction", "noticeable pressure", "strong confrontation", "high-stakes dramatic heat" },
             Awe => new[] { "grounded scale", "slight wonder", "charged wonder field", "cinematic grandeur", "overwhelming spectacle" },
             Temperature => new[] { "cool-biased palette", "slightly cool balance", "neutral color balance", "warm-biased palette", "heated chromatic cast" },
@@ -238,9 +238,11 @@ public static partial class SliderLanguageCatalog
 
         AddAnimeDescriptor(phrases, seen, "stylized anime illustration");
         AddAnimeDescriptor(phrases, seen, "polished key-art finish");
-        AddAnimeDescriptor(phrases, seen, "character-led staging");
-        AddAnimeDescriptor(phrases, seen, "clear silhouette read");
-        AddAnimeDescriptor(phrases, seen, "emotion-first expression");
+
+        foreach (var phrase in ResolveAnimeCoreAnchorCheckboxDescriptors(configuration))
+        {
+            AddAnimeDescriptor(phrases, seen, phrase);
+        }
 
         AddAnimeDescriptor(phrases, seen, ResolveAnimeStyleDescriptor(configuration.AnimeStyle));
         AddAnimeDescriptor(phrases, seen, ResolveAnimeEraDescriptor(configuration.AnimeEra));
@@ -251,6 +253,24 @@ public static partial class SliderLanguageCatalog
         }
 
         return phrases;
+    }
+
+    private static IEnumerable<string> ResolveAnimeCoreAnchorCheckboxDescriptors(PromptConfiguration configuration)
+    {
+        if (configuration.AnimeCharacterLedStaging)
+        {
+            yield return "character-led staging";
+        }
+
+        if (configuration.AnimeClearSilhouetteRead)
+        {
+            yield return "clear silhouette read";
+        }
+
+        if (configuration.AnimeEmotionFirstExpression)
+        {
+            yield return "emotion-first expression";
+        }
     }
 
     private static IEnumerable<string> ResolveAnimeCheckboxDescriptors(PromptConfiguration configuration)

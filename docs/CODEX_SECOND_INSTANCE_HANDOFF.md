@@ -67,6 +67,37 @@ Useful architectural notes:
 - If a rule is already specified in the approved handoff/update task, implement it directly rather than pretending a missing repo file was consulted.
 - Do not fabricate source provenance.
 
+## Structural Stabilization Baseline
+
+Structural decomposition is currently paused.
+
+Treat these docs as the current structural baseline:
+
+- [docs/Prompt Forge — Pressure-Zone Decomposition Plan.txt](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\docs\Prompt Forge — Pressure-Zone Decomposition Plan.txt)
+- [docs/Prompt Forge — Target Structure From Current State.txt](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\docs\Prompt Forge — Target Structure From Current State.txt)
+- [docs/Prompt Forge — Structural Stabilization Checkpoint.txt](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\docs\Prompt Forge — Structural Stabilization Checkpoint.txt)
+
+Operating rules for future Codex work:
+
+- do not reopen structural extraction planning unless there is:
+  - a material code change
+  - a newly emerged pressure zone
+  - or fresh evidence that a current boundary is failing
+- preserve the contained partial boundaries already established
+- treat these files as intentional central ownership for now:
+  - `MainWindowViewModel.cs`
+  - `PromptBuilderService.cs`
+  - `SliderLanguageCatalog.cs`
+- prefer feature implementation, bug fixing, and product work over structural cleanup
+- if a requested change risks crossing one of the stabilized boundaries, implement the smallest safe change first and note the pressure point rather than expanding scope casually
+
+When responding to feature or bug tasks:
+
+1. identify the smallest safe implementation surface
+2. avoid opportunistic refactors
+3. preserve current call-order ownership unless behavior change is explicitly requested
+4. only flag a structural concern if it is directly blocking the requested work
+
 ## Active Caution Areas
 
 At the time this handoff was written, local uncommitted changes existed in:
@@ -165,13 +196,13 @@ Treat Prompt Forge version references as intentionally split across older public
 
 Current known anchors in this workspace:
 
-- Local app/build/installer metadata should now target `5.0.0`, including [PromptForge.App/PromptForge.App.csproj](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\PromptForge.App.csproj), [tools/installer/PromptForge.iss](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\tools\installer\PromptForge.iss), and example commands in [RELEASING.md](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\RELEASING.md).
-- Public-facing [RELEASE_NOTES.md](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\RELEASE_NOTES.md) should present the release as `Prompt Forge 5`.
-- For local planning and Codex-to-Codex coordination, treat the active working line as `Version 5`.
+- Local app/build/installer metadata should now target `5.1.2`, including [PromptForge.App/PromptForge.App.csproj](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\PromptForge.App.csproj), [tools/installer/PromptForge.iss](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\tools\installer\PromptForge.iss), and example commands in [RELEASING.md](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\RELEASING.md).
+- Public-facing [RELEASE_NOTES.md](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\RELEASE_NOTES.md) should present the release as `Prompt Forge 5.1`.
+- For local planning and Codex-to-Codex coordination, treat the active working line as `Version 5.1`.
 
 Operational rule for future Codex work:
 
-- If a task says `Version 5`, interpret that as the current local target and keep the main release/version surfaces aligned to `5.0.0` / `Prompt Forge 5`.
+- If a task says `Version 5.1.2`, interpret that as the current local target and keep the main release/version surfaces aligned to `5.1.2` / `Prompt Forge 5.1`.
 - Do not silently "normalize" every version string during unrelated work.
 - When the real version-bump pass happens, update app metadata, installer metadata, release examples, and public-facing notes together as one coordinated release/versioning task rather than as scattered incidental edits.
 
@@ -234,7 +265,7 @@ Demo-mode settings live here:
 Current demo behavior in code:
 
 - `IsDemoMode = true`
-- `MaxDemoCopies = 150`
+- `MaxDemoCopies = 30`
 - License/demo state directory name resolves to `PromptForgeDemo`
 
 ### Local app-data paths
@@ -255,6 +286,14 @@ These are machine-local runtime files, not source assets.
 - Do not "helpfully" consume demo copies during testing if the task does not require it.
 - Prefer code inspection over state mutation.
 - If you must test unlock import, call out exactly what local state you changed.
+- Before any release-clean or first-run test that clears local runtime state, run [tools/release/Manage-LocalRuntimeState.ps1](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\tools\release\Manage-LocalRuntimeState.ps1) with `-Mode Backup`.
+- Do not clear `%LOCALAPPDATA%\PromptForgeDemo`, `%APPDATA%\PromptForge`, or known Prompt Forge UI event logs manually during release work. Use the helper's `ClearForReleaseTest` and `Restore` modes with an explicit `-BackupPath` so the manifest controls what is removed and restored.
+
+Current local-state safety checkpoint:
+
+- Backup helper created and verified a local runtime-state backup at `C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\artifacts\local-state-backups\PromptForgeLocalState_2026-04-22_15-08-45`.
+- Manifest path: `C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\artifacts\local-state-backups\PromptForgeLocalState_2026-04-22_15-08-45\manifest.json`.
+- Backed-up sources included `%LOCALAPPDATA%\PromptForgeDemo`, `%APPDATA%\PromptForge`, repo `ui-event-log.shared.txt`, and `AppOutput\PromptForge\ui-event-log.txt`.
 
 ## Anti-Churn Rules
 
@@ -929,7 +968,7 @@ Observed risks: This pass updates the primary release/version anchors only. It d
 Needs next: use `5.0.0` for upcoming installer/release output names and keep any remaining historical references untouched unless they are meant to represent the current shipping version
 Needs human: none
 Notes: Standardized app metadata and installer naming on `5.0.0` while presenting the human-facing release heading as `Prompt Forge 5`.
-HANDOFF: status=done task="bump release surfaces to version 5" files="PromptForge.App/PromptForge.App.csproj, tools/installer/PromptForge.iss, RELEASING.md, RELEASE_NOTES.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="treat 5.0.0 as the current release version for local packaging and signing work"
+HANDOFF: status=done task="bump release surfaces to version 5" files="PromptForge.App/PromptForge.App.csproj, tools/installer/PromptForge.iss, RELEASING.md, RELEASE_NOTES.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="historical entry; current release packaging target was later bumped to 5.1.2"
 
 ### Turn
 Date: 2026-04-08 19:00 local
@@ -938,8 +977,653 @@ Task: Implement V5 machine-bound and Temporary licensing schema plus hard demo-e
 Status: done
 Files changed: PromptForge.App/ViewModels/MainWindowViewModel.cs, PromptForge.App/MainWindow.xaml, PromptForge.App/UnlockWindow.xaml, PromptForge.App/UnlockWindow.xaml.cs, PromptForge.App/Models/UnlockState.cs, PromptForge.App/Services/ILicenseService.cs, PromptForge.App/Services/LicenseService.cs, PromptForge.Core/Models/PromptForgeLicense.cs, PromptForge.Core/Models/PromptForgeLicenseModes.cs, PromptForge.Core/Services/PromptForgeLicenseCodec.cs, PromptForge.Core/Services/PromptForgeMachineBindingService.cs, PromptForge.LicenseTool/Program.cs, tools/licensing/Generate-UnlockFile-V5.ps1, tools/licensing/V5_GENERATOR_README.md, docs/V5_LICENSE_PLAN.md
 Tests run: `dotnet build PromptForge.App/PromptForge.App.csproj --no-restore`; `dotnet build PromptForge.LicenseTool/PromptForge.LicenseTool.csproj --no-restore`; `dotnet run --project PromptForge.LicenseTool --no-build -- --show-request-code`; generated one Temporary and one MachineBound unlock under `.codex-temp/license-tests/`
-Observed risks: Signed license modes and machine matching are now wired, but signed entitlement fields are not yet enforcing lane access. Local unlock persistence is still plain JSON rather than DPAPI-protected state.
-Needs next: wire entitlement-profile and allowed-lane data into actual lane access rules, then decide whether to DPAPI-protect unlock and demo state before release packaging
+Observed risks: Signed license modes, machine matching, and signed allowed-lane gating are wired, but local unlock persistence is still plain JSON rather than DPAPI-protected state.
+Needs next: decide whether to DPAPI-protect unlock and demo state before release packaging, and whether future `EntitlementProfile` names should expand into lane bundles beyond explicit `AllowedLanes`
 Needs human: none
 Notes: Demo expiry now hard-hides prompt output and authoring controls when copies reach zero. Unlock window now shows the local activation request code, and the V5 generator package now issues both Temporary and MachineBound unlocks for real.
-HANDOFF: status=done task="implement V5 licensing modes and demo hard lock" files="PromptForge.App/ViewModels/MainWindowViewModel.cs, PromptForge.App/MainWindow.xaml, PromptForge.App/UnlockWindow.xaml, PromptForge.App/UnlockWindow.xaml.cs, PromptForge.App/Models/UnlockState.cs, PromptForge.App/Services/ILicenseService.cs, PromptForge.App/Services/LicenseService.cs, PromptForge.Core/Models/PromptForgeLicense.cs, PromptForge.Core/Models/PromptForgeLicenseModes.cs, PromptForge.Core/Services/PromptForgeLicenseCodec.cs, PromptForge.Core/Services/PromptForgeMachineBindingService.cs, PromptForge.LicenseTool/Program.cs, tools/licensing/Generate-UnlockFile-V5.ps1, tools/licensing/V5_GENERATOR_README.md, docs/V5_LICENSE_PLAN.md" blockers="lane entitlement enforcement and storage hardening still pending" next="wire license entitlements into lane access before release packaging"
+HANDOFF: status=done task="implement V5 licensing modes and demo hard lock" files="PromptForge.App/ViewModels/MainWindowViewModel.cs, PromptForge.App/MainWindow.xaml, PromptForge.App/UnlockWindow.xaml, PromptForge.App/UnlockWindow.xaml.cs, PromptForge.App/Models/UnlockState.cs, PromptForge.App/Services/ILicenseService.cs, PromptForge.App/Services/LicenseService.cs, PromptForge.Core/Models/PromptForgeLicense.cs, PromptForge.Core/Models/PromptForgeLicenseModes.cs, PromptForge.Core/Services/PromptForgeLicenseCodec.cs, PromptForge.Core/Services/PromptForgeMachineBindingService.cs, PromptForge.LicenseTool/Program.cs, tools/licensing/Generate-UnlockFile-V5.ps1, tools/licensing/V5_GENERATOR_README.md, docs/V5_LICENSE_PLAN.md" blockers="storage hardening still pending; future profile-expansion rules still pending" next="keep AllowedLanes-based lane gating active, then decide whether to add DPAPI protection and broader EntitlementProfile bundle mapping before release packaging"
+
+## Recent Semantic Lane Work Boundary Update
+
+This section is intentionally more operational than the older turn log. It captures the current working boundary for the large semantic-lane and pairing push that happened after the earlier entries above.
+
+### Protected Shared Surfaces: Avoid Unless There Is No Other Choice
+
+The recent lane work was done under repeated "smallest lane-local surface" rules. Future Codex work should preserve that discipline.
+
+Protected shared files and the current expectation for them:
+
+- [PromptForge.Core/Services/PromptSemanticPairCollapseService.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\PromptSemanticPairCollapseService.cs)
+  - Treat as protected.
+  - Do not edit during routine pair-authoring passes unless a brand-new lane truly has no dispatch route yet.
+  - This file owns lane dispatch into pair maps plus the exact-fragment collapse path. It is deliberately fragile and should not be casually touched just because a lane needs new pair content.
+- [PromptForge.Core/Services/SliderLanguageCatalog.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.cs)
+  - Treat as protected for pairing work.
+  - Do not widen shared phrase/fallback logic during lane-local pairing installs.
+  - If a lane already has a dedicated `...Pairs.cs` or dedicated lane-local phrase file, author there instead.
+- [PromptForge.Core/Services/PromptBuilderService.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\PromptBuilderService.cs)
+  - Treat as protected.
+  - Prompt assembly order is explicitly not to be changed during semantic lane work.
+- [PromptForge.App/ViewModels/MainWindowViewModel.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\ViewModels\MainWindowViewModel.cs)
+  - Avoid unless existing state-sync wiring truly requires a narrow hook.
+  - Most recent work preferred dedicated partials such as `MainWindowViewModel.SliderSuppressions.cs`, `MainWindowViewModel.StandardLanePanels.cs`, `MainWindowViewModel.ConfigurationMapping.cs`, and other split surfaces instead of widening the monolith.
+- [PromptForge.Core/Services/SliderLanguageCatalog.ConceptArt.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ConceptArt.cs)
+  - During Concept Art pairing passes this was treated as phrase-authority only.
+  - Do not use it as the first-choice surface for pair installs; those belong in `SliderLanguageCatalog.ConceptArtPairs.cs`.
+  - Only use this file when the task is specifically about subtype-aware slider-band wording, guide-text alignment, or lane-local omission/suppression wording behavior.
+
+Working rule that was enforced repeatedly:
+
+- prefer lane-local `SliderLanguageCatalog.<Lane>Pairs.cs` files for pair work
+- leave prompt assembly order unchanged
+- leave guardrail ownership unchanged
+- do not widen metadata into phrase logic
+- do not assume a suppressed slider means its pair logic should disappear forever
+- if a subtype-applied exclusion exists, treat it as default emission behavior only; the pair map should still exist if the user re-enables the slider
+
+### Pairing Infrastructure: What Was Added and How It Is Intended To Be Used
+
+The repository now has a much larger dedicated semantic-pairing surface than the older handoff entries reflect.
+
+Key new/active pairing files include:
+
+- [PromptForge.Core/Services/PromptSemanticPairCollapseService.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\PromptSemanticPairCollapseService.cs)
+- [PromptForge.Core/Services/SliderLanguageCatalog.SemanticPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.SemanticPairs.cs)
+- lane-local pair files such as:
+  - [PromptForge.Core/Services/SliderLanguageCatalog.ConceptArtPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ConceptArtPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.CinematicPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.CinematicPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.ComicBookPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ComicBookPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.AnimePairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.AnimePairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.PhotographyPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.PhotographyPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.ProductPhotographyPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ProductPhotographyPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.FoodPhotographyPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.FoodPhotographyPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.LifestyleAdvertisingPhotographyPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.LifestyleAdvertisingPhotographyPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.ArchitectureArchvizPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ArchitectureArchvizPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.ThreeDRenderPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ThreeDRenderPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.PixelArtPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.PixelArtPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.WatercolorPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.WatercolorPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.GraphicDesignPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.GraphicDesignPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.TattooArtPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.TattooArtPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.ChildrensBookPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ChildrensBookPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.EditorialIllustrationPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.EditorialIllustrationPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.FantasyIllustrationPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.FantasyIllustrationPairs.cs)
+  - [PromptForge.Core/Services/SliderLanguageCatalog.InfographicDataVisualizationPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.InfographicDataVisualizationPairs.cs)
+
+The active design pattern is:
+
+1. Phrase authority stays in the lane-local slider-language surfaces.
+2. Pair authority stays in lane-local `...Pairs.cs` files.
+3. `PromptSemanticPairCollapseService` routes by lane and tries exact-fragment collapse only when both independent fragments would otherwise emit.
+4. If either participating slider is excluded from prompt emission, the pair collapse should not force a fused phrase.
+5. If pair interactions are disabled, lanes fall back to normal independent slider emission.
+
+### Important Pairing Fragility Notes
+
+These are known risks, but the human explicitly said not to address fragility until the lane work is finished.
+
+- Pair collapses must target the actual emitted prompt fragments, not just the raw source-band phrases in isolation.
+  - Practical consequence: always verify what the live prompt-preview path is actually emitting before finalizing a lane-local pair map.
+  - If a lane emits cleaned, fallback-adjusted, suppressed, or otherwise transformed wording, author the lane-local collapse against those emitted fragments so the exact-fragment replacement actually fires.
+  - Do not treat this as permission to widen shared collapse machinery; prefer the smallest lane-local fix that matches live emitted output.
+- `PromptSemanticPairCollapseService` currently tokenizes the prompt by comma and then exact-matches fragments.
+  - Practical consequence: do not casually introduce commas inside slider phrases or fused pair phrases.
+  - The system currently relies on the unstated invariant that emitted fragments are comma-safe.
+- Pair dispatch is a manual lane-routing surface.
+  - A lane-local pair file can compile and look complete while never running if dispatch was not wired.
+- Most subtype/style branches key off raw strings.
+  - Renaming a subtype/style value can silently disable a pair branch.
+- [PromptForge.Core/Services/SliderLanguageCatalog.ComicBookPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ComicBookPairs.cs)
+  contains a future maintenance trap:
+  - there is a `yield break` guard tied to `General Comic`
+  - any future style-specific branch appended below the wrong point can become dead code without obvious symptoms
+- [PromptForge.Core/Services/SliderLanguageCatalog.ConceptArtPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ConceptArtPairs.cs)
+  has become a large subtype-branch monolith.
+  - It is still the correct current home for Concept Art pair maps.
+  - It should not be "cleaned up" opportunistically during product work.
+
+### Future Pair-Grid Interpretation Note
+
+If future work begins on paired-grid, paired-pad, or other 2D pair-control UI, read
+[docs/PAIR_GRID_INTERPRETATION_NOTES.md](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\docs\PAIR_GRID_INTERPRETATION_NOTES.md)
+before deciding axis labels, helper text, or whether raw slider names are sufficient for a human-facing 2D control surface.
+
+### Concept Art: Recent Work Was Large and Is Easy To Underestimate
+
+The Concept Art lane received the densest recent semantic work.
+
+Files directly involved:
+
+- [PromptForge.Core/Services/SliderLanguageCatalog.ConceptArt.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ConceptArt.cs)
+- [PromptForge.Core/Services/SliderLanguageCatalog.ConceptArtPairs.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.ConceptArtPairs.cs)
+- [PromptForge.App/ViewModels/MainWindowViewModel.SliderSuppressions.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\ViewModels\MainWindowViewModel.SliderSuppressions.cs)
+- [PromptForge.App/ViewModels/MainWindowViewModel.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\ViewModels\MainWindowViewModel.cs)
+
+#### Concept Art subtype-sensitive slider-band installs
+
+Approved subtype maps were installed for:
+
+- `keyframe-concept`
+- `environment-concept`
+- `character-concept`
+- `creature-concept`
+- `costume-concept`
+- `prop-concept`
+- `vehicle-concept`
+
+The pattern used throughout:
+
+- runtime prompt output and guide text must align through the same subtype-aware helper path
+- no redesign of the lane shell
+- no default/nudge/guardrail/policy/assembly-order changes
+- only the approved slider-band wording is changed per subtype
+
+#### Concept Art default subtype-applied exclusions
+
+The current tracked subtype suppression map is:
+
+- `keyframe-concept` => `NarrativeDensity`
+- `environment-concept` => `Chaos`
+- `character-concept` => `BackgroundComplexity`
+- `costume-concept` => `BackgroundComplexity`
+- `prop-concept` => `BackgroundComplexity`
+- `vehicle-concept` => `BackgroundComplexity`
+- `creature-concept` => none
+
+Important state rule:
+
+- these are applied through the existing tracked exclusion path
+- the UI "exclude from prompt" state reflects them
+- the underlying slider values are not mutated
+- manual user exclusions are preserved
+- switching away auto-restores only exclusions that the subtype path itself applied
+
+#### Concept Art pair-family installs
+
+Shared-safe pair families installed for Concept Art:
+
+- `Temperature × LightingIntensity`
+- `Saturation × Contrast`
+
+Subtype-sensitive pair families installed:
+
+- `keyframe-concept`
+  - `Framing × CameraDistance`
+  - `AtmosphericDepth × FocusDepth`
+- `environment-concept`
+  - `Framing × CameraDistance`
+  - `AtmosphericDepth × FocusDepth`
+- `character-concept`
+  - `Framing × CameraDistance`
+  - `AtmosphericDepth × FocusDepth`
+- `costume-concept`
+  - `Framing × CameraDistance`
+  - `AtmosphericDepth × FocusDepth`
+- `prop-concept`
+  - `Framing × CameraDistance`
+  - `AtmosphericDepth × FocusDepth`
+- `vehicle-concept`
+  - `Framing × CameraDistance`
+  - `AtmosphericDepth × FocusDepth`
+- `creature-concept`
+  - `Framing × CameraDistance`
+  - `Tension × Awe`
+
+#### Concept Art post-install taste audit and micro-polish
+
+A dedicated audit pass reviewed:
+
+- shared-safe pairs
+- keyframe/environment pairs
+- character/costume pairs
+- prop/vehicle pairs
+- creature pairs
+
+The audit concluded the overall surface was strong, but a tiny micro-polish pass was warranted.
+
+Approved weak-cell replacements that were actually applied:
+
+- shared-safe `Saturation × Contrast`
+  - `(2,2)` => `balanced chroma field`
+  - `(2,4)` => `balanced striking separation`
+- `keyframe-concept` `AtmosphericDepth × FocusDepth`
+  - `(2,1)` => `clear staged depth read`
+- `environment-concept` `AtmosphericDepth × FocusDepth`
+  - `(2,1)` => `clear environmental spatial read`
+- `prop-concept` `AtmosphericDepth × FocusDepth`
+  - `(2,1)` => `clean broad object read`
+  - `(2,3)` => `clean feature-led focus`
+- `vehicle-concept` `AtmosphericDepth × FocusDepth`
+  - `(2,1)` => `clean broad machine read`
+  - `(2,3)` => `clean engineering-focus pull`
+
+If future work touches Concept Art pair wording, start from the already-installed map and micro-polish state rather than re-deriving the family structure.
+
+### Editorial Illustration: Recent Suppression Behavior
+
+Editorial Illustration received prompt-emission suppression work, but the approved implementation path was to reuse existing exclusion-from-prompt wiring rather than invent new hidden omission logic.
+
+Files involved:
+
+- [PromptForge.Core/Services/Lanes/EditorialIllustrationLane.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\Lanes\EditorialIllustrationLane.cs)
+- [PromptForge.App/ViewModels/MainWindowViewModel.SliderSuppressions.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\ViewModels\MainWindowViewModel.SliderSuppressions.cs)
+- [PromptForge.Core/Services/SliderLanguageCatalog.EditorialIllustration.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.Core\Services\SliderLanguageCatalog.EditorialIllustration.cs)
+
+Current Editorial default suppression behavior:
+
+- `Stylization` => excluded from prompt by default
+- `Chaos` => excluded from prompt by default
+- `BackgroundComplexity` => excluded from prompt by default
+
+Additional existing Editorial behavior preserved:
+
+- black-and-white monochrome still additionally suppresses `Saturation` and `Temperature`
+
+Operational note:
+
+- these suppressions now ride the same exclusion checkbox architecture the user sees in the UI
+- sliders stay visible
+- slider values stay intact
+- the UI should reflect the suppression state instead of hiding the omission behind a secret resolver-only branch
+
+### Recent UI / Lane-Help / Small UX Work
+
+This work happened after the earlier handoff entries and should be considered part of the current working state.
+
+#### Lane help tooltip/footer system
+
+Files:
+
+- [PromptForge.App/MainWindow.xaml](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\MainWindow.xaml)
+- [PromptForge.App/ViewModels/StandardLanePanelViewModels.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\ViewModels\StandardLanePanelViewModels.cs)
+- [PromptForge.App/ViewModels/MainWindowViewModel.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\ViewModels\MainWindowViewModel.cs)
+- [PromptForge.App/Services/LaneHelpTooltipCatalog.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\Services\LaneHelpTooltipCatalog.cs)
+
+What was added:
+
+- a compact footer help/contact surface in lane panels
+- a small info icon opening a compact popup with lane-specific micro-guidance
+- lane tooltip content with the structure:
+  - `Principle`
+  - `Weak`
+  - `Stronger`
+- a clickable lane footer email link for `WindySoliloquy@gmail.com`
+- a popup action to copy the email address
+
+Important fixes that already happened:
+
+- startup XAML crash fixed by defining `LaneHelpFooterTemplate` before it was referenced
+- footer clipping fixed by changing the contact block layout
+- blank email rendering fixed by binding the toggle button's `Content` correctly
+- missing lane entries added for `Fantasy Illustration` and `Infographic / Data Visualization`
+
+Current expectation:
+
+- actual lanes in current use should show the footer/email/info icon if they have help content
+- the shared standard lane panel path and the custom Anime / Comic Book / Vintage Bend panels are already wired
+
+#### Subject helper icon
+
+File:
+
+- [PromptForge.App/MainWindow.xaml](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\MainWindow.xaml)
+
+What was added:
+
+- a helper icon beside the shared Subject field label, visually matching the artist-influence helper style
+- tooltip copy explaining the fast subject replacement shortcut:
+  - place cursor at end of subject
+  - `Ctrl + Shift + Up Arrow` to select the full line
+  - type a replacement or paste from clipboard
+  - LLM-generated subject ideation can be pasted here for rapid iteration
+- tooltip body text was later changed to black for readability
+
+#### Pixel Art realism helper-text fix
+
+File:
+
+- [PromptForge.App/ViewModels/MainWindowViewModel.cs](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\PromptForge.App\ViewModels\MainWindowViewModel.cs)
+
+What changed:
+
+- Pixel Art `Realism` at the minimal band intentionally emits no explicit prompt phrase
+- that had made the button helper look blank at the lowest setting
+- helper text now explicitly shows `Pixel Art: omit explicit realism` for that minimal band while leaving prompt behavior unchanged
+
+### Build / Verification Notes For Recent Work
+
+- When Prompt Forge itself is running, full app or solution builds can fail because `PromptForge.App.exe` or copied output files are locked.
+- For core-only semantic work, `dotnet build PromptForge.Core\PromptForge.Core.csproj --no-restore` was often the practical verification surface.
+- For UI/XAML work, `dotnet build PromptForge.sln --no-restore` was used when the app was not open.
+- Several recent build failures were file-lock-only failures rather than code failures.
+
+### Prompt Simulation Harness Note
+
+A disposable read-only prompt-simulation harness now exists for current semantic-lane audit work.
+
+Current location:
+
+- [C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\.codex-temp\graphic-design-audit-harness](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\.codex-temp\graphic-design-audit-harness)
+
+Current purpose:
+
+- exercise the real `MainWindowViewModel` -> `CaptureConfiguration()` -> `PromptBuilderService.Build(...)` -> `PromptSemanticPairCollapseService.Apply(...)` path without editing production code
+- produce actual assembled positive-prompt output for requested audit cases
+- verify whether pair collapses really remove both base fragments once `SemanticPairInteractions` is enabled
+
+Practical rules:
+
+- treat `.codex-temp` harnesses as disposable local tooling, not product architecture
+- prefer a fresh `MainWindowViewModel` per simulated case so subtype nudges, modifier state, and intent defaults do not leak across cases
+- if the audit concerns semantic pairing, explicitly decide whether `SemanticPairInteractions` should be on or off before claiming the outcome proves anything
+- if the next Codex instance needs to reuse or adapt this path, read the dedicated usage doc first instead of reverse-engineering the throwaway harness in isolation
+
+Usage doc:
+
+- [docs/GRAPHIC_DESIGN_PROMPT_SIMULATION.md](C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\docs\GRAPHIC_DESIGN_PROMPT_SIMULATION.md)
+
+### Current Working-Tree Reminder
+
+The working tree now contains many modified and untracked files from the broader semantic-lane/pairing push. Do not assume this handoff section lists every touched file in the repository-wide change set.
+
+Before doing anything destructive or broad:
+
+1. run `git status --short`
+2. assume uncommitted changes may belong to the human or another Codex
+3. avoid sweeping edits across pairing files just because the pattern now looks repetitive
+4. prefer narrow, lane-local edits unless the task explicitly calls for a shared-surface change
+
+### Recommendation To The Next Codex Instance
+
+If the next task is another semantic lane pass:
+
+- start by locating the lane-local phrase file
+- then locate the lane-local pair file
+- only touch the shared collapse/routing surfaces if you can prove the lane has no current route
+- do not "clean up" the Concept Art or Comic Book pair files as a side quest
+- do not address pairing fragility yet unless the human explicitly pivots to that work
+
+### Turn
+Date: 2026-04-17 21:00 local
+Agent: Codex-Primary
+Task: Document read-only Graphic Design prompt simulation path for future Codex reuse
+Status: done
+Files changed: docs/CODEX_SECOND_INSTANCE_HANDOFF.md, docs/GRAPHIC_DESIGN_PROMPT_SIMULATION.md, .codex-temp/graphic-design-audit-harness/graphic-design-audit-harness.csproj, .codex-temp/graphic-design-audit-harness/Program.cs
+Tests run: `dotnet build PromptForge.sln --no-restore`; `dotnet build .codex-temp\\graphic-design-audit-harness\\graphic-design-audit-harness.csproj --no-restore`; `dotnet run --no-build --project .codex-temp\\graphic-design-audit-harness\\graphic-design-audit-harness.csproj`
+Observed risks: The harness is intentionally disposable and currently Graphic-Design-focused; future reuse across other lanes may require small harness edits rather than a zero-change rerun. Prompt-audit conclusions are also sensitive to the global `SemanticPairInteractions` flag, so forgetting that toggle will produce misleading "pair failed" results.
+Needs next: reuse the harness/doc for future read-only prompt audits instead of hand-reconstructing prompt output when the user asks for actual assembled prompts
+Needs human: none
+Notes: Added a compact handoff note recording that a real prompt-simulation path now exists, where it lives, what it validates, and the rule that fresh viewmodels plus explicit pair-toggle posture are required for trustworthy audit results. Added a dedicated usage doc for the other Codex instance so it can rerun or adapt the harness without treating `.codex-temp` tooling as product code.
+HANDOFF: status=done task="document prompt simulation harness" files="docs/CODEX_SECOND_INSTANCE_HANDOFF.md, docs/GRAPHIC_DESIGN_PROMPT_SIMULATION.md, .codex-temp/graphic-design-audit-harness/graphic-design-audit-harness.csproj, .codex-temp/graphic-design-audit-harness/Program.cs" blockers="none" next="use the documented read-only harness path for future actual-output prompt audits"
+
+### Turn
+Date: 2026-04-19 local
+Agent: Codex-Primary
+Task: Document the proven Anime compact-lane seam and continuation rules for future Codex reuse
+Status: done
+Files changed: docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: The current Anime compact prototype still relies on a small number of host/viewmodel routing hooks in `MainWindow.xaml` and `MainWindowViewModel.cs`; future work should extend the lane-local extracted view and narrow shared presentation seams rather than continuing to grow those central files.
+Needs next: continue compact-lane work from the Anime lane-local extracted view and reuse the documented "inert shell first, one live section at a time" pattern before attempting another lane
+Needs human: none
+Notes: Added a dedicated Anime compact-lane playbook documenting the proven extracted-view seam, the existing shared `SliderFlyout` compact-trigger seam, the current file map, which central files are protected, and the recommended path for future compact-lane expansion without blowing up the fragile host/viewmodel surfaces.
+HANDOFF: status=done task="document Anime compact lane playbook" files="docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="use the Anime compact playbook to continue lane-local compact work without growing MainWindow.xaml/MainWindowViewModel.cs further"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Document the subject-card compact visibility seam as a temporary Anime compact host workaround
+Status: done
+Files changed: docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: `ShowSubjectContextFields` is host-owned and Anime-specific. It hides `Action` and `Relationship / Interaction` in compact Anime mode while leaving `Subject` visible, but hidden `Action` and `Relationship` values remain in state and can still affect prompt output.
+Needs next: do not copy `ShowSubjectContextFields` as the rollout pattern for future compact lanes. Leave subject/context behavior host-owned until a later workstation or upper-shelf product decision explicitly resolves it.
+Needs human: decide later whether global compact mode should hide Action/Relationship, whether hidden values need visible warning, and whether subject/context inputs belong to a future upper workstation shelf.
+Notes: Added a direct warning to the Anime compact lane playbook that the subject-card seam is not a clean lane-local compact-spine pattern. It is a temporary Anime compact workaround and should not be generalized during compact-lane rollout.
+HANDOFF: status=done task="document subject-card compact seam warning" files="docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="keep subject/context compact behavior unresolved and host-owned until explicitly decided"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Document future compact workstation shelf planning boundaries
+Status: done
+Files changed: docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation/planning-only pass
+Observed risks: Upper and lower compact workstation shelves are host-level surfaces, not lane-local compact spine work. The prompt preview, lane-adjacent steering panel, actions/presets, and status regions are at risk of being incorrectly folded into Anime compact views if future work skips the boundary read.
+Needs next: keep shelf work separate from lane-local compact-spine extraction. Do not implement shelves inside `AnimeCompactManualStack.xaml`, compact Artist Influence views, or future lane-local compact files.
+Needs human: later decide the exact collapsed/expanded shelf behavior, whether subject/context inputs belong in the upper shelf, and how light/floating/repositionable the final workstation shell should become.
+Notes: Added `docs/COMPACT_WORKSTATION_SHELF_PLAN.md` to record that the upper shelf should likely preserve highest-value steering controls such as Anime Style/Era in collapsed form, while the lower shelf should likely preserve Copy Prompt. The doc explicitly keeps subject/context unresolved and warns not to silently fold it into shelf implementation.
+HANDOFF: status=done task="document compact workstation shelf plan" files="docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="use the shelf plan before any host-level compact workstation implementation"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Document global compact-mode direction and compact UI persistence posture
+Status: done
+Files changed: docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: Current Anime compact routing is still prototype-stage and should not be mistaken for the final global compact-mode design. Compact UI persistence is intentionally raw key/value UI state and should not be merged into prompt config, presets, savestates, or semantic behavior.
+Needs next: future compact-spine rollout and shelf planning should reason from compact mode as a future global presentation mode above Intent, while still avoiding implementation until a narrow host seam is approved.
+Needs human: later decide the actual global compact switch/host seam and only reconsider typed compact persistence if multiple compact lanes plus shelf surfaces make raw keys insufficient.
+Notes: Added explicit shelf-plan sections for global compact-mode direction and compact UI persistence posture. Recorded that Intent continues to choose the lane, compact mode changes the presentation/workstation regime, stable namespaced keys are preferred, and typed compact persistence is deferred.
+HANDOFF: status=done task="document global compact roadmap and persistence posture" files="docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="keep compact persistence raw key/value and keep global compact mode as roadmap direction until explicitly implemented"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Checkpoint the inert host-level compact workstation shelf shell study
+Status: done
+Files changed: docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: The current upper/lower shelf shells are inert host-level studies only. They do not implement expand/collapse behavior, persistence, hit testing, commands, drag behavior, or workstation-mode switching. Final geometry, scroll overlap, final anchors, live affordance behavior, persistence, and repositionable/floating workstation behavior are still unproven.
+Needs next: do not do blind shelf polish or transition the shell study into live shelf implementation without human visual review in the running app and a new explicit task.
+Needs human: visually inspect the current shell study in-app before approving further geometry refinement or any live shelf behavior.
+Notes: Added the shelf-plan checkpoint language recording that the current host seam is acceptable as an inert study seam, that the shell study must remain outside Anime compact spine files, and that upper/lower shelves remain distinct host-level workstation surfaces.
+HANDOFF: status=done task="checkpoint inert workstation shelf shell study" files="docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="wait for human visual review before further shell refinement or shelf implementation"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Freeze the blunt outward compact workstation shelf shell checkpoint
+Status: done
+Files changed: docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: The current shelf study is still inert and host-level. The preferred visual direction is now outward projection from the compact-spine edge with a blunter, less pointed latch silhouette. Geometry iteration is intentionally paused here.
+Needs next: do not continue shell-only shelf polish. Reopen shelf geometry only when future live-control mapping work creates real requirements, such as mapping live upper-shelf dropdowns/controls, mapping lower-shelf action controls, validating clipping/space with real interactive content, or designing approved expand-affordance behavior.
+Needs human: later approve the live-control mapping phase before any further shelf geometry or behavior work.
+Notes: Updated the shelf plan to freeze the blunt outward shell as the active checkpoint and explicitly defer further geometry work until live control mapping resumes.
+HANDOFF: status=done task="freeze blunt outward shelf checkpoint" files="docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="leave shelf geometry frozen until live-control mapping work resumes"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Document compact workstation nameplate-shell direction
+Status: done
+Files changed: docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: The future compact workstation should not be treated as a squeezed sidebar or as lane-local compact spine material. The closed state is now understood as the branded nameplate/header shell, with the open workstation later unfolding from that shell over the user's workspace. This is planning direction only, not implementation approval.
+Needs next: reason about any future global compact-mode selector as part of the header/nameplate shell rather than burying it inside the Intent card. Keep upper/lower shelves as later host-level unfolding surfaces, not independent lane-local add-ons.
+Needs human: later approve any actual nameplate-shell placement, compact selector behavior, origami/unfolding behavior, or floating/repositionable workstation implementation.
+Notes: Added shelf-plan language distinguishing the future nameplate-shell model from the current inert shelf study and from the current full-window/sidebar layout.
+HANDOFF: status=done task="document compact workstation nameplate shell" files="docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="keep nameplate-shell/origami workstation as planning direction until explicitly implemented"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Document preferred advanced Compact host style
+Status: done
+Files changed: docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: Compact remains the broad global presentation/workstation mode above Intent. The preferred first advanced host style is now documented as a floating always-on-top companion window, not overlay/click-through behavior. This is planning direction only and does not approve implementation.
+Needs next: keep current in-window compact extraction boundaries unchanged. Do not rename Compact mode to Overlay, do not treat overlay as the first target, and do not over-specify drag, position persistence, or window lifecycle until a dedicated implementation pass exists.
+Needs human: later approve an actual floating companion-window implementation pass and any unresolved window-management details.
+Notes: Updated the shelf plan to state that the floating companion window should inherit from the nameplate-shell/unfolding-workstation model, while the current shelf study remains relevant as later host-level material.
+HANDOFF: status=done task="document floating companion compact host direction" files="docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="treat floating companion window as planning direction, with overlay/click-through deferred"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Document shared-standard compact adaptation checklist
+Status: done
+Files changed: docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: Cinematic currently proves ordinary/shared-standard compact content seams, including right-side compact presenter routing, left-side compact manual-stack rendering, and reuse of existing shared-standard lane state. It does not yet prove Anime-style compact collapse/compression behavior, so it must not be treated as the final shared-standard compact template.
+Needs next: use the shared-standard checklist before compacting another ordinary lane. Keep compact content rendering separate from collapse/compression behavior, and do not copy Anime-local ownership assumptions into shared-standard lanes.
+Needs human: later decide when a second ordinary lane should prove the pattern and whether Anime-style collapse/compression is intended for that lane.
+Notes: Added `docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md` with the two-layer rule, source-of-truth rule, Anime-copy rule, collapse wiring rule, readiness rule, and proof-before-abstraction rule. The checklist explicitly forbids compact-only selector collections, modifier pools, slider sources, or prompt fragment builders.
+HANDOFF: status=done task="document shared-standard compact checklist" files="docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="consult checklist before adapting another ordinary/shared-standard lane"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Update compact rollout cheat sheet after corrected Cinematic adaptation
+Status: done
+Files changed: docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: The first Cinematic compact adaptation copied a stale/incorrect Anime compact shape. It temporarily placed aspect/output checkboxes in Scene Composition, joined Image Finish to Scene Composition, added the wrong gate rhythm, and used a temporary `cinematic/image-finish-scene-composition` key. The corrected pattern uses the current Anime compact state: Lighting exposed, Style Controls/Mood paired, Control Lighting/Image Finish paired, Scene Composition standalone with two internal columns, and subject compact mode showing Subject only.
+Needs next: before adapting another ordinary/shared-standard lane, open the current `AnimeCompactManualStack.xaml` and read `docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md`. Assign section keys only after deciding which sections are exposed, paired, or standalone. Do not build a generic framework yet.
+Needs human: later choose the next ordinary/shared-standard lane to prove the corrected pattern before abstraction.
+Notes: Updated the checklist into a practical cheat sheet covering the latest Anime template snapshot, corrected Cinematic structure, compact gate rhythm, valid section keys, and mistakes to avoid. Added an Anime playbook cross-reference warning future Codex instances not to adapt compact lanes from memory or stale screenshots.
+HANDOFF: status=done task="update compact rollout cheat sheet after Cinematic corrections" files="docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="use latest Anime XAML plus checklist before installing compact buttons/sections for another ordinary lane"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Implement Watercolor compact support as the second ordinary/shared-standard compact lane
+Status: done
+Files changed: PromptForge.App/MainWindow.xaml, PromptForge.App/ViewModels/MainWindowViewModel.cs, PromptForge.App/Views/LaneReplacements/Shared/WatercolorCompactPanel.xaml, PromptForge.App/Views/LaneReplacements/Shared/WatercolorCompactManualStack.xaml, PromptForge.App/Views/LaneReplacements/Shared/WatercolorCompactManualStack.xaml.cs
+Tests run: `dotnet build PromptForge.App/PromptForge.App.csproj --no-restore -p:OutDir=bin\\CodexVerify\\`
+Observed risks: The first implementation attempt almost missed one host-routing detail: adding `ShowCompact...` seams is not enough by itself if the existing shared standard-lane `ContentControl` is still bound to a broad standard-panel visibility property. Without an explicit suppression seam, the new compact presenter can coexist with the normal shared panel instead of replacing it cleanly.
+Needs next: when compacting the next ordinary/shared-standard lane, audit compact routing as a two-sided problem:
+1. what turns the new compact surfaces on
+2. what turns the old shared standard panel off
+Do not assume the standard shared panel disappears automatically just because the compact presenter exists.
+Needs human: none
+Notes: Watercolor now proves a second ordinary/shared-standard compact lane using the corrected Anime/Cinematic section rhythm. It also proved a host-routing lesson worth preserving: the right-side host panel needed an explicit resolved visibility seam (`ShowResolvedStandardLanePanel`) so Watercolor compact could suppress the normal shared panel while leaving other unsupported lanes on the standard fallback path. Added this lesson to the shared-standard compact checklist so future Codex passes do not repeat the same miss.
+HANDOFF: status=done task="implement Watercolor compact support and document host suppression miss" files="PromptForge.App/MainWindow.xaml, PromptForge.App/ViewModels/MainWindowViewModel.cs, PromptForge.App/Views/LaneReplacements/Shared/WatercolorCompactPanel.xaml, PromptForge.App/Views/LaneReplacements/Shared/WatercolorCompactManualStack.xaml, PromptForge.App/Views/LaneReplacements/Shared/WatercolorCompactManualStack.xaml.cs, docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="for the next shared-standard compact lane, verify both the compact-positive routing seams and the standard-panel suppression seam before calling the rollout complete"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Record the compact subject/context rule as an intentional rollout rule rather than an accidental widening
+Status: done
+Files changed: docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: Older docs still described the subject/context seam as Anime-specific and unresolved, which created a drift risk: a future Codex could wrongly "fix" `ShowSubjectContextFields` back into a per-lane exception list even though the current code now intentionally follows compact manual presentation for compact-capable lanes.
+Needs next: future compact-capable lanes should assume `Subject`-only compact subject-card behavior unless a later lane explicitly proves it needs an exception. Do not revert this back to a lane-by-lane exception list unless the user explicitly asks.
+Needs human: later decide only whether hidden subject-context values should remain prompt-active and whether the host-owned seam should eventually move into a cleaner workstation/host seam.
+Notes: Updated the shared-standard checklist and Anime playbook so they now record the clarified rule: subject/context visibility follows compact manual presentation for compact-capable lanes. The old Anime-only subject/context seam is now documented as an earlier transitional workaround, not the desired long-term rollout pattern.
+HANDOFF: status=done task="document intentional compact subject-context rule" files="docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="treat subject/context compact visibility as the current rollout rule for compact-capable lanes unless an explicit exception is approved"
+
+### Turn
+Date: 2026-04-20 local
+Agent: Codex-Primary
+Task: Consolidate compact-lane doctrine after multiple proven compact lanes
+Status: done
+Files changed: docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/COMPACT_LANE_ARCHITECTURE.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: The compact rollout now has enough proven lanes to create drift in two directions if the doctrine is not explicit:
+1. future Codex instances may over-copy Anime ownership assumptions instead of only reusing the current compact shell rhythm
+2. future Codex instances may treat current host routing/suppression seams as a finished generic framework even though `MainWindow.xaml` and `MainWindowViewModel.cs` remain pressure-zone transitional seams
+Needs next: before compacting another lane, read the shared-standard checklist plus the new compact architecture doc. Keep compact presenters lane-local, reuse existing lane state, keep compact persistence UI-only, and treat workstation shelves/floating companion work as separate host-level phases.
+Needs human: later decide whether any future lane needs approved lane-native compact labels beyond the current proven shared-standard rhythm, and when the transitional host routing seams should get a deliberate cleanup/normalization pass.
+Notes: Consolidated the compact doctrine into a dedicated architecture note and refreshed the adaptation docs to reflect the current proof state:
+- Anime remains the special compact prototype, not the universal ownership model
+- Cinematic, Watercolor, Children's Book, and 3D Render prove the ordinary/shared-standard compact path
+- Tattoo Art proves sparse-lane honesty
+- preserve the helper box, not just title + description shell for lanes that have very little in their lane card
+- subject/context visibility now intentionally follows compact manual presentation for compact-capable lanes
+- compact persistence remains UI-only through `CompactSectionUiStateService`
+- lane-local compact presenters are distinct from workstation shelves and from the future floating companion host
+- the floating companion is planned as a second host/view over shared session state, not a second owner of lane state
+HANDOFF: status=done task="consolidate compact-lane doctrine after multiple proven lanes" files="docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/ANIME_COMPACT_LANE_PLAYBOOK.md, docs/COMPACT_WORKSTATION_SHELF_PLAN.md, docs/COMPACT_LANE_ARCHITECTURE.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="use the compact architecture doc plus the shared-standard checklist before any further lane rollout or host-level compact work"
+
+### Turn
+Date: 2026-04-21 local
+Agent: Codex-Primary
+Task: Document standard-lane source card to compact group visual map for HoverDeck wrappers
+Status: done
+Files changed: docs/COMPACT_LANE_ARCHITECTURE.md, docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: Future HoverDeck wrapper work could misread compact proofs as generic manual-card compression and miss the actual card movement: `Manual Output` does not survive intact, `Mood` absorbs aspect/output toggles, `Scene Composition` owns composition/output sliders, and paired sections have a single right-hand `Hide` owner. A stray/extra `Hide` beside `Control Lighting` must be treated as a mistaken artifact, not as precedent.
+Needs next: for the first HoverDeck wrapper implementation, use the documented source-card map before touching XAML. Preserve existing bindings/state and emulate the compact visual grouping without creating compact-only state or duplicate prompt behavior.
+Needs human: choose the exact first wrapper target, likely one bounded standard-lane manual group, before implementation.
+Notes: Added `Standard-Lane Source Card To Compact Group Map` to the compact architecture doc and cross-referenced it from the shared-standard checklist. The map records source card, expanded compact destination, collapsed ownership, button ownership, and mistakes to avoid for `Subject`, `Lighting`, `Manual Style Controls` + `Manual Mood`, `Manual Lighting and Color` + `Manual Image Finish`, `Manual Output`, `Scene Composition`, and the already-solved `Artist Influence` support card.
+HANDOFF: status=done task="document HoverDeck compact visual source-card map" files="docs/COMPACT_LANE_ARCHITECTURE.md, docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="use the source-card map before implementing any HoverDeck standard-lane wrapper"
+
+### Turn
+Date: 2026-04-21 local
+Agent: Codex-Primary
+Task: Document fully collapsed HoverDeck top-state as the third compact presentation state
+Status: done
+Files changed: docs/COMPACT_LANE_ARCHITECTURE.md, docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: Future HoverDeck wrapper work could stop at expanded compact grouping and lose the final top-state behavior. The final HoverDeck top-state is not just smaller expanded cards: `Subject` stays visible with a host-owned Copy Prompt emitter seam, `Lighting` remains exposed/live, and the grouped sections collapse into rows using existing compact ownership/state.
+Needs next: before implementing wrappers, preserve the three-state chain: source standard-lane cards -> expanded compact grouping -> fully collapsed HoverDeck rows. Keep the gold-touched middle-button affordance as visual expand/collapse language only, not new semantic ownership.
+Needs human: approve the first implementation target after deciding which collapsed row/wrapper should be proven first.
+Notes: Added `Third Presentation State: Fully Collapsed HoverDeck` to the compact architecture doc and a short warning in the shared-standard checklist. The documented top-state keeps `Subject`, `Lighting`, collapsed `Style Controls/Mood`, collapsed `Control Lighting/Image Finish`, collapsed `Scene Composition`, and collapsed `Artist Influence` as distinct presentation outcomes.
+HANDOFF: status=done task="document fully collapsed HoverDeck top-state" files="docs/COMPACT_LANE_ARCHITECTURE.md, docs/SHARED_STANDARD_COMPACT_ADAPTATION_CHECKLIST.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="preserve the three-state chain before implementing any HoverDeck wrapper"
+
+### Turn
+Date: 2026-04-21 local
+Agent: Codex-Primary
+Task: Remove visible Standard/Compact presentation-mode comboboxes from brand cards and document remaining wiring
+Status: done
+Files changed: PromptForge.App/MainWindow.xaml, PromptForge.App/Views/CompactWorkstation/HoverDeckCompactConsoleCard.xaml, docs/COMPACT_LANE_ARCHITECTURE.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: `dotnet build PromptForge.App\PromptForge.App.csproj --no-restore -v:minimal`
+Observed risks: The visible brand-card presentation-mode selectors are gone, but the underlying presentation-mode state and compact routing remain in `MainWindowViewModel.cs`. Future work should not mistake the UI removal for a state/model removal.
+Needs next: if a presentation-mode control is needed later, reintroduce it deliberately in a new approved location. Inspect `StandardPresentationMode`, `CompactPresentationMode`, `PresentationModes`, `PresentationMode`, `IsCompactPresentationMode`, and `NormalizePresentationMode` in `PromptForge.App/ViewModels/MainWindowViewModel.cs`.
+Needs human: decide whether any replacement presentation-mode entry point should exist and where it belongs.
+Notes: Added `Presentation Mode Selector Visibility` to `docs/COMPACT_LANE_ARCHITECTURE.md` documenting that the main and HoverDeck brand-card comboboxes were removed from `MainWindow.xaml` and `HoverDeckCompactConsoleCard.xaml` only.
+HANDOFF: status=done task="document presentation mode combobox removal" files="PromptForge.App/MainWindow.xaml, PromptForge.App/Views/CompactWorkstation/HoverDeckCompactConsoleCard.xaml, docs/COMPACT_LANE_ARCHITECTURE.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="do not assume presentation-mode wiring was removed; only the old visible brand-card selectors were removed"
+
+### Turn
+Date: 2026-04-21 local
+Agent: Codex-Primary
+Task: Install and document neutral-band standalone slider suppression for completed paired lanes
+Status: done
+Files changed: PromptForge.Core/Services/PromptBuilderService.cs, PromptForge.Core/Services/SliderLanguageCatalog.SemanticPairs.cs, docs/PAIR_GRID_INTERPRETATION_NOTES.md
+Tests run: `dotnet build PromptForge.App/PromptForge.App.csproj --no-restore -p:OutDir=bin\\CodexVerify\\`
+Observed risks: The rule is intentionally not universal. Placeholder pair files do not mean a lane is ready. Only lanes with completed, human-approved installed semantic pair maps should enter the neutral-band suppression allowlist.
+Needs next: when a future lane's semantic pairing is completed, explicitly add that lane's pair-member slider keys to `InstalledSemanticPairSliderKeysByLane` and only then allow neutral-band standalone suppression for that lane.
+Needs human: tell Codex when a lane is complete and ready for this rule. Do not infer readiness from the presence of a `*Pairs.cs` file alone.
+Notes: Neutral-band suppression is prompt-emission only. For completed paired lanes, non-pair sliders in the 40-59 band suppress standalone slider-fragment emission. Pair-member sliders remain exempt and emit across the full range so pair-collapse input space stays intact. This must not mutate slider values, preset/config state, nudges/defaults, helper/guide text, diagnostics source visibility, or pair-collapse input space.
+HANDOFF: status=done task="install neutral-band emission rule for completed paired lanes" files="PromptForge.Core/Services/PromptBuilderService.cs, PromptForge.Core/Services/SliderLanguageCatalog.SemanticPairs.cs, docs/PAIR_GRID_INTERPRETATION_NOTES.md" blockers="none" next="only add future lanes to the neutral-band suppression allowlist after human confirms that lane's pairing map is complete"
+
+### Turn
+Date: 2026-04-22 local
+Agent: Codex-Primary
+Task: Add release-clean local runtime-state backup helper and document the safety checkpoint
+Status: done
+Files changed: tools/release/Manage-LocalRuntimeState.ps1, RELEASING.md, docs/DEMO_LOCK_MEMO.md, docs/CODEX_WORKSPACE_CONTEXT.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: `tools/release/Manage-LocalRuntimeState.ps1 -Mode Backup` with escalation after sandbox denied AppData read access; no build run because this was tooling/docs only
+Observed risks: Release-clean or first-run testing can destroy developer-local demo/license/lane/preset/UI-log state if done manually. The backup helper should be used before any such test, and clear/restore should be driven by its manifest rather than ad hoc AppData deletion.
+Needs next: before converting the dev app into a shipping-clean state, run or confirm a fresh `-Mode Backup`, then use `ClearForReleaseTest` only with an explicit `-BackupPath`. After shipping/verification, restore from that same backup if the user's local dev state should come back.
+Needs human: confirm when to run the clear-for-release-test mode; backup already exists.
+Notes: Created `tools/release/Manage-LocalRuntimeState.ps1` and ran backup successfully. Current backup: `C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\artifacts\local-state-backups\PromptForgeLocalState_2026-04-22_15-08-45`. Manifest: `C:\Users\windy\OneDrive\Desktop\codex\Prompt Forge\artifacts\local-state-backups\PromptForgeLocalState_2026-04-22_15-08-45\manifest.json`.
+HANDOFF: status=done task="document local runtime-state backup helper" files="tools/release/Manage-LocalRuntimeState.ps1, RELEASING.md, docs/DEMO_LOCK_MEMO.md, docs/CODEX_WORKSPACE_CONTEXT.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="use the helper before any release-clean local state clearing; do not manually delete app-data state"
+
+### Turn
+Date: 2026-04-24 local
+Agent: Codex-Primary
+Task: Install artist-influence doctrine doc and make it visible in public-facing repo docs without bundling it into release artifacts
+Status: done
+Files changed: docs/artist-influence-vs-imitation-doctrine.md, README.md, RELEASE_NOTES.md, RELEASING.md
+Tests run: `dotnet build PromptForge.App\PromptForge.App.csproj --no-restore -p:OutDir=bin\\CodexVerify\\`
+Observed risks: This doctrine is intentionally supplementary. It should stay visible in source/docs and product-facing repo surfaces, but it should not silently slip into the release-only tree or installer unless a later bounded pass explicitly stages it as a separate downloadable asset. Also note that the model-facing companion file (`PROMPT_FORGE_MODEL_SKILL.md` / `SKILL.md`) is still not installed because its approved source content was referenced through a missing sandbox attachment rather than a stable repo path.
+Needs next: if the user wants the doctrine or a future model-skill companion to ship beside the app, do that as a separate bounded pass that explicitly stages supplementary download assets. Do not infer installer/release bundling from the presence of the doc in the source repo.
+Needs human: provide the actual source text for `PROMPT_FORGE_MODEL_SKILL.md` if the model-facing companion resource should be installed next.
+Notes: Added `docs/artist-influence-vs-imitation-doctrine.md` using the provided doctrine content, normalized the mojibake into clean Markdown, and added tiny cross-links in `README.md` and `RELEASE_NOTES.md` as `Supplementary doctrine: docs/artist-influence-vs-imitation-doctrine.md`. Added a release-safety reminder in `RELEASING.md` not to bundle this doctrine into the release-only tree or installer unless a later pass explicitly stages it as a separate supplementary download asset. No runtime behavior, prompt logic, or installer behavior changed in this pass.
+HANDOFF: status=done task="install artist-influence doctrine doc and add tiny public-facing cross-links" files="docs/artist-influence-vs-imitation-doctrine.md, README.md, RELEASE_NOTES.md, RELEASING.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="model-skill source file still missing from stable repo/session path" next="keep the doctrine supplementary; install the separate model-skill companion only after its actual source text is available"
+
+### Turn
+Date: 2026-04-24 local
+Agent: Codex-Primary
+Task: Create dedicated HoverDeck wiring map doc for future session continuity
+Status: done
+Files changed: docs/HOVERDECK_WIRING_MAP.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md
+Tests run: none; documentation-only pass
+Observed risks: HoverDeck behavior now spans startup, host minimization, custom shell, brand-card wiring, compressed-body local projections, phrase-editor ownership, lock projections, and unlock-window ownership. Without a dedicated map, future sessions can easily touch the wrong seam or mistake a HoverDeck-local projection fix for a shared-state redesign.
+Needs next: use `docs/HOVERDECK_WIRING_MAP.md` as the first-stop file before changing HoverDeck shell, brand card, compressed body, or popup ownership behavior.
+Needs human: none.
+Notes: Added a dedicated HoverDeck wiring map documenting the current host model, startup/shutdown path, primary files, shared-state versus HoverDeck-local seams, intent-ordering seam, lock projection seam, phrase-editor host ownership, unlock-window ownership, and practical "where do I touch it?" guidance.
+HANDOFF: status=done task="add dedicated HoverDeck wiring map doc" files="docs/HOVERDECK_WIRING_MAP.md, docs/CODEX_SECOND_INSTANCE_HANDOFF.md" blockers="none" next="open the HoverDeck wiring map first before future HoverDeck changes"

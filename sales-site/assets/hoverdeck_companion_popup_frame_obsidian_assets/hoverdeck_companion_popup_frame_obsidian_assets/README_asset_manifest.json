@@ -1,0 +1,57 @@
+{
+  "asset_family": "hoverdeck_companion_popup_frame_obsidian",
+  "source": "generated companion popup frame on chroma green",
+  "state_map": {
+    "n": "normal"
+  },
+  "recommended_folder": "slices_1320x520_cap160x120",
+  "recommended_destination": "PromptForge.App/Assets/HoverDeck/CompanionFrame/",
+  "canonical_full_size": "1320x520",
+  "recommended_slicing": {
+    "left_cap": 160,
+    "right_cap": 160,
+    "top_cap": 120,
+    "bottom_cap": 120,
+    "center": "stretch"
+  },
+  "alternate_slicing": {
+    "folder": "slices_1320x520_cap128x104",
+    "left_cap": 128,
+    "right_cap": 128,
+    "top_cap": 104,
+    "bottom_cap": 104
+  },
+  "files": {
+    "full_1320x520": [
+      "hd_companion_popup_frame_obsidian_n_full.png"
+    ],
+    "slices_1320x520_cap160x120": [
+      "hd_companion_popup_frame_obsidian_n_tl.png",
+      "hd_companion_popup_frame_obsidian_n_t.png",
+      "hd_companion_popup_frame_obsidian_n_tr.png",
+      "hd_companion_popup_frame_obsidian_n_l.png",
+      "hd_companion_popup_frame_obsidian_n_c.png",
+      "hd_companion_popup_frame_obsidian_n_r.png",
+      "hd_companion_popup_frame_obsidian_n_bl.png",
+      "hd_companion_popup_frame_obsidian_n_b.png",
+      "hd_companion_popup_frame_obsidian_n_br.png"
+    ],
+    "slices_1320x520_cap128x104": [
+      "hd_companion_popup_frame_obsidian_n_tl.png",
+      "hd_companion_popup_frame_obsidian_n_t.png",
+      "hd_companion_popup_frame_obsidian_n_tr.png",
+      "hd_companion_popup_frame_obsidian_n_l.png",
+      "hd_companion_popup_frame_obsidian_n_c.png",
+      "hd_companion_popup_frame_obsidian_n_r.png",
+      "hd_companion_popup_frame_obsidian_n_bl.png",
+      "hd_companion_popup_frame_obsidian_n_b.png",
+      "hd_companion_popup_frame_obsidian_n_br.png"
+    ]
+  },
+  "notes": [
+    "Use the 9-slice folder for WPF companion popup shells; do not use the full image directly for variable-width panels.",
+    "Keep close buttons WPF-rendered for this pass.",
+    "Normal-state only. Add active/focus variant later only if screenshots justify it.",
+    "Center is content-safe dark obsidian; overlay existing panel content above it."
+  ]
+}

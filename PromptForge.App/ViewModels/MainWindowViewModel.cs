@@ -21,6 +21,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private const string ProductPhotographyUnlockPresetName = "Product";
     private const string FoodPhotographyUnlockPresetName = "Food";
     private const string LifestyleAdvertisingUnlockPresetName = "Lifestyle";
+    private const string StandardPresentationMode = "Standard";
+    private const string CompactPresentationMode = "Compact";
 
     private static readonly IReadOnlyDictionary<string, string> LockedLaneUnlockPresetNames =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -29,6 +31,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             [IntentModeCatalog.ProductPhotographyName] = ProductPhotographyUnlockPresetName,
             [IntentModeCatalog.FoodPhotographyName] = FoodPhotographyUnlockPresetName,
             [IntentModeCatalog.LifestyleAdvertisingPhotographyName] = LifestyleAdvertisingUnlockPresetName,
+        };
+
+    private static readonly IReadOnlySet<string> BaseUnlockedLaneNames =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            IntentModeCatalog.PhotographyName,
+            IntentModeCatalog.PhotographicName,
+            IntentModeCatalog.CinematicName,
+            IntentModeCatalog.WatercolorName,
+            IntentModeCatalog.PixelArtName,
+            IntentModeCatalog.GraphicDesignName,
         };
 
     private static class SharedLaneKeys
@@ -60,6 +73,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             public const string CinematicLighting = "cinematic-lighting";
             public const string StylizedHair = "stylized-hair";
             public const string AtmosphericEffects = "atmospheric-effects";
+            public const string CharacterLedStaging = "character-led-staging";
+            public const string ClearSilhouetteRead = "clear-silhouette-read";
+            public const string EmotionFirstExpression = "emotion-first-expression";
         }
 
         public static class ThreeDRender
@@ -143,6 +159,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             public const string DefaultTypeLabel = "general";
             public const string MinimalLayout = "minimal-layout";
             public const string BoldHierarchy = "bold-hierarchy";
+        }
+
+        public static class InfographicDataVisualization
+        {
+            public const string LaneId = "infographic-data-visualization";
+            public const string SubdomainSelector = "subdomain";
+            public const string DefaultSubdomainLabel = "infographic";
+            public const string Infographic = "infographic";
+            public const string DataViz = "data-viz";
+            public const string LeanExplainer = "lean-explainer";
+            public const string PublicPoster = "public-poster";
+            public const string ReferenceSheet = "reference-sheet";
+            public const string ChartPurity = "chart-purity";
+            public const string Dashboard = "dashboard";
+            public const string ReportGraphic = "report-graphic";
         }
 
         public static class Photography
@@ -229,18 +260,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly IThemeService _themeService;
     private readonly IDemoStateService _demoStateService;
     private readonly ILicenseService _licenseService;
+    private readonly ILaneUnlockStateService _laneUnlockStateService;
     private readonly DispatcherTimer _experimentalMacroRefreshTimer;
     private readonly IReadOnlyDictionary<string, StandardLanePanelViewModel> _sharedLanePanels;
     private StandardLaneStateCollection _ordinaryLaneStates;
-    private readonly HashSet<string> _fantasyIllustrationAppliedSliderSuppressions = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _editorialIllustrationAppliedSliderSuppressions = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _graphicDesignAppliedSliderSuppressions = new(StringComparer.Ordinal);
     private bool _isApplyingConfiguration;
     private bool _suspendArtistOverrideReset;
     private bool _overrideDefaultSliderPositions;
     private bool _hasLockedLaneAccess;
 
-    private string _intentMode = IntentModeCatalog.AnimeName;
+    private string _presentationMode = StandardPresentationMode;
+    private string _intentMode = IntentModeCatalog.PhotographyName;
     private string _subject = string.Empty;
     private string _action = string.Empty;
     private string _relationship = string.Empty;
@@ -277,6 +307,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private bool _animeCinematicLighting;
     private bool _animeStylizedHair;
     private bool _animeAtmosphericEffects;
+    private bool _animeCharacterLedStaging;
+    private bool _animeClearSilhouetteRead;
+    private bool _animeEmotionFirstExpression;
+    private bool _animeCompactPanelEnabled;
     private string _childrensBookStyle = "general-childrens-book";
     private bool _childrensBookSoftColorPalette;
     private bool _childrensBookTexturedPaper;
@@ -331,8 +365,15 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private bool _pixelArtHudUiFraming;
     private string _watercolorStyle = "general-watercolor";
     private string _graphicDesignType = "general";
+    private string _infographicDataVisualizationSubdomain = "infographic";
+    private bool _infographicModeLeanExplainer = true;
+    private bool _infographicModePublicPoster;
+    private bool _infographicModeReferenceSheet;
     private bool _graphicDesignMinimalLayout;
     private bool _graphicDesignBoldHierarchy;
+    private bool _dataVizModeChartPurity = true;
+    private bool _dataVizModeDashboard;
+    private bool _dataVizModeReportGraphic;
     private bool _watercolorTransparentWashes;
     private bool _watercolorSoftBleeds;
     private bool _watercolorPaperTexture;
@@ -382,10 +423,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private bool _architectureArchvizAmenityFocus;
     private string _artistInfluencePrimary = "None";
     private int _influenceStrengthPrimary = 45;
-    private ArtistPhraseOverride _primaryArtistPhraseOverride = new();
     private string _artistInfluenceSecondary = "None";
     private int _influenceStrengthSecondary = 30;
-    private ArtistPhraseOverride _secondaryArtistPhraseOverride = new();
     private int _cameraDistance = 50;
     private bool _excludeCameraDistanceFromPrompt;
     private int _cameraAngle = 50;
@@ -418,6 +457,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private bool _compressPromptSemantics;
     private bool _reduceRepeatedLaneWords;
     private bool _trimRepeatedLongWords;
+    private bool _semanticPairInteractions = true;
     private bool _avoidClutter = true;
     private bool _avoidMuddyLighting = true;
     private bool _avoidDistortedAnatomy = true;
@@ -440,28 +480,24 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private string _negativePromptPreview = string.Empty;
     private string _presetName = string.Empty;
     private string? _selectedPresetName;
+    private string _newSavestateFolderName = string.Empty;
+    private PresetSavestateFolder? _selectedSavestateFolder;
     private string _statusMessage = "Ready.";
     private int _remainingDemoCopies;
     private long _copyPromptFeedbackTick;
     private string? _artistPairGuidanceTooltip;
-    private bool _isArtistPhraseEditorOpen;
-    private bool _isEditingPrimaryArtistPhrase;
     private string _artistPhraseEditorPrefix = string.Empty;
     private string _artistPhraseEditorArtistName = string.Empty;
     private string _artistPhraseEditorSuffix = string.Empty;
     private string _artistPhraseEditorGeneratedPhrase = string.Empty;
-    private IReadOnlyList<ArtistPhraseQuickInsertGroup> _artistPhraseQuickInsertGroups = Array.Empty<ArtistPhraseQuickInsertGroup>();
     private ArtistPairLookupResult? _currentArtistPairLookup;
-    private IReadOnlyList<ArtistPhraseSuffixRoleGroup> _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
-    private string _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
-    private string _artistPhraseEditorStructuredSuffixTrailingText = string.Empty;
 
     static MainWindowViewModel()
     {
         StandardLaneBindingValidator.ThrowIfInvalid(typeof(MainWindowViewModel), StandardLaneBindingValidator.GetSharedStandardLaneDefinitions());
     }
 
-    public MainWindowViewModel(IPromptBuilderService promptBuilderService, IPresetStorageService presetStorageService, IClipboardService clipboardService, IArtistProfileService artistProfileService, IArtistPairGuidanceService artistPairGuidanceService, IThemeService themeService, IDemoStateService demoStateService, ILicenseService licenseService)
+    public MainWindowViewModel(IPromptBuilderService promptBuilderService, IPresetStorageService presetStorageService, IClipboardService clipboardService, IArtistProfileService artistProfileService, IArtistPairGuidanceService artistPairGuidanceService, IThemeService themeService, IDemoStateService demoStateService, ILicenseService licenseService, ILaneUnlockStateService laneUnlockStateService)
     {
         _promptBuilderService = promptBuilderService;
         _presetStorageService = presetStorageService;
@@ -471,6 +507,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _themeService = themeService;
         _demoStateService = demoStateService;
         _licenseService = licenseService;
+        _laneUnlockStateService = laneUnlockStateService;
         _experimentalMacroRefreshTimer = new DispatcherTimer
         {
             Interval = TimeSpan.FromMilliseconds(90),
@@ -493,19 +530,24 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         SpeechBubbleModes = new ObservableCollection<string>(new[] { BlankSpeechBubbleMode, RenderedDialogueSpeechBubbleMode });
         SpeechBubbleSizes = new ObservableCollection<string>(new[] { "Small", MediumSpeechBubbleSize, "Large" });
         ArtistInfluences = new ObservableCollection<string>(artistProfileService.GetArtistNames());
-        Lightings = new ObservableCollection<string>(new[] { "Soft daylight", "Golden hour", "Dramatic studio light", "Overcast", "Moonlit", "Soft glow", "Dusk haze", "Warm directional light", "Volumetric cinematic light" });
+        Lightings = new ObservableCollection<string>(new[] { "High-key light", "Midday sun", "Direct flash", "Dramatic studio light", "Warm directional light", "Golden hour", "Backlit", "Side-lit", "Soft daylight", "Window light", "Overcast", "Warm interior light", "Soft glow", "Volumetric cinematic light", "Neon-lit", "Dusk haze", "Blue hour", "Moonlit", "Low-key light" });
         AspectRatios = new ObservableCollection<string>(new[] { "1:1", "4:5", "16:9", "9:16" });
         PresetNames = new ObservableCollection<string>();
+        SavestateFolders = new ObservableCollection<PresetSavestateFolder>();
         Themes = new ObservableCollection<string>(themeService.AvailableThemeNames);
         _sharedLanePanels = BuildSharedLanePanels();
-        ApplyAnimeIntentDefaults();
+        ApplyPhotographyIntentDefaults();
+        _laneUnlockStateService.MigrateFromLegacyPresetMarkers(LockedLaneUnlockPresetNames, _presetStorageService.GetDefaultPresetNames());
 
         CopyPromptCommand = new RelayCommand(CopyPrompt, CanCopyPrompt);
         CopyNegativePromptCommand = new RelayCommand(CopyNegativePrompt, CanCopyNegativePrompt);
+        CopyLaneHelpEmailCommand = new RelayCommand(CopyLaneHelpEmail);
         SavePresetCommand = new RelayCommand(SavePreset);
         LoadPresetCommand = new RelayCommand(LoadPreset);
         RenamePresetCommand = new RelayCommand(RenamePreset);
         DeletePresetCommand = new RelayCommand(DeletePreset);
+        CreateSavestateFolderCommand = new RelayCommand(CreateSavestateFolder);
+        DeleteSavestateFolderCommand = new RelayCommand(DeleteSelectedSavestateFolder, CanDeleteSelectedSavestateFolder);
         EditPrimaryArtistPhraseCommand = new RelayCommand(OpenPrimaryArtistPhraseEditor, () => CanEditPrimaryArtistPhrase);
         EditSecondaryArtistPhraseCommand = new RelayCommand(OpenSecondaryArtistPhraseEditor, () => CanEditSecondaryArtistPhrase);
         SwapArtistInfluencesCommand = new RelayCommand(SwapArtistInfluences, () => CanSwapArtistInfluences);
@@ -516,6 +558,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         ResetCommand = new RelayCommand(Reset);
         RandomizeSlidersCommand = new RelayCommand(RandomizeSliders);
 
+        RefreshSavestateFolders();
         RefreshPresetNames();
         PresetName = string.Empty;
         SyncExperimentalMacrosFromRaw();
@@ -535,7 +578,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<string> Lightings { get; }
     public ObservableCollection<string> AspectRatios { get; }
     public ObservableCollection<string> PresetNames { get; }
+    public ObservableCollection<PresetSavestateFolder> SavestateFolders { get; }
     public ObservableCollection<string> Themes { get; }
+    public ObservableCollection<string> PresentationModes { get; } = new(new[] { StandardPresentationMode, CompactPresentationMode });
 
     public long CopyPromptFeedbackTick
     {
@@ -556,100 +601,37 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     public bool ShowArtistPairGuidanceIcon => !string.IsNullOrWhiteSpace(ArtistPairGuidanceTooltip);
-    public bool IsArtistPhraseEditorOpen
-    {
-        get => _isArtistPhraseEditorOpen;
-        private set
-        {
-            if (SetProperty(ref _isArtistPhraseEditorOpen, value))
-            {
-                SaveArtistPhraseEditorCommand.RaiseCanExecuteChanged();
-                ResetArtistPhraseEditorCommand.RaiseCanExecuteChanged();
-                CancelArtistPhraseEditorCommand.RaiseCanExecuteChanged();
-            }
-        }
-    }
-
-    public string ArtistPhraseEditorTitle => _isEditingPrimaryArtistPhrase
-        ? "Edit Primary Artist Phrase"
-        : "Edit Secondary Artist Phrase";
-
-    public string ArtistPhraseEditorPrefix
-    {
-        get => _artistPhraseEditorPrefix;
-        set
-        {
-            if (SetProperty(ref _artistPhraseEditorPrefix, value))
-            {
-                OnPropertyChanged(nameof(ArtistPhraseEditorPreview));
-            }
-        }
-    }
-
-    public string ArtistPhraseEditorArtistName
-    {
-        get => _artistPhraseEditorArtistName;
-        private set
-        {
-            if (SetProperty(ref _artistPhraseEditorArtistName, value))
-            {
-                OnPropertyChanged(nameof(ArtistPhraseEditorPreview));
-                SaveArtistPhraseEditorCommand.RaiseCanExecuteChanged();
-            }
-        }
-    }
-
-    public string ArtistPhraseEditorSuffix
-    {
-        get => _artistPhraseEditorSuffix;
-        set
-        {
-            if (SetProperty(ref _artistPhraseEditorSuffix, value))
-            {
-                if (!string.Equals(value, _artistPhraseEditorStructuredSuffixLastRendered, StringComparison.Ordinal))
-                {
-                    _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
-                    _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
-                    _artistPhraseEditorStructuredSuffixTrailingText = value?.Trim() ?? string.Empty;
-                }
-
-                OnPropertyChanged(nameof(ArtistPhraseEditorPreview));
-            }
-        }
-    }
-
-    public string ArtistPhraseEditorGeneratedPhrase
-    {
-        get => _artistPhraseEditorGeneratedPhrase;
-        private set => SetProperty(ref _artistPhraseEditorGeneratedPhrase, value);
-    }
-
-    public string ArtistPhraseEditorPreview => ArtistPhraseComposer.Combine(ArtistPhraseEditorPrefix, ArtistPhraseEditorArtistName, ArtistPhraseEditorSuffix);
-    public IReadOnlyList<ArtistPhraseQuickInsertGroup> ArtistPhraseQuickInsertGroups
-    {
-        get => _artistPhraseQuickInsertGroups;
-        private set => SetProperty(ref _artistPhraseQuickInsertGroups, value);
-    }
-    public bool CanEditPrimaryArtistPhrase => TryGetArtistPhraseSlotState(isPrimary: true, out _);
-    public bool CanEditSecondaryArtistPhrase => TryGetArtistPhraseSlotState(isPrimary: false, out _);
     public bool CanSwapArtistInfluences
         => HasSelectedArtistValue(ArtistInfluencePrimary) || HasSelectedArtistValue(ArtistInfluenceSecondary);
 
     public RelayCommand CopyPromptCommand { get; }
     public RelayCommand CopyNegativePromptCommand { get; }
+    public RelayCommand CopyLaneHelpEmailCommand { get; }
     public RelayCommand SavePresetCommand { get; }
     public RelayCommand LoadPresetCommand { get; }
     public RelayCommand RenamePresetCommand { get; }
     public RelayCommand DeletePresetCommand { get; }
-    public RelayCommand EditPrimaryArtistPhraseCommand { get; }
-    public RelayCommand EditSecondaryArtistPhraseCommand { get; }
+    public RelayCommand CreateSavestateFolderCommand { get; }
+    public RelayCommand DeleteSavestateFolderCommand { get; }
     public RelayCommand SwapArtistInfluencesCommand { get; }
-    public RelayCommand InsertArtistPhraseQuickInsertCommand { get; }
-    public RelayCommand SaveArtistPhraseEditorCommand { get; }
-    public RelayCommand ResetArtistPhraseEditorCommand { get; }
-    public RelayCommand CancelArtistPhraseEditorCommand { get; }
     public RelayCommand ResetCommand { get; }
     public RelayCommand RandomizeSlidersCommand { get; }
+
+    public string PresentationMode
+    {
+        get => _presentationMode;
+        set
+        {
+            var normalized = NormalizePresentationMode(value);
+            if (SetProperty(ref _presentationMode, normalized))
+            {
+                OnPropertyChanged(nameof(IsCompactPresentationMode));
+                RaiseCompactPresentationRoutingChanged();
+            }
+        }
+    }
+
+    public bool IsCompactPresentationMode => string.Equals(PresentationMode, CompactPresentationMode, StringComparison.Ordinal);
 
     public string IntentMode
     {
@@ -674,11 +656,36 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 OnPropertyChanged(nameof(ShowEmbeddedLaneCompositionCard));
                 OnPropertyChanged(nameof(ShowManualNegativeConstraints));
                 OnPropertyChanged(nameof(IsAnimeIntent));
+                OnPropertyChanged(nameof(ShowStandardManualStyleControlsCard));
+                OnPropertyChanged(nameof(ShowCompactAnimeManualStyleControlsCard));
+                OnPropertyChanged(nameof(ShowStandardManualMoodCard));
+                OnPropertyChanged(nameof(ShowCompactAnimeManualMoodCard));
+                OnPropertyChanged(nameof(ShowStandardManualLightingAndColorCard));
+                OnPropertyChanged(nameof(ShowCompactAnimeManualLightingAndColorCard));
+                OnPropertyChanged(nameof(ShowStandardManualImageFinishCard));
+                OnPropertyChanged(nameof(ShowCompactAnimeManualImageFinishCard));
+                OnPropertyChanged(nameof(ShowStandardManualOutputCard));
+                OnPropertyChanged(nameof(ShowCompactAnimeManualOutputCard));
+                OnPropertyChanged(nameof(ShowCompactComicBookManualStack));
+                OnPropertyChanged(nameof(ShowCompactCinematicManualStack));
+                OnPropertyChanged(nameof(ShowCompactWatercolorManualStack));
+                OnPropertyChanged(nameof(ShowCompactChildrensBookManualStack));
+                OnPropertyChanged(nameof(ShowCompactThreeDRenderManualStack));
+                OnPropertyChanged(nameof(ShowCompactArchitectureArchvizManualStack));
+                OnPropertyChanged(nameof(ShowCompactTattooArtManualStack));
                 OnPropertyChanged(nameof(ShowAnimeModifierPanel));
+                OnPropertyChanged(nameof(ShowStandardAnimePanel));
+                OnPropertyChanged(nameof(ShowCompactAnimePanel));
+                OnPropertyChanged(nameof(ShowSubjectContextFields));
                 OnPropertyChanged(nameof(IsChildrensBookIntent));
                 OnPropertyChanged(nameof(IsComicBookIntent));
                 OnPropertyChanged(nameof(ShowComicBookModifierPanel));
                 OnPropertyChanged(nameof(IsCinematicIntent));
+                OnPropertyChanged(nameof(ShowCompactCinematicPanel));
+                OnPropertyChanged(nameof(ShowCompactWatercolorPanel));
+                OnPropertyChanged(nameof(ShowCompactChildrensBookPanel));
+                OnPropertyChanged(nameof(ShowCompactThreeDRenderPanel));
+                OnPropertyChanged(nameof(ShowCompactTattooArtPanel));
                 OnPropertyChanged(nameof(IsPhotographyIntent));
                 OnPropertyChanged(nameof(IsProductPhotographyIntent));
                 OnPropertyChanged(nameof(IsFoodPhotographyIntent));
@@ -690,86 +697,54 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsFantasyIllustrationIntent));
                 OnPropertyChanged(nameof(IsEditorialIllustrationIntent));
                 OnPropertyChanged(nameof(IsGraphicDesignIntent));
+                OnPropertyChanged(nameof(IsInfographicDataVisualizationIntent));
+                OnPropertyChanged(nameof(IsInfographicSubdomainActive));
+                OnPropertyChanged(nameof(IsDataVizSubdomainActive));
                 OnPropertyChanged(nameof(IsTattooArtIntent));
                 OnPropertyChanged(nameof(IsWatercolorIntent));
                 OnPropertyChanged(nameof(IsVintageBendIntent));
-                UpdateLockedLaneAccessState(_presetStorageService.GetPresetNames());
+                UpdateLockedLaneAccessState();
+                OnPropertyChanged(nameof(IsLockedLaneActive));
                 OnPropertyChanged(nameof(IsVintageBendLocked));
+                OnPropertyChanged(nameof(ShowLockedLaneAuthoringSections));
                 OnPropertyChanged(nameof(ShowVintageBendAuthoringSections));
+                OnPropertyChanged(nameof(ShowLockedLanePane));
                 OnPropertyChanged(nameof(ShowVintageBendLockedPane));
                 OnPropertyChanged(nameof(ShowVintageBendModifierPanel));
+                OnPropertyChanged(nameof(ShowInfographicModeGroup));
+                OnPropertyChanged(nameof(ShowDataVizModeGroup));
                 OnPropertyChanged(nameof(ShowInteractivePromptPreview));
                 OnPropertyChanged(nameof(ShowDemoPromptPreview));
                 OnPropertyChanged(nameof(ShowNegativePrompt));
                 OnPropertyChanged(nameof(CanUseCompressionControls));
                 OnPropertyChanged(nameof(ShowCompressionTierTwo));
                 OnPropertyChanged(nameof(ShowCompressionTierThree));
+                OnPropertyChanged(nameof(ShowCompactCinematicPanel));
+                OnPropertyChanged(nameof(ShowCompactWatercolorPanel));
+                OnPropertyChanged(nameof(ShowCompactChildrensBookPanel));
+                OnPropertyChanged(nameof(ShowCompactThreeDRenderPanel));
                 OnPropertyChanged(nameof(ShowActiveStandardLanePanel));
+                OnPropertyChanged(nameof(ShowResolvedStandardLanePanel));
                 OnPropertyChanged(nameof(ShowArtistBlendSummary));
-                if (!_isApplyingConfiguration)
-                {
-                    var preservedSliderPositions = OverrideDefaultSliderPositions ? CaptureCurrentSliderPositions() : null;
-                    LogOverrideSliderDiagnostics(
-                        preservedSliderPositions is null
-                            ? $"intent-change-preserve-skipped from='{previousIntentMode}' to='{normalized}' override={OverrideDefaultSliderPositions} {FormatCurrentOverrideSliderState()}"
-                            : $"intent-change-preserve-captured from='{previousIntentMode}' to='{normalized}' override={OverrideDefaultSliderPositions} {FormatLanePromptDefaults(preservedSliderPositions)}");
-                    SyncCompressionStateForIntentChange(normalized);
-                    ResetPromptExclusionFlags();
-                    if (IntentModeCatalog.IsAnime(normalized))
-                    {
-                        ApplyAnimeIntentDefaults();
-                    }
-                    if (IntentModeCatalog.IsProductPhotography(normalized))
-                    {
-                        ApplyProductPhotographyIntentDefaults();
-                    }
-                    if (IntentModeCatalog.IsFoodPhotography(normalized))
-                    {
-                        ApplyFoodPhotographyIntentDefaults();
-                    }
-                    if (IntentModeCatalog.IsLifestyleAdvertisingPhotography(normalized))
-                    {
-                        ApplyLifestyleAdvertisingPhotographyIntentDefaults();
-                    }
-                    if (IntentModeCatalog.IsArchitectureArchviz(normalized))
-                    {
-                        ApplyArchitectureArchvizIntentDefaults();
-                    }
-                    if (IntentModeCatalog.IsPhotography(normalized))
-                    {
-                        ApplyPhotographyIntentDefaults();
-                    }
-                    if (IntentModeCatalog.IsFantasyIllustration(normalized))
-                    {
-                        ApplyFantasyIllustrationIntentDefaults();
-                    }
-                    if (IntentModeCatalog.IsEditorialIllustration(normalized))
-                    {
-                        ApplyEditorialIllustrationIntentDefaults();
-                    }
-                    if (IntentModeCatalog.IsGraphicDesign(normalized))
-                    {
-                        ApplyGraphicDesignIntentDefaults();
-                    }
-                    if (IntentModeCatalog.IsTattooArt(normalized))
-                    {
-                        ApplyTattooArtIntentDefaults();
-                    }
-                    LogOverrideSliderDiagnostics(
-                        $"intent-change-after-defaults from='{previousIntentMode}' to='{normalized}' override={OverrideDefaultSliderPositions} {FormatCurrentOverrideSliderState()}");
-                    if (preservedSliderPositions is not null)
-                    {
-                        RestoreCurrentSliderPositions(preservedSliderPositions);
-                        LogOverrideSliderDiagnostics(
-                            $"intent-change-after-restore from='{previousIntentMode}' to='{normalized}' override={OverrideDefaultSliderPositions} {FormatCurrentOverrideSliderState()}");
-                    }
-                }
+                RunIntentTransitionDefaultingWorkflow(previousIntentMode, normalized);
                 OnPropertyChanged(nameof(CanUseCompressionControls));
                 OnPropertyChanged(nameof(ShowCompressionTierTwo));
                 OnPropertyChanged(nameof(ShowCompressionTierThree));
                 OnPropertyChanged(nameof(IntentModeSummary));
+                OnPropertyChanged(nameof(ShowLaneHelpFooter));
+                OnPropertyChanged(nameof(HasLaneHelpTooltip));
+                OnPropertyChanged(nameof(LaneHelpFooterPrefix));
+                OnPropertyChanged(nameof(LaneHelpFooterEmail));
+                OnPropertyChanged(nameof(LaneHelpPrinciple));
+                OnPropertyChanged(nameof(LaneHelpWeak));
+                OnPropertyChanged(nameof(LaneHelpStronger));
                 OnPropertyChanged(nameof(ActiveStandardLanePanel));
+                OnPropertyChanged(nameof(ShowCompactCinematicPanel));
+                OnPropertyChanged(nameof(ShowCompactWatercolorPanel));
+                OnPropertyChanged(nameof(ShowCompactChildrensBookPanel));
+                OnPropertyChanged(nameof(ShowCompactThreeDRenderPanel));
                 OnPropertyChanged(nameof(ShowActiveStandardLanePanel));
+                OnPropertyChanged(nameof(ShowResolvedStandardLanePanel));
                 if (!_isApplyingConfiguration && !_isApplyingExperimentalMacroState)
                 {
                     SyncExperimentalMacrosFromRaw();
@@ -862,6 +837,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public bool AnimeCinematicLighting { get => _animeCinematicLighting; set => SetAnimeModifierAndRefresh(ref _animeCinematicLighting, value, SharedLaneKeys.Anime.CinematicLighting); }
     public bool AnimeStylizedHair { get => _animeStylizedHair; set => SetAnimeModifierAndRefresh(ref _animeStylizedHair, value, SharedLaneKeys.Anime.StylizedHair); }
     public bool AnimeAtmosphericEffects { get => _animeAtmosphericEffects; set => SetAnimeModifierAndRefresh(ref _animeAtmosphericEffects, value, SharedLaneKeys.Anime.AtmosphericEffects); }
+    public bool AnimeCharacterLedStaging { get => _animeCharacterLedStaging; set => SetAnimeModifierAndRefresh(ref _animeCharacterLedStaging, value, SharedLaneKeys.Anime.CharacterLedStaging); }
+    public bool AnimeClearSilhouetteRead { get => _animeClearSilhouetteRead; set => SetAnimeModifierAndRefresh(ref _animeClearSilhouetteRead, value, SharedLaneKeys.Anime.ClearSilhouetteRead); }
+    public bool AnimeEmotionFirstExpression { get => _animeEmotionFirstExpression; set => SetAnimeModifierAndRefresh(ref _animeEmotionFirstExpression, value, SharedLaneKeys.Anime.EmotionFirstExpression); }
+    public bool AnimeCompactPanelEnabled
+    {
+        get => _animeCompactPanelEnabled;
+        set
+        {
+            if (SetProperty(ref _animeCompactPanelEnabled, value))
+            {
+                RaiseCompactPresentationRoutingChanged();
+            }
+        }
+    }
     public string ChildrensBookStyle { get => _childrensBookStyle; set => SetStandardLaneSelectorAndRefresh(ref _childrensBookStyle, value, SharedLaneKeys.ChildrensBook.LaneId, SharedLaneKeys.StyleSelector); }
     public bool ChildrensBookSoftColorPalette { get => _childrensBookSoftColorPalette; set => SetStandardLaneModifierAndRefresh(ref _childrensBookSoftColorPalette, value, SharedLaneKeys.ChildrensBook.LaneId, SharedLaneKeys.ChildrensBook.SoftColorPalette); }
     public bool ChildrensBookTexturedPaper { get => _childrensBookTexturedPaper; set => SetStandardLaneModifierAndRefresh(ref _childrensBookTexturedPaper, value, SharedLaneKeys.ChildrensBook.LaneId, SharedLaneKeys.ChildrensBook.TexturedPaper); }
@@ -940,7 +929,19 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public bool ThreeDRenderSubsurfaceScattering { get => _threeDRenderSubsurfaceScattering; set => SetStandardLaneModifierAndRefresh(ref _threeDRenderSubsurfaceScattering, value, SharedLaneKeys.ThreeDRender.LaneId, SharedLaneKeys.ThreeDRender.SubsurfaceScattering); }
     public bool ThreeDRenderHardSurfacePrecision { get => _threeDRenderHardSurfacePrecision; set => SetStandardLaneModifierAndRefresh(ref _threeDRenderHardSurfacePrecision, value, SharedLaneKeys.ThreeDRender.LaneId, SharedLaneKeys.ThreeDRender.HardSurfacePrecision); }
     public bool ThreeDRenderStudioBackdrop { get => _threeDRenderStudioBackdrop; set => SetStandardLaneModifierAndRefresh(ref _threeDRenderStudioBackdrop, value, SharedLaneKeys.ThreeDRender.LaneId, SharedLaneKeys.ThreeDRender.StudioBackdrop); }
-    public string ConceptArtSubtype { get => _conceptArtSubtype; set => SetStandardLaneSelectorAndRefresh(ref _conceptArtSubtype, value, SharedLaneKeys.ConceptArt.LaneId, SharedLaneKeys.StyleSelector); }
+    public string ConceptArtSubtype
+    {
+        get => _conceptArtSubtype;
+        set
+        {
+            if (!SetStandardLaneSelectorAndRefresh(ref _conceptArtSubtype, value, SharedLaneKeys.ConceptArt.LaneId, SharedLaneKeys.StyleSelector))
+            {
+                return;
+            }
+
+            SyncConceptArtSliderSuppressions();
+        }
+    }
     public bool ConceptArtDesignCallouts { get => _conceptArtDesignCallouts; set => SetStandardLaneModifierAndRefresh(ref _conceptArtDesignCallouts, value, SharedLaneKeys.ConceptArt.LaneId, SharedLaneKeys.ConceptArt.DesignCallouts); }
     public bool ConceptArtTurnaroundReadability { get => _conceptArtTurnaroundReadability; set => SetStandardLaneModifierAndRefresh(ref _conceptArtTurnaroundReadability, value, SharedLaneKeys.ConceptArt.LaneId, SharedLaneKeys.ConceptArt.TurnaroundReadability); }
     public bool ConceptArtMaterialBreakdown { get => _conceptArtMaterialBreakdown; set => SetStandardLaneModifierAndRefresh(ref _conceptArtMaterialBreakdown, value, SharedLaneKeys.ConceptArt.LaneId, SharedLaneKeys.ConceptArt.MaterialBreakdown); }
@@ -978,6 +979,32 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public string GraphicDesignType { get => _graphicDesignType; set => SetStandardLaneSelectorAndRefresh(ref _graphicDesignType, value, SharedLaneKeys.GraphicDesign.LaneId, SharedLaneKeys.GraphicDesign.TypeSelector); }
     public bool GraphicDesignMinimalLayout { get => _graphicDesignMinimalLayout; set => SetGraphicDesignModifierAndRefresh(ref _graphicDesignMinimalLayout, value, SharedLaneKeys.GraphicDesign.MinimalLayout); }
     public bool GraphicDesignBoldHierarchy { get => _graphicDesignBoldHierarchy; set => SetGraphicDesignModifierAndRefresh(ref _graphicDesignBoldHierarchy, value, SharedLaneKeys.GraphicDesign.BoldHierarchy); }
+    public string InfographicDataVisualizationSubdomain
+    {
+        get => _infographicDataVisualizationSubdomain;
+        set
+        {
+            if (SetStandardLaneSelectorAndRefresh(ref _infographicDataVisualizationSubdomain, value, SharedLaneKeys.InfographicDataVisualization.LaneId, SharedLaneKeys.InfographicDataVisualization.SubdomainSelector))
+            {
+                OnPropertyChanged(nameof(IsInfographicSubdomainActive));
+                OnPropertyChanged(nameof(IsDataVizSubdomainActive));
+                OnPropertyChanged(nameof(ShowInfographicModeGroup));
+                OnPropertyChanged(nameof(ShowDataVizModeGroup));
+                if (!_isApplyingConfiguration)
+                {
+                    EnsureInfographicDataVisualizationModeDefaults();
+                    SyncInfographicDataVisualizationSliderSuppressions();
+                    RegeneratePrompt();
+                }
+            }
+        }
+    }
+    public bool InfographicModeLeanExplainer { get => _infographicModeLeanExplainer; set => SetInfographicMode(ref _infographicModeLeanExplainer, value, SharedLaneKeys.InfographicDataVisualization.LeanExplainer); }
+    public bool InfographicModePublicPoster { get => _infographicModePublicPoster; set => SetInfographicMode(ref _infographicModePublicPoster, value, SharedLaneKeys.InfographicDataVisualization.PublicPoster); }
+    public bool InfographicModeReferenceSheet { get => _infographicModeReferenceSheet; set => SetInfographicMode(ref _infographicModeReferenceSheet, value, SharedLaneKeys.InfographicDataVisualization.ReferenceSheet); }
+    public bool DataVizModeChartPurity { get => _dataVizModeChartPurity; set => SetDataVizMode(ref _dataVizModeChartPurity, value, SharedLaneKeys.InfographicDataVisualization.ChartPurity); }
+    public bool DataVizModeDashboard { get => _dataVizModeDashboard; set => SetDataVizMode(ref _dataVizModeDashboard, value, SharedLaneKeys.InfographicDataVisualization.Dashboard); }
+    public bool DataVizModeReportGraphic { get => _dataVizModeReportGraphic; set => SetDataVizMode(ref _dataVizModeReportGraphic, value, SharedLaneKeys.InfographicDataVisualization.ReportGraphic); }
     public string PhotographyType { get => _photographyType; set => SetStandardLaneSelectorAndRefresh(ref _photographyType, value, SharedLaneKeys.Photography.LaneId, SharedLaneKeys.Photography.TypeSelector); }
     public string PhotographyEra { get => _photographyEra; set => SetStandardLaneSelectorAndRefresh(ref _photographyEra, value, SharedLaneKeys.Photography.LaneId, SharedLaneKeys.Photography.EraSelector); }
     public bool PhotographyCandidCapture { get => _photographyCandidCapture; set => SetStandardLaneModifierAndRefresh(ref _photographyCandidCapture, value, SharedLaneKeys.Photography.LaneId, nameof(PromptConfiguration.PhotographyCandidCapture)); }
@@ -1106,7 +1133,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             }
         }
     }
-    public bool CanUseCompressionControls => !IsVintageBendLocked && IntentModeCatalog.TryGet(IntentMode, out _);
+    public bool CanUseCompressionControls => !IsLockedLaneActive && IntentModeCatalog.TryGet(IntentMode, out _);
     public bool CompressPromptSemantics
     {
         get => _compressPromptSemantics;
@@ -1122,8 +1149,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         get => _trimRepeatedLongWords;
         set => SetCompressionTier3(value);
     }
+    public bool SemanticPairInteractions
+    {
+        get => _semanticPairInteractions;
+        set => SetAndRefresh(ref _semanticPairInteractions, value);
+    }
     public bool ShowCompressionTierTwo => CanUseCompressionControls && CompressPromptSemantics;
     public bool ShowCompressionTierThree => CanUseCompressionControls && CompressPromptSemantics && ReduceRepeatedLaneWords;
+    public bool ShowLaneHelpFooter => LaneHelpTooltipCatalog.TryGet(IntentMode, out _);
+    public bool HasLaneHelpTooltip => ShowLaneHelpFooter;
+    public string LaneHelpFooterPrefix => ShowLaneHelpFooter ? LaneHelpTooltipCatalog.FooterContactPrefixText : string.Empty;
+    public string LaneHelpFooterEmail => ShowLaneHelpFooter ? LaneHelpTooltipCatalog.ContactEmail : string.Empty;
+    public string LaneHelpPrinciple => LaneHelpTooltipCatalog.TryGet(IntentMode, out var content) ? content.Principle : string.Empty;
+    public string LaneHelpWeak => LaneHelpTooltipCatalog.TryGet(IntentMode, out var content) ? content.Weak : string.Empty;
+    public string LaneHelpStronger => LaneHelpTooltipCatalog.TryGet(IntentMode, out var content) ? content.Stronger : string.Empty;
     public bool AvoidClutter { get => _avoidClutter; set => SetAndRefresh(ref _avoidClutter, value); }
     public bool AvoidMuddyLighting { get => _avoidMuddyLighting; set => SetAndRefresh(ref _avoidMuddyLighting, value); }
     public bool AvoidDistortedAnatomy { get => _avoidDistortedAnatomy; set => SetAndRefresh(ref _avoidDistortedAnatomy, value); }
@@ -1146,22 +1185,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             }
         }
     }
-    public bool IsUnlocked => _licenseService.IsUnlocked;
-    public bool IsDemoMode => DemoModeOptions.IsDemoMode && !IsUnlocked;
-    public bool IsDemoExpired => IsDemoMode && RemainingDemoCopies <= 0;
-    public bool HasLockedLaneAccess => _hasLockedLaneAccess;
-    public bool IsVintageBendLocked => TryGetLockedLaneUnlockPresetName(IntentMode, out _) && !HasLockedLaneAccess;
-    public bool ShowDemoModeBanner => IsDemoMode;
-    public bool ShowInteractivePromptPreview => !IsDemoMode && !IsDemoExpired && !IsVintageBendLocked;
-    public bool ShowDemoPromptPreview => IsDemoMode && !IsDemoExpired && !IsVintageBendLocked;
-    public bool ShowAuthoringWorkspace => !IsDemoExpired;
-    public bool ShowDemoExpiredLockScreen => IsDemoExpired;
-    public bool ShowVintageBendAuthoringSections => !IsVintageBendLocked;
-    public bool ShowVintageBendLockedPane => IsVintageBendLocked && !IsDemoExpired;
-    public string VintageBendLockedHeadline => "Locked.";
-    public string VintageBendLockedBody => string.Empty;
+    public string LockedLaneHeadline => "Locked.";
+    public string LockedLaneBody => string.Empty;
+    public string VintageBendLockedHeadline => LockedLaneHeadline;
+    public string VintageBendLockedBody => LockedLaneBody;
     public int MaxDemoCopies => DemoModeOptions.MaxDemoCopies;
-    public string VersionButtonText => IsDemoMode ? "Unlock Full Version" : "Version Info";
     public int RemainingDemoCopies
     {
         get => _remainingDemoCopies;
@@ -1170,6 +1198,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             if (SetProperty(ref _remainingDemoCopies, value))
             {
                 OnPropertyChanged(nameof(IsDemoExpired));
+                OnPropertyChanged(nameof(IsLockedLaneActive));
                 OnPropertyChanged(nameof(IsVintageBendLocked));
                 OnPropertyChanged(nameof(DemoModeHeadline));
                 OnPropertyChanged(nameof(CopyPromptRemainingText));
@@ -1178,36 +1207,65 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 OnPropertyChanged(nameof(ShowDemoPromptPreview));
                 OnPropertyChanged(nameof(ShowAuthoringWorkspace));
                 OnPropertyChanged(nameof(ShowDemoExpiredLockScreen));
+                OnPropertyChanged(nameof(ShowLockedLaneAuthoringSections));
                 OnPropertyChanged(nameof(ShowVintageBendAuthoringSections));
+                OnPropertyChanged(nameof(ShowLockedLanePane));
                 OnPropertyChanged(nameof(ShowVintageBendLockedPane));
+                OnPropertyChanged(nameof(ShowCompactCinematicPanel));
                 OnPropertyChanged(nameof(ShowActiveStandardLanePanel));
+                OnPropertyChanged(nameof(ShowResolvedStandardLanePanel));
                 RaiseCopyCommandCanExecuteChanged();
             }
         }
     }
-    public string DemoModeHeadline => RemainingDemoCopies > 0
-        ? $"Demo mode: {RemainingDemoCopies} of {MaxDemoCopies} exports remaining"
-        : "Demo mode: export limit reached";
-    public string CopyPromptRemainingText => RemainingDemoCopies > 0
-        ? $"{RemainingDemoCopies} of {MaxDemoCopies} left"
-        : "No exports left";
-    public string DemoModeBody => RemainingDemoCopies > 0
-        ? "Preview stays readable, but export is limited to the copy buttons."
-        : "Demo access has expired. Unlock the full version to restore prompt output and authoring controls.";
-    public bool ShowNegativePrompt => UseNegativePrompt && !IsDemoExpired && !IsVintageBendLocked;
     public bool IsCustomIntent => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase);
     public bool ShowCustomRandomizeControls => string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase);
     public bool ExcludeArtistSlidersFromRandomize { get => _excludeArtistSlidersFromRandomize; set => SetProperty(ref _excludeArtistSlidersFromRandomize, value); }
-    public bool ShowManualIntentControls => !IsVintageBendLocked && (string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase) || LaneRegistry.TryGetByIntentName(IntentMode, out _) || IsExperimentalManualAdvancedMode);
-    public bool ShowLegacyManualCompositionCard => !IsVintageBendLocked && (IsCustomIntent || IsExperimentalManualAdvancedMode);
+    public bool ShowManualIntentControls => !IsLockedLaneActive && (string.Equals(IntentMode, "Custom", StringComparison.OrdinalIgnoreCase) || LaneRegistry.TryGetByIntentName(IntentMode, out _) || IsExperimentalManualAdvancedMode);
+    public bool ShowLegacyManualCompositionCard => !IsLockedLaneActive && (IsCustomIntent || IsExperimentalManualAdvancedMode);
     public bool ShowEmbeddedLaneCompositionCard => ShowManualIntentControls && !IsCustomIntent && !IsExperimentalIntent;
     public bool ShowManualNegativeConstraints => ShowManualIntentControls && UseNegativePrompt;
     public bool IsAnimeIntent => IntentModeCatalog.IsAnime(IntentMode);
+    private bool IsAnimeCompactPresentationActive => IsAnimeIntent && (IsCompactPresentationMode || AnimeCompactPanelEnabled);
+    private bool IsComicBookCompactPresentationActive => IsComicBookIntent && IsCompactPresentationMode;
+    private bool IsCinematicCompactPresentationActive => IsCinematicIntent && IsCompactPresentationMode;
+    private bool IsWatercolorCompactPresentationActive => IsWatercolorIntent && IsCompactPresentationMode;
+    private bool IsChildrensBookCompactPresentationActive => IsChildrensBookIntent && IsCompactPresentationMode;
+    private bool IsThreeDRenderCompactPresentationActive => IsThreeDRenderIntent && IsCompactPresentationMode;
+    private bool IsArchitectureArchvizCompactPresentationActive => IsArchitectureArchvizIntent && IsCompactPresentationMode;
+    private bool IsTattooArtCompactPresentationActive => IsTattooArtIntent && IsCompactPresentationMode;
+    private bool IsCompactManualPresentationActive => IsAnimeCompactPresentationActive || IsComicBookCompactPresentationActive || IsCinematicCompactPresentationActive || IsWatercolorCompactPresentationActive || IsChildrensBookCompactPresentationActive || IsThreeDRenderCompactPresentationActive || IsArchitectureArchvizCompactPresentationActive || IsTattooArtCompactPresentationActive;
+    public bool ShowStandardManualStyleControlsCard => ShowManualIntentControls && !IsCompactManualPresentationActive;
+    public bool ShowCompactAnimeManualStyleControlsCard => ShowManualIntentControls && IsAnimeCompactPresentationActive;
+    public bool ShowCompactComicBookManualStack => ShowManualIntentControls && IsComicBookCompactPresentationActive;
+    public bool ShowCompactCinematicManualStack => ShowManualIntentControls && IsCinematicCompactPresentationActive;
+    public bool ShowCompactWatercolorManualStack => ShowManualIntentControls && IsWatercolorCompactPresentationActive;
+    public bool ShowCompactChildrensBookManualStack => ShowManualIntentControls && IsChildrensBookCompactPresentationActive;
+    public bool ShowCompactThreeDRenderManualStack => ShowManualIntentControls && IsThreeDRenderCompactPresentationActive;
+    public bool ShowCompactArchitectureArchvizManualStack => ShowManualIntentControls && IsArchitectureArchvizCompactPresentationActive;
+    public bool ShowCompactTattooArtManualStack => ShowManualIntentControls && IsTattooArtCompactPresentationActive;
+    public bool ShowStandardManualMoodCard => ShowManualIntentControls && !IsCompactManualPresentationActive;
+    public bool ShowCompactAnimeManualMoodCard => ShowManualIntentControls && IsAnimeCompactPresentationActive;
+    public bool ShowStandardManualLightingAndColorCard => ShowManualIntentControls && !IsCompactManualPresentationActive;
+    public bool ShowCompactAnimeManualLightingAndColorCard => ShowManualIntentControls && IsAnimeCompactPresentationActive;
+    public bool ShowStandardManualImageFinishCard => ShowManualIntentControls && !IsCompactManualPresentationActive;
+    public bool ShowCompactAnimeManualImageFinishCard => ShowManualIntentControls && IsAnimeCompactPresentationActive;
+    public bool ShowStandardManualOutputCard => ShowManualIntentControls && !IsCompactManualPresentationActive;
+    public bool ShowCompactAnimeManualOutputCard => ShowManualIntentControls && IsAnimeCompactPresentationActive;
     public bool ShowAnimeModifierPanel => IsAnimeIntent;
+    public bool ShowStandardAnimePanel => IsAnimeIntent && !IsAnimeCompactPresentationActive;
+    public bool ShowCompactAnimePanel => IsAnimeCompactPresentationActive;
+    public bool ShowSubjectContextFields => !IsCompactManualPresentationActive;
     public bool IsChildrensBookIntent => IntentModeCatalog.IsChildrensBook(IntentMode);
     public bool IsComicBookIntent => IntentModeCatalog.IsComicBook(IntentMode);
     public bool ShowComicBookModifierPanel => IsComicBookIntent;
     public bool IsCinematicIntent => IntentModeCatalog.IsCinematic(IntentMode);
+    public bool ShowCompactCinematicPanel => !IsDemoExpired && !IsLockedLaneActive && IsCinematicCompactPresentationActive && ActiveStandardLanePanel is not null;
+    public bool ShowCompactWatercolorPanel => !IsDemoExpired && !IsLockedLaneActive && IsWatercolorCompactPresentationActive && ActiveStandardLanePanel is not null;
+    public bool ShowCompactChildrensBookPanel => !IsDemoExpired && !IsLockedLaneActive && IsChildrensBookCompactPresentationActive && ActiveStandardLanePanel is not null;
+    public bool ShowCompactThreeDRenderPanel => !IsDemoExpired && !IsLockedLaneActive && IsThreeDRenderCompactPresentationActive && ActiveStandardLanePanel is not null;
+    public bool ShowCompactTattooArtPanel => !IsDemoExpired && !IsLockedLaneActive && IsTattooArtCompactPresentationActive && ActiveStandardLanePanel is not null;
+    public bool ShowResolvedStandardLanePanel => ShowActiveStandardLanePanel && !IsTattooArtCompactPresentationActive;
     public bool IsPhotographyIntent => IntentModeCatalog.IsPhotography(IntentMode);
     public bool IsProductPhotographyIntent => IntentModeCatalog.IsProductPhotography(IntentMode);
     public bool IsFoodPhotographyIntent => IntentModeCatalog.IsFoodPhotography(IntentMode);
@@ -1219,12 +1277,15 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public bool IsFantasyIllustrationIntent => IntentModeCatalog.IsFantasyIllustration(IntentMode);
     public bool IsEditorialIllustrationIntent => IntentModeCatalog.IsEditorialIllustration(IntentMode);
     public bool IsGraphicDesignIntent => IntentModeCatalog.IsGraphicDesign(IntentMode);
+    public bool IsInfographicDataVisualizationIntent => IntentModeCatalog.IsInfographicDataVisualization(IntentMode);
     public bool IsTattooArtIntent => IntentModeCatalog.IsTattooArt(IntentMode);
     public bool IsWatercolorIntent => IntentModeCatalog.IsWatercolor(IntentMode);
     public bool IsVintageBendIntent => IntentModeCatalog.IsVintageBend(IntentMode);
-    public bool ShowVintageBendModifierPanel => IsVintageBendIntent && !IsVintageBendLocked;
-    public StandardLanePanelViewModel? ActiveStandardLanePanel => _sharedLanePanels.TryGetValue(IntentMode, out var panel) ? panel : null;
-    public bool ShowActiveStandardLanePanel => !IsDemoExpired && !IsVintageBendLocked && ActiveStandardLanePanel is not null;
+    public bool ShowVintageBendModifierPanel => IsVintageBendIntent && !IsLockedLaneActive;
+    public bool IsInfographicSubdomainActive => IsInfographicDataVisualizationIntent && string.Equals(InfographicDataVisualizationSubdomain, SharedLaneKeys.InfographicDataVisualization.Infographic, StringComparison.Ordinal);
+    public bool IsDataVizSubdomainActive => IsInfographicDataVisualizationIntent && string.Equals(InfographicDataVisualizationSubdomain, SharedLaneKeys.InfographicDataVisualization.DataViz, StringComparison.Ordinal);
+    public bool ShowInfographicModeGroup => !IsDemoExpired && !IsLockedLaneActive && IsInfographicSubdomainActive;
+    public bool ShowDataVizModeGroup => !IsDemoExpired && !IsLockedLaneActive && IsDataVizSubdomainActive;
     public string IntentModeSummary => BuildIntentModeSummary();
     public bool VintageBendEasternBlocGdr { get => _vintageBendEasternBlocGdr; set => SetAndRefresh(ref _vintageBendEasternBlocGdr, value); }
     public bool VintageBendThrillerUndertone { get => _vintageBendThrillerUndertone; set => SetAndRefresh(ref _vintageBendThrillerUndertone, value); }
@@ -1305,7 +1366,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public string ContrastHelper => GetSliderHelper("Contrast", Contrast);
     public string ContrastValueText => GetSliderBandLabel("Contrast", Contrast);
     public string ContrastGuideText => GetSliderBandGuide("Contrast");
-    public bool ShowArtistBlendSummary => !IsVintageBendLocked && (HasActiveArtist(ArtistInfluencePrimary, InfluenceStrengthPrimary) || HasActiveArtist(ArtistInfluenceSecondary, InfluenceStrengthSecondary));
+    public bool ShowArtistBlendSummary => !IsLockedLaneActive && (HasActiveArtist(ArtistInfluencePrimary, InfluenceStrengthPrimary) || HasActiveArtist(ArtistInfluenceSecondary, InfluenceStrengthSecondary));
     public string ArtistBlendSummaryTitle => BuildArtistBlendSummaryTitle();
     public string ArtistBlendSummaryBody => BuildArtistBlendSummaryBody();
     public string CompositionDriver => BuildContributionValue(ContributionArea.Composition);
@@ -1314,30 +1375,38 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public string MoodDriver => BuildContributionValue(ContributionArea.Mood);
     public string PromptPreview { get => _promptPreview; private set => SetProperty(ref _promptPreview, value); }
     public string NegativePromptPreview { get => _negativePromptPreview; private set => SetProperty(ref _negativePromptPreview, value); }
-    public string PresetName { get => _presetName; set => SetProperty(ref _presetName, value); }
-    public string? SelectedPresetName { get => _selectedPresetName; set { if (SetProperty(ref _selectedPresetName, value) && !string.IsNullOrWhiteSpace(value)) PresetName = value; } }
     public string StatusMessage { get => _statusMessage; private set => SetProperty(ref _statusMessage, value); }
 
     public void RefreshLicenseState()
     {
         _licenseService.Refresh();
+        UpdateLockedLaneAccessState();
         OnPropertyChanged(nameof(IsUnlocked));
         OnPropertyChanged(nameof(IsDemoMode));
         OnPropertyChanged(nameof(IsDemoExpired));
+        OnPropertyChanged(nameof(IsLockedLaneActive));
         OnPropertyChanged(nameof(IsVintageBendLocked));
         OnPropertyChanged(nameof(ShowDemoModeBanner));
         OnPropertyChanged(nameof(ShowInteractivePromptPreview));
         OnPropertyChanged(nameof(ShowDemoPromptPreview));
         OnPropertyChanged(nameof(ShowAuthoringWorkspace));
         OnPropertyChanged(nameof(ShowDemoExpiredLockScreen));
+        OnPropertyChanged(nameof(ShowLockedLaneAuthoringSections));
         OnPropertyChanged(nameof(ShowVintageBendAuthoringSections));
+        OnPropertyChanged(nameof(ShowLockedLanePane));
         OnPropertyChanged(nameof(ShowVintageBendLockedPane));
         OnPropertyChanged(nameof(VersionButtonText));
         OnPropertyChanged(nameof(DemoModeHeadline));
         OnPropertyChanged(nameof(CopyPromptRemainingText));
         OnPropertyChanged(nameof(DemoModeBody));
         OnPropertyChanged(nameof(ShowNegativePrompt));
+        OnPropertyChanged(nameof(ShowCompactCinematicPanel));
+        OnPropertyChanged(nameof(ShowCompactWatercolorPanel));
+        OnPropertyChanged(nameof(ShowCompactChildrensBookPanel));
+        OnPropertyChanged(nameof(ShowCompactThreeDRenderPanel));
+        OnPropertyChanged(nameof(ShowCompactTattooArtPanel));
         OnPropertyChanged(nameof(ShowActiveStandardLanePanel));
+        OnPropertyChanged(nameof(ShowResolvedStandardLanePanel));
         RaiseCopyCommandCanExecuteChanged();
         RegeneratePrompt();
     }
@@ -1499,9 +1568,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             _fantasyIllustrationAppliedSliderSuppressions.Clear();
             _editorialIllustrationAppliedSliderSuppressions.Clear();
             _graphicDesignAppliedSliderSuppressions.Clear();
+            _infographicAppliedSliderSuppressions.Clear();
+            _dataVizAppliedSliderSuppressions.Clear();
+            _conceptArtAppliedSliderSuppressions.Clear();
+            SyncConceptArtSliderSuppressions();
             SyncFantasyIllustrationSliderSuppressions();
             SyncEditorialIllustrationSliderSuppressions();
             SyncGraphicDesignSliderSuppressions();
+            SyncInfographicDataVisualizationSliderSuppressions();
         }
         finally
         {
@@ -1514,6 +1588,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private void ApplyPhotographyIntentDefaults()
     {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.PhotographyName);
+        if (lane is null)
+        {
+            return;
+        }
+
         var wasApplyingConfiguration = _isApplyingConfiguration;
         _isApplyingConfiguration = true;
         try
@@ -1529,29 +1609,34 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             PhotographyEnvironmentalPortraitContext = false;
             PhotographyFilmAnalogCharacter = false;
 
-            Stylization = 34;
-            Realism = 72;
-            TextureDepth = 46;
-            NarrativeDensity = 44;
-            Symbolism = 24;
-            SurfaceAge = 18;
-            Framing = 48;
-            CameraDistance = 46;
-            CameraAngle = 46;
-            BackgroundComplexity = 50;
-            MotionEnergy = 32;
-            AtmosphericDepth = 47;
-            Chaos = 18;
-            Whimsy = 18;
-            Tension = 28;
-            Awe = 28;
-            Temperature = 50;
-            LightingIntensity = 50;
-            Saturation = 48;
-            Contrast = 52;
-            FocusDepth = 48;
-            ImageCleanliness = 47;
-            DetailDensity = 46;
+            ApplyLanePromptDefaults(lane.Defaults);
+        }
+        finally
+        {
+            _isApplyingConfiguration = wasApplyingConfiguration;
+        }
+    }
+
+    private void ApplyVintageBendIntentDefaults()
+    {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.VintageBendName);
+        if (lane is null)
+        {
+            return;
+        }
+
+        var wasApplyingConfiguration = _isApplyingConfiguration;
+        _isApplyingConfiguration = true;
+        try
+        {
+            VintageBendEasternBlocGdr = false;
+            VintageBendThrillerUndertone = false;
+            VintageBendInstitutionalAusterity = false;
+            VintageBendSurveillanceStateAtmosphere = false;
+            VintageBendPeriodArtifacts = false;
+            VintageBendUrbanCivilian = false;
+
+            ApplyLanePromptDefaults(lane.Defaults);
         }
         finally
         {
@@ -1561,6 +1646,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private void ApplyProductPhotographyIntentDefaults()
     {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.ProductPhotographyName);
+        if (lane is null)
+        {
+            return;
+        }
+
         var wasApplyingConfiguration = _isApplyingConfiguration;
         _isApplyingConfiguration = true;
         try
@@ -1574,29 +1665,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             ProductPhotographyBrandProps = false;
             ProductPhotographyGroupedVariants = false;
 
-            Stylization = 28;
-            Realism = 84;
-            TextureDepth = 58;
-            NarrativeDensity = 16;
-            Symbolism = 8;
-            AtmosphericDepth = 26;
-            SurfaceAge = 6;
-            Chaos = 8;
-            Framing = 48;
-            CameraDistance = 42;
-            CameraAngle = 46;
-            BackgroundComplexity = 18;
-            MotionEnergy = 6;
-            FocusDepth = 52;
-            ImageCleanliness = 88;
-            DetailDensity = 74;
-            Whimsy = 4;
-            Tension = 8;
-            Awe = 18;
-            LightingIntensity = 72;
-            Saturation = 54;
-            Contrast = 58;
-            Lighting = "Dramatic studio light";
+            ApplyLanePromptDefaults(lane.Defaults);
         }
         finally
         {
@@ -1606,6 +1675,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private void ApplyFoodPhotographyIntentDefaults()
     {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.FoodPhotographyName);
+        if (lane is null)
+        {
+            return;
+        }
+
         var wasApplyingConfiguration = _isApplyingConfiguration;
         _isApplyingConfiguration = true;
         try
@@ -1618,29 +1693,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             FoodPhotographyIngredientScatter = false;
             FoodPhotographyCondensationEmphasis = false;
 
-            Stylization = 18;
-            Realism = 92;
-            TextureDepth = 68;
-            NarrativeDensity = 10;
-            Symbolism = 0;
-            AtmosphericDepth = 14;
-            SurfaceAge = 2;
-            Chaos = 6;
-            Framing = 48;
-            CameraDistance = 34;
-            CameraAngle = 42;
-            BackgroundComplexity = 14;
-            MotionEnergy = 2;
-            FocusDepth = 42;
-            ImageCleanliness = 92;
-            DetailDensity = 80;
-            Whimsy = 0;
-            Tension = 0;
-            Awe = 10;
-            LightingIntensity = 66;
-            Saturation = 56;
-            Contrast = 58;
-            Lighting = "Soft daylight";
+            ApplyLanePromptDefaults(lane.Defaults);
         }
         finally
         {
@@ -1650,6 +1703,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private void ApplyLifestyleAdvertisingPhotographyIntentDefaults()
     {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.LifestyleAdvertisingPhotographyName);
+        if (lane is null)
+        {
+            return;
+        }
+
         var wasApplyingConfiguration = _isApplyingConfiguration;
         _isApplyingConfiguration = true;
         try
@@ -1662,29 +1721,180 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             LifestyleAdvertisingSunlitOptimism = false;
             LifestyleAdvertisingMotionCandidness = false;
 
-            Stylization = 24;
-            Realism = 84;
-            TextureDepth = 42;
-            NarrativeDensity = 34;
-            Symbolism = 6;
-            AtmosphericDepth = 18;
-            SurfaceAge = 8;
-            Chaos = 10;
-            Framing = 54;
-            CameraDistance = 48;
-            CameraAngle = 46;
-            BackgroundComplexity = 36;
-            MotionEnergy = 26;
-            FocusDepth = 28;
-            ImageCleanliness = 82;
-            DetailDensity = 64;
-            Whimsy = 18;
-            Tension = 10;
-            Awe = 18;
-            LightingIntensity = 62;
-            Saturation = 54;
-            Contrast = 52;
-            Lighting = "Soft daylight";
+            ApplyLanePromptDefaults(lane.Defaults);
+        }
+        finally
+        {
+            _isApplyingConfiguration = wasApplyingConfiguration;
+        }
+    }
+
+    private void ApplyCinematicIntentDefaults()
+    {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.CinematicName);
+        if (lane is null)
+        {
+            return;
+        }
+
+        var wasApplyingConfiguration = _isApplyingConfiguration;
+        _isApplyingConfiguration = true;
+        try
+        {
+            CinematicSubtype = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.CinematicName, SharedLaneKeys.StyleSelector, SharedLaneKeys.Cinematic.DefaultSubtypeLabel);
+            CinematicLetterboxedFraming = false;
+            CinematicShallowDepthOfField = false;
+            CinematicPracticalLighting = false;
+            CinematicAtmosphericHaze = false;
+            CinematicFilmGrain = false;
+            CinematicAnamorphicFlares = false;
+            CinematicDramaticBacklight = false;
+
+            ApplyLanePromptDefaults(lane.Defaults);
+        }
+        finally
+        {
+            _isApplyingConfiguration = wasApplyingConfiguration;
+        }
+    }
+
+    private void ApplyThreeDRenderIntentDefaults()
+    {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.ThreeDRenderName);
+        if (lane is null)
+        {
+            return;
+        }
+
+        var wasApplyingConfiguration = _isApplyingConfiguration;
+        _isApplyingConfiguration = true;
+        try
+        {
+            ThreeDRenderSubtype = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.ThreeDRenderName, SharedLaneKeys.StyleSelector, SharedLaneKeys.ThreeDRender.DefaultSubtypeLabel);
+            ThreeDRenderGlobalIllumination = false;
+            ThreeDRenderVolumetricLighting = false;
+            ThreeDRenderRayTracedReflections = false;
+            ThreeDRenderDepthOfField = false;
+            ThreeDRenderSubsurfaceScattering = false;
+            ThreeDRenderHardSurfacePrecision = false;
+            ThreeDRenderStudioBackdrop = false;
+
+            ApplyLanePromptDefaults(lane.Defaults);
+        }
+        finally
+        {
+            _isApplyingConfiguration = wasApplyingConfiguration;
+        }
+    }
+
+    private void ApplyConceptArtIntentDefaults()
+    {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.ConceptArtName);
+        if (lane is null)
+        {
+            return;
+        }
+
+        var wasApplyingConfiguration = _isApplyingConfiguration;
+        _isApplyingConfiguration = true;
+        try
+        {
+            ConceptArtSubtype = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.ConceptArtName, SharedLaneKeys.StyleSelector, SharedLaneKeys.ConceptArt.DefaultSubtypeLabel);
+            ConceptArtDesignCallouts = false;
+            ConceptArtTurnaroundReadability = false;
+            ConceptArtMaterialBreakdown = false;
+            ConceptArtScaleReference = false;
+            ConceptArtWorldbuildingAccents = false;
+            ConceptArtProductionNotesFeel = false;
+            ConceptArtSilhouetteClarity = false;
+
+            ApplyLanePromptDefaults(lane.Defaults);
+        }
+        finally
+        {
+            _isApplyingConfiguration = wasApplyingConfiguration;
+        }
+    }
+
+    private void ApplyPixelArtIntentDefaults()
+    {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.PixelArtName);
+        if (lane is null)
+        {
+            return;
+        }
+
+        var wasApplyingConfiguration = _isApplyingConfiguration;
+        _isApplyingConfiguration = true;
+        try
+        {
+            PixelArtSubtype = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.PixelArtName, SharedLaneKeys.StyleSelector, SharedLaneKeys.PixelArt.DefaultSubtypeLabel);
+            PixelArtLimitedPalette = false;
+            PixelArtDithering = false;
+            PixelArtTileableDesign = false;
+            PixelArtSpriteSheetReadability = false;
+            PixelArtCleanOutline = false;
+            PixelArtSubpixelShading = false;
+            PixelArtHudUiFraming = false;
+
+            ApplyLanePromptDefaults(lane.Defaults);
+        }
+        finally
+        {
+            _isApplyingConfiguration = wasApplyingConfiguration;
+        }
+    }
+
+    private void ApplyWatercolorIntentDefaults()
+    {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.WatercolorName);
+        if (lane is null)
+        {
+            return;
+        }
+
+        var wasApplyingConfiguration = _isApplyingConfiguration;
+        _isApplyingConfiguration = true;
+        try
+        {
+            WatercolorStyle = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.WatercolorName, SharedLaneKeys.StyleSelector, SharedLaneKeys.Watercolor.DefaultSubtypeLabel);
+            WatercolorTransparentWashes = false;
+            WatercolorSoftBleeds = false;
+            WatercolorPaperTexture = false;
+            WatercolorInkAndWatercolor = false;
+            WatercolorAtmosphericWash = false;
+            WatercolorGouacheAccents = false;
+
+            ApplyLanePromptDefaults(lane.Defaults);
+        }
+        finally
+        {
+            _isApplyingConfiguration = wasApplyingConfiguration;
+        }
+    }
+
+    private void ApplyChildrensBookIntentDefaults()
+    {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.ChildrensBookName);
+        if (lane is null)
+        {
+            return;
+        }
+
+        var wasApplyingConfiguration = _isApplyingConfiguration;
+        _isApplyingConfiguration = true;
+        try
+        {
+            ChildrensBookStyle = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.ChildrensBookName, SharedLaneKeys.StyleSelector, SharedLaneKeys.ChildrensBook.DefaultSubtypeLabel);
+            ChildrensBookSoftColorPalette = false;
+            ChildrensBookTexturedPaper = false;
+            ChildrensBookInkLinework = false;
+            ChildrensBookExpressiveCharacters = false;
+            ChildrensBookMinimalBackground = false;
+            ChildrensBookDecorativeDetails = false;
+            ChildrensBookGentleLighting = false;
+
+            ApplyLanePromptDefaults(lane.Defaults);
         }
         finally
         {
@@ -1694,6 +1904,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private void ApplyArchitectureArchvizIntentDefaults()
     {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.ArchitectureArchvizName);
+        if (lane is null)
+        {
+            return;
+        }
+
         var wasApplyingConfiguration = _isApplyingConfiguration;
         _isApplyingConfiguration = true;
         try
@@ -1706,29 +1922,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             ArchitectureArchvizReflectiveSurfaceAccents = false;
             ArchitectureArchvizAmenityFocus = false;
 
-            Stylization = 26;
-            Realism = 88;
-            TextureDepth = 56;
-            NarrativeDensity = 14;
-            Symbolism = 4;
-            AtmosphericDepth = 48;
-            SurfaceAge = 6;
-            Chaos = 8;
-            Framing = 56;
-            CameraDistance = 62;
-            CameraAngle = 46;
-            BackgroundComplexity = 42;
-            MotionEnergy = 4;
-            FocusDepth = 82;
-            ImageCleanliness = 90;
-            DetailDensity = 76;
-            Whimsy = 2;
-            Tension = 4;
-            Awe = 24;
-            LightingIntensity = 68;
-            Saturation = 48;
-            Contrast = 54;
-            Lighting = "Soft daylight";
+            ApplyLanePromptDefaults(lane.Defaults);
         }
         finally
         {
@@ -1832,8 +2026,44 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private void ApplyInfographicDataVisualizationIntentDefaults()
+    {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.InfographicDataVisualizationName);
+        if (lane is null)
+        {
+            return;
+        }
+
+        var wasApplyingConfiguration = _isApplyingConfiguration;
+        _isApplyingConfiguration = true;
+        try
+        {
+            InfographicDataVisualizationSubdomain = LaneRegistry.GetDefaultSubtypeValue(
+                IntentModeCatalog.InfographicDataVisualizationName,
+                SharedLaneKeys.InfographicDataVisualization.SubdomainSelector,
+                SharedLaneKeys.InfographicDataVisualization.DefaultSubdomainLabel);
+            InfographicModeLeanExplainer = true;
+            InfographicModePublicPoster = false;
+            InfographicModeReferenceSheet = false;
+            DataVizModeChartPurity = true;
+            DataVizModeDashboard = false;
+            DataVizModeReportGraphic = false;
+            ApplyLanePromptDefaults(lane.Defaults);
+        }
+        finally
+        {
+            _isApplyingConfiguration = wasApplyingConfiguration;
+        }
+    }
+
     private void ApplyAnimeIntentDefaults()
     {
+        var lane = LaneRegistry.GetByIntentName(IntentModeCatalog.AnimeName);
+        if (lane is null)
+        {
+            return;
+        }
+
         var wasApplyingConfiguration = _isApplyingConfiguration;
         _isApplyingConfiguration = true;
         try
@@ -1847,29 +2077,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             AnimeCinematicLighting = false;
             AnimeStylizedHair = false;
             AnimeAtmosphericEffects = false;
+            AnimeCharacterLedStaging = false;
+            AnimeClearSilhouetteRead = false;
+            AnimeEmotionFirstExpression = false;
 
-            Stylization = 66;
-            Realism = 36;
-            TextureDepth = 24;
-            NarrativeDensity = 42;
-            Symbolism = 22;
-            SurfaceAge = 10;
-            Framing = 48;
-            Chaos = 18;
-            MotionEnergy = 48;
-            BackgroundComplexity = 38;
-            AtmosphericDepth = 40;
-            FocusDepth = 50;
-            ImageCleanliness = 78;
-            DetailDensity = 52;
-            Whimsy = 28;
-            Tension = 18;
-            Awe = 44;
-            Temperature = 50;
-            LightingIntensity = 58;
-            Saturation = 56;
-            Contrast = 58;
-            Lighting = "Soft glow";
+            ApplyLanePromptDefaults(lane.Defaults);
         }
         finally
         {
@@ -1972,80 +2184,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return changed;
     }
 
-    private StandardLanePanelViewModel BuildStandardLanePanel(string intentName)
-    {
-        var definition = LaneRegistry.GetByIntentName(intentName)
-            ?? throw new InvalidOperationException($"Lane definition for intent '{intentName}' was not found.");
-
-        var laneState = _ordinaryLaneStates.GetOrAddLane(definition.Id);
-        var laneStateViewModel = new StandardLaneStateViewModel(
-            laneState,
-            SetCompatibilityStringProperty,
-            SetCompatibilityBoolProperty);
-
-        return new StandardLanePanelViewModel(definition, laneStateViewModel);
-    }
-
-    private IReadOnlyDictionary<string, StandardLanePanelViewModel> BuildSharedLanePanels()
-    {
-        return new Dictionary<string, StandardLanePanelViewModel>(StringComparer.OrdinalIgnoreCase)
-        {
-            [IntentModeCatalog.CinematicName] = BuildStandardLanePanel(IntentModeCatalog.CinematicName),
-            [IntentModeCatalog.ChildrensBookName] = BuildStandardLanePanel(IntentModeCatalog.ChildrensBookName),
-            [IntentModeCatalog.ConceptArtName] = BuildStandardLanePanel(IntentModeCatalog.ConceptArtName),
-            [IntentModeCatalog.ArchitectureArchvizName] = BuildStandardLanePanel(IntentModeCatalog.ArchitectureArchvizName),
-            [IntentModeCatalog.FoodPhotographyName] = BuildStandardLanePanel(IntentModeCatalog.FoodPhotographyName),
-            [IntentModeCatalog.LifestyleAdvertisingPhotographyName] = BuildStandardLanePanel(IntentModeCatalog.LifestyleAdvertisingPhotographyName),
-            [IntentModeCatalog.PhotographyName] = BuildStandardLanePanel(IntentModeCatalog.PhotographyName),
-            [IntentModeCatalog.ProductPhotographyName] = BuildStandardLanePanel(IntentModeCatalog.ProductPhotographyName),
-            [IntentModeCatalog.PixelArtName] = BuildStandardLanePanel(IntentModeCatalog.PixelArtName),
-            [IntentModeCatalog.FantasyIllustrationName] = BuildStandardLanePanel(IntentModeCatalog.FantasyIllustrationName),
-            [IntentModeCatalog.EditorialIllustrationName] = BuildStandardLanePanel(IntentModeCatalog.EditorialIllustrationName),
-            [IntentModeCatalog.GraphicDesignName] = BuildStandardLanePanel(IntentModeCatalog.GraphicDesignName),
-            [IntentModeCatalog.TattooArtName] = BuildStandardLanePanel(IntentModeCatalog.TattooArtName),
-            [IntentModeCatalog.ThreeDRenderName] = BuildStandardLanePanel(IntentModeCatalog.ThreeDRenderName),
-            [IntentModeCatalog.WatercolorName] = BuildStandardLanePanel(IntentModeCatalog.WatercolorName),
-        };
-    }
-
-    private static ObservableCollection<string> BuildSubtypeCollection(string intentName, string selectorKey = SharedLaneKeys.StyleSelector)
-    {
-        return new ObservableCollection<string>(LaneRegistry.GetSubtypeLabels(intentName, selectorKey));
-    }
-
-    private void SetCompatibilityStringProperty(string propertyName, string value)
-    {
-        var property = GetType().GetProperty(propertyName)
-            ?? throw new InvalidOperationException($"View-model property '{propertyName}' was not found.");
-
-        property.SetValue(this, value);
-    }
-
-    private void SetCompatibilityBoolProperty(string propertyName, bool value)
-    {
-        var property = GetType().GetProperty(propertyName)
-            ?? throw new InvalidOperationException($"View-model property '{propertyName}' was not found.");
-
-        property.SetValue(this, value);
-    }
-
-    private void SyncStandardLanePanels()
-    {
-        SyncStandardLanePanelStates();
-        foreach (var panel in _sharedLanePanels.Values)
-        {
-            panel.SyncFromSource();
-        }
-    }
-
-    private void SyncStandardLanePanelStates()
-    {
-        foreach (var panel in _sharedLanePanels.Values)
-        {
-            panel.ReplaceState(_ordinaryLaneStates.GetOrAddLane(panel.LaneId));
-        }
-    }
-
     private bool SetStandardLaneSelectorAndRefresh(ref string field, string value, string laneId, string selectorKey)
     {
         var changed = SetAndRefresh(ref field, value);
@@ -2080,6 +2218,169 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
 
         return changed;
+    }
+
+    private bool SetInfographicMode(ref bool field, bool value, string modeKey, [CallerMemberName] string? propertyName = null)
+    {
+        if (!value && GetActiveInfographicModeCount() <= 1 && IsInfographicSubdomainActive)
+        {
+            return false;
+        }
+
+        if (!SetProperty(ref field, value, propertyName))
+        {
+            return false;
+        }
+
+        if (value)
+        {
+            if (!string.Equals(modeKey, SharedLaneKeys.InfographicDataVisualization.LeanExplainer, StringComparison.Ordinal))
+            {
+                SetProperty(ref _infographicModeLeanExplainer, false, nameof(InfographicModeLeanExplainer));
+            }
+
+            if (!string.Equals(modeKey, SharedLaneKeys.InfographicDataVisualization.PublicPoster, StringComparison.Ordinal))
+            {
+                SetProperty(ref _infographicModePublicPoster, false, nameof(InfographicModePublicPoster));
+            }
+
+            if (!string.Equals(modeKey, SharedLaneKeys.InfographicDataVisualization.ReferenceSheet, StringComparison.Ordinal))
+            {
+                SetProperty(ref _infographicModeReferenceSheet, false, nameof(InfographicModeReferenceSheet));
+            }
+        }
+        else
+        {
+            EnsureInfographicModeDefault();
+        }
+
+        if (!_isApplyingConfiguration)
+        {
+            SyncInfographicDataVisualizationSliderSuppressions();
+            RegeneratePrompt();
+        }
+        return true;
+    }
+
+    private bool SetDataVizMode(ref bool field, bool value, string modeKey, [CallerMemberName] string? propertyName = null)
+    {
+        if (!value && GetActiveDataVizModeCount() <= 1 && IsDataVizSubdomainActive)
+        {
+            return false;
+        }
+
+        if (!SetProperty(ref field, value, propertyName))
+        {
+            return false;
+        }
+
+        if (value)
+        {
+            if (!string.Equals(modeKey, SharedLaneKeys.InfographicDataVisualization.ChartPurity, StringComparison.Ordinal))
+            {
+                SetProperty(ref _dataVizModeChartPurity, false, nameof(DataVizModeChartPurity));
+            }
+
+            if (!string.Equals(modeKey, SharedLaneKeys.InfographicDataVisualization.Dashboard, StringComparison.Ordinal))
+            {
+                SetProperty(ref _dataVizModeDashboard, false, nameof(DataVizModeDashboard));
+            }
+
+            if (!string.Equals(modeKey, SharedLaneKeys.InfographicDataVisualization.ReportGraphic, StringComparison.Ordinal))
+            {
+                SetProperty(ref _dataVizModeReportGraphic, false, nameof(DataVizModeReportGraphic));
+            }
+        }
+        else
+        {
+            EnsureDataVizModeDefault();
+        }
+
+        if (!_isApplyingConfiguration)
+        {
+            SyncInfographicDataVisualizationSliderSuppressions();
+            RegeneratePrompt();
+        }
+        return true;
+    }
+
+    private int GetActiveInfographicModeCount()
+    {
+        var count = 0;
+        if (InfographicModeLeanExplainer) count++;
+        if (InfographicModePublicPoster) count++;
+        if (InfographicModeReferenceSheet) count++;
+        return count;
+    }
+
+    private int GetActiveDataVizModeCount()
+    {
+        var count = 0;
+        if (DataVizModeChartPurity) count++;
+        if (DataVizModeDashboard) count++;
+        if (DataVizModeReportGraphic) count++;
+        return count;
+    }
+
+    private void EnsureInfographicModeDefault()
+    {
+        if (InfographicModeLeanExplainer)
+        {
+            SetProperty(ref _infographicModePublicPoster, false, nameof(InfographicModePublicPoster));
+            SetProperty(ref _infographicModeReferenceSheet, false, nameof(InfographicModeReferenceSheet));
+            return;
+        }
+
+        if (InfographicModePublicPoster)
+        {
+            SetProperty(ref _infographicModeReferenceSheet, false, nameof(InfographicModeReferenceSheet));
+            return;
+        }
+
+        if (InfographicModeReferenceSheet)
+        {
+            return;
+        }
+
+        SetProperty(ref _infographicModeLeanExplainer, true, nameof(InfographicModeLeanExplainer));
+        SetProperty(ref _infographicModePublicPoster, false, nameof(InfographicModePublicPoster));
+        SetProperty(ref _infographicModeReferenceSheet, false, nameof(InfographicModeReferenceSheet));
+    }
+
+    private void EnsureDataVizModeDefault()
+    {
+        if (DataVizModeChartPurity)
+        {
+            SetProperty(ref _dataVizModeDashboard, false, nameof(DataVizModeDashboard));
+            SetProperty(ref _dataVizModeReportGraphic, false, nameof(DataVizModeReportGraphic));
+            return;
+        }
+
+        if (DataVizModeDashboard)
+        {
+            SetProperty(ref _dataVizModeReportGraphic, false, nameof(DataVizModeReportGraphic));
+            return;
+        }
+
+        if (DataVizModeReportGraphic)
+        {
+            return;
+        }
+
+        SetProperty(ref _dataVizModeChartPurity, true, nameof(DataVizModeChartPurity));
+        SetProperty(ref _dataVizModeDashboard, false, nameof(DataVizModeDashboard));
+        SetProperty(ref _dataVizModeReportGraphic, false, nameof(DataVizModeReportGraphic));
+    }
+
+    private void EnsureInfographicDataVisualizationModeDefaults()
+    {
+        if (string.Equals(InfographicDataVisualizationSubdomain, SharedLaneKeys.InfographicDataVisualization.DataViz, StringComparison.Ordinal))
+        {
+            EnsureDataVizModeDefault();
+            return;
+        }
+
+        EnsureInfographicModeDefault();
     }
 
     private bool SetFantasyIllustrationModifierAndRefresh(ref bool field, bool value, string modifierKey, [CallerMemberName] string? propertyName = null)
@@ -2226,139 +2527,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _ordinaryLaneStates.GetOrAddLane(SharedLaneKeys.FantasyIllustration.LaneId).SetModifier(modifierKey, false);
     }
 
-    private void SyncFantasyIllustrationSliderSuppressions()
-    {
-        var desiredSuppressions = FantasyIllustrationLane.Instance.GetSuppressedSliders(CaptureConfiguration());
-        if (IsFantasyIllustrationIntent || FantasyIllustrationCharacterSketch)
-        {
-            UiEventLog.Write(
-                $"fantasy-debug suppression-sync-start intent='{IntentMode}' register='{FantasyIllustrationRegister}' characterSketch={FantasyIllustrationCharacterSketch} desiredNarrative={desiredSuppressions.Contains(SliderLanguageCatalog.NarrativeDensity)} beforeNarrative={ExcludeNarrativeDensityFromPrompt} appliedBefore={_fantasyIllustrationAppliedSliderSuppressions.Contains(SliderLanguageCatalog.NarrativeDensity)}");
-        }
-
-        foreach (var sliderKey in FantasyIllustrationLane.Instance.GetSuppressibleSliderKeys())
-        {
-            if (desiredSuppressions.Contains(sliderKey))
-            {
-                if (!GetSliderExclusionFlag(sliderKey))
-                {
-                    SetSliderExclusionFlag(sliderKey, true);
-                    _fantasyIllustrationAppliedSliderSuppressions.Add(sliderKey);
-                }
-
-                continue;
-            }
-
-            if (_fantasyIllustrationAppliedSliderSuppressions.Remove(sliderKey) &&
-                GetSliderExclusionFlag(sliderKey))
-            {
-                SetSliderExclusionFlag(sliderKey, false);
-            }
-        }
-
-        if (IsFantasyIllustrationIntent || FantasyIllustrationCharacterSketch)
-        {
-            UiEventLog.Write(
-                $"fantasy-debug suppression-sync-complete intent='{IntentMode}' register='{FantasyIllustrationRegister}' characterSketch={FantasyIllustrationCharacterSketch} afterNarrative={ExcludeNarrativeDensityFromPrompt} appliedAfter={_fantasyIllustrationAppliedSliderSuppressions.Contains(SliderLanguageCatalog.NarrativeDensity)}");
-        }
-    }
-
-    private void SyncEditorialIllustrationSliderSuppressions()
-    {
-        var desiredSuppressions = EditorialIllustrationLane.Instance.GetSuppressedSliders(CaptureConfiguration());
-
-        foreach (var sliderKey in EditorialIllustrationLane.Instance.GetSuppressibleSliderKeys())
-        {
-            if (desiredSuppressions.Contains(sliderKey))
-            {
-                if (!GetSliderExclusionFlag(sliderKey))
-                {
-                    SetSliderExclusionFlag(sliderKey, true);
-                    _editorialIllustrationAppliedSliderSuppressions.Add(sliderKey);
-                }
-
-                continue;
-            }
-
-            if (_editorialIllustrationAppliedSliderSuppressions.Remove(sliderKey) &&
-                GetSliderExclusionFlag(sliderKey))
-            {
-                SetSliderExclusionFlag(sliderKey, false);
-            }
-        }
-    }
-
-    private void SyncGraphicDesignSliderSuppressions()
-    {
-        var desiredSuppressions = GraphicDesignLane.Instance.GetSuppressedSliders(CaptureConfiguration());
-
-        foreach (var sliderKey in GraphicDesignLane.Instance.GetSuppressibleSliderKeys())
-        {
-            if (desiredSuppressions.Contains(sliderKey))
-            {
-                if (!GetSliderExclusionFlag(sliderKey))
-                {
-                    SetSliderExclusionFlag(sliderKey, true);
-                    _graphicDesignAppliedSliderSuppressions.Add(sliderKey);
-                }
-
-                continue;
-            }
-
-            if (_graphicDesignAppliedSliderSuppressions.Remove(sliderKey) &&
-                GetSliderExclusionFlag(sliderKey))
-            {
-                SetSliderExclusionFlag(sliderKey, false);
-            }
-        }
-    }
-
-    private bool GetSliderExclusionFlag(string sliderKey)
-    {
-        return sliderKey switch
-        {
-            SliderLanguageCatalog.Temperature => ExcludeTemperatureFromPrompt,
-            SliderLanguageCatalog.BackgroundComplexity => ExcludeBackgroundComplexityFromPrompt,
-            SliderLanguageCatalog.AtmosphericDepth => ExcludeAtmosphericDepthFromPrompt,
-            SliderLanguageCatalog.NarrativeDensity => ExcludeNarrativeDensityFromPrompt,
-            SliderLanguageCatalog.DetailDensity => ExcludeDetailDensityFromPrompt,
-            SliderLanguageCatalog.Chaos => ExcludeChaosFromPrompt,
-            SliderLanguageCatalog.MotionEnergy => ExcludeMotionEnergyFromPrompt,
-            SliderLanguageCatalog.Saturation => ExcludeSaturationFromPrompt,
-            _ => false,
-        };
-    }
-
-    private void SetSliderExclusionFlag(string sliderKey, bool value)
-    {
-        switch (sliderKey)
-        {
-            case SliderLanguageCatalog.Temperature:
-                SetProperty(ref _excludeTemperatureFromPrompt, value, nameof(ExcludeTemperatureFromPrompt));
-                break;
-            case SliderLanguageCatalog.BackgroundComplexity:
-                SetProperty(ref _excludeBackgroundComplexityFromPrompt, value, nameof(ExcludeBackgroundComplexityFromPrompt));
-                break;
-            case SliderLanguageCatalog.AtmosphericDepth:
-                SetProperty(ref _excludeAtmosphericDepthFromPrompt, value, nameof(ExcludeAtmosphericDepthFromPrompt));
-                break;
-            case SliderLanguageCatalog.NarrativeDensity:
-                SetProperty(ref _excludeNarrativeDensityFromPrompt, value, nameof(ExcludeNarrativeDensityFromPrompt));
-                break;
-            case SliderLanguageCatalog.DetailDensity:
-                SetProperty(ref _excludeDetailDensityFromPrompt, value, nameof(ExcludeDetailDensityFromPrompt));
-                break;
-            case SliderLanguageCatalog.Chaos:
-                SetProperty(ref _excludeChaosFromPrompt, value, nameof(ExcludeChaosFromPrompt));
-                break;
-            case SliderLanguageCatalog.MotionEnergy:
-                SetProperty(ref _excludeMotionEnergyFromPrompt, value, nameof(ExcludeMotionEnergyFromPrompt));
-                break;
-            case SliderLanguageCatalog.Saturation:
-                SetProperty(ref _excludeSaturationFromPrompt, value, nameof(ExcludeSaturationFromPrompt));
-                break;
-        }
-    }
-
     private bool SetAnimeSelectorAndRefresh(ref string field, string value, string selectorKey)
     {
         var laneState = _ordinaryLaneStates.GetOrAddLane(SharedLaneKeys.Anime.LaneId);
@@ -2395,78 +2563,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         RegeneratePrompt();
     }
 
-    private void ApplyLanePromptDefaults(LanePromptDefaults defaults)
-    {
-        if (defaults.Temperature.HasValue) Temperature = defaults.Temperature.Value;
-        if (defaults.LightingIntensity.HasValue) LightingIntensity = defaults.LightingIntensity.Value;
-        if (defaults.Stylization.HasValue) Stylization = defaults.Stylization.Value;
-        if (defaults.Realism.HasValue) Realism = defaults.Realism.Value;
-        if (defaults.TextureDepth.HasValue) TextureDepth = defaults.TextureDepth.Value;
-        if (defaults.NarrativeDensity.HasValue) NarrativeDensity = defaults.NarrativeDensity.Value;
-        if (defaults.Symbolism.HasValue) Symbolism = defaults.Symbolism.Value;
-        if (defaults.AtmosphericDepth.HasValue) AtmosphericDepth = defaults.AtmosphericDepth.Value;
-        if (defaults.SurfaceAge.HasValue) SurfaceAge = defaults.SurfaceAge.Value;
-        if (defaults.Chaos.HasValue) Chaos = defaults.Chaos.Value;
-        if (defaults.Framing.HasValue) Framing = defaults.Framing.Value;
-        if (defaults.CameraDistance.HasValue) CameraDistance = defaults.CameraDistance.Value;
-        if (defaults.CameraAngle.HasValue) CameraAngle = defaults.CameraAngle.Value;
-        if (defaults.BackgroundComplexity.HasValue) BackgroundComplexity = defaults.BackgroundComplexity.Value;
-        if (defaults.MotionEnergy.HasValue) MotionEnergy = defaults.MotionEnergy.Value;
-        if (defaults.FocusDepth.HasValue) FocusDepth = defaults.FocusDepth.Value;
-        if (defaults.ImageCleanliness.HasValue) ImageCleanliness = defaults.ImageCleanliness.Value;
-        if (defaults.DetailDensity.HasValue) DetailDensity = defaults.DetailDensity.Value;
-        if (defaults.Whimsy.HasValue) Whimsy = defaults.Whimsy.Value;
-        if (defaults.Tension.HasValue) Tension = defaults.Tension.Value;
-        if (defaults.Awe.HasValue) Awe = defaults.Awe.Value;
-        if (defaults.Saturation.HasValue) Saturation = defaults.Saturation.Value;
-        if (defaults.Contrast.HasValue) Contrast = defaults.Contrast.Value;
-        if (!string.IsNullOrWhiteSpace(defaults.Lighting)) Lighting = defaults.Lighting;
-        if (!string.IsNullOrWhiteSpace(defaults.ArtStyle)) ArtStyle = defaults.ArtStyle;
-    }
-
-    private LanePromptDefaults CaptureCurrentSliderPositions()
-    {
-        return new LanePromptDefaults
-        {
-            Temperature = Temperature,
-            LightingIntensity = LightingIntensity,
-            Stylization = Stylization,
-            Realism = Realism,
-            TextureDepth = TextureDepth,
-            NarrativeDensity = NarrativeDensity,
-            Symbolism = Symbolism,
-            AtmosphericDepth = AtmosphericDepth,
-            SurfaceAge = SurfaceAge,
-            Chaos = Chaos,
-            Framing = Framing,
-            CameraDistance = CameraDistance,
-            CameraAngle = CameraAngle,
-            BackgroundComplexity = BackgroundComplexity,
-            MotionEnergy = MotionEnergy,
-            FocusDepth = FocusDepth,
-            ImageCleanliness = ImageCleanliness,
-            DetailDensity = DetailDensity,
-            Whimsy = Whimsy,
-            Tension = Tension,
-            Awe = Awe,
-            Saturation = Saturation,
-            Contrast = Contrast,
-        };
-    }
-
-    private void RestoreCurrentSliderPositions(LanePromptDefaults preservedSliderPositions)
-    {
-        var wasApplyingConfiguration = _isApplyingConfiguration;
-        _isApplyingConfiguration = true;
-        try
-        {
-            ApplyLanePromptDefaults(preservedSliderPositions);
-        }
-        finally
-        {
-            _isApplyingConfiguration = wasApplyingConfiguration;
-        }
-    }
 
     private bool SetAnimeModifierAndRefresh(ref bool field, bool value, string modifierKey)
     {
@@ -2513,26 +2609,19 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         if (IsDemoExpired)
         {
-            PromptPreview = string.Empty;
-            NegativePromptPreview = string.Empty;
-            SyncStandardLanePanels();
-            RaiseArtistBlendSummaryChanged();
-            RaiseCopyCommandCanExecuteChanged();
+            ApplyBlockedPromptPreviewState();
             return;
         }
 
-        if (IsVintageBendLocked)
+        if (IsLockedLaneActive)
         {
-            PromptPreview = string.Empty;
-            NegativePromptPreview = string.Empty;
-            SyncStandardLanePanels();
-            RaiseArtistBlendSummaryChanged();
-            RaiseCopyCommandCanExecuteChanged();
+            ApplyBlockedPromptPreviewState();
             return;
         }
 
-        var result = _promptBuilderService.Build(CaptureConfiguration());
-        PromptPreview = result.PositivePrompt;
+        var configuration = CaptureConfiguration();
+        var result = _promptBuilderService.Build(configuration);
+        PromptPreview = ApplySemanticPairCollapse(result.PositivePrompt, configuration);
         NegativePromptPreview = result.NegativePrompt;
         LogOverrideSliderDiagnostics(
             $"regenerate-final intent='{IntentMode}' override={OverrideDefaultSliderPositions} {FormatCurrentOverrideSliderState()} prompt='{FormatPromptPreviewForLog(PromptPreview)}'");
@@ -2550,112 +2639,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         RaiseCopyCommandCanExecuteChanged();
     }
 
-    private void OpenPrimaryArtistPhraseEditor()
+    private void ApplyBlockedPromptPreviewState()
     {
-        OpenArtistPhraseEditor(isPrimary: true);
-    }
-
-    private void OpenSecondaryArtistPhraseEditor()
-    {
-        OpenArtistPhraseEditor(isPrimary: false);
-    }
-
-    private void OpenArtistPhraseEditor(bool isPrimary)
-    {
-        if (!TryGetArtistPhraseSlotState(isPrimary, out var slotState))
-        {
-            StatusMessage = "Select an active artist influence before editing its phrase.";
-            return;
-        }
-
-        var parts = ArtistPhraseComposer.SplitPhrase(slotState.CurrentPhrase, slotState.DisplayName);
-        _isEditingPrimaryArtistPhrase = isPrimary;
-        OnPropertyChanged(nameof(ArtistPhraseEditorTitle));
-
-        ArtistPhraseEditorPrefix = parts.Prefix;
-        ArtistPhraseEditorArtistName = slotState.DisplayName;
-        ArtistPhraseEditorSuffix = parts.Suffix;
-        ArtistPhraseEditorGeneratedPhrase = slotState.GeneratedPhrase;
-        _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
-        _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
-        _artistPhraseEditorStructuredSuffixTrailingText = parts.Suffix;
-        ArtistPhraseQuickInsertGroups = ArtistPhraseQuickInsertService.BuildGroups(isPrimary, _currentArtistPairLookup);
-        IsArtistPhraseEditorOpen = true;
-    }
-
-    private void InsertArtistPhraseQuickInsert(object? parameter)
-    {
-        if (parameter is not ArtistPhraseQuickInsert insert)
-        {
-            return;
-        }
-
-        switch (insert.Target)
-        {
-            case ArtistPhraseInsertTarget.Prefix:
-                ArtistPhraseEditorPrefix = ArtistPhraseComposer.AppendFragment(string.Empty, insert.Fragment, ArtistPhraseInsertTarget.Prefix);
-                break;
-            case ArtistPhraseInsertTarget.Suffix:
-                if (!string.IsNullOrWhiteSpace(insert.RoleStem) && !string.IsNullOrWhiteSpace(insert.DomainLabel))
-                {
-                    _artistPhraseEditorStructuredSuffixGroups = ArtistPhraseComposer.AddStructuredSuffixInsert(
-                        _artistPhraseEditorStructuredSuffixGroups,
-                        insert.RoleStem,
-                        insert.DomainLabel);
-                    _artistPhraseEditorStructuredSuffixLastRendered = ArtistPhraseComposer.RenderStructuredSuffix(
-                        _artistPhraseEditorStructuredSuffixGroups,
-                        _artistPhraseEditorStructuredSuffixTrailingText);
-                    ArtistPhraseEditorSuffix = _artistPhraseEditorStructuredSuffixLastRendered;
-                }
-                else
-                {
-                    ArtistPhraseEditorSuffix = ArtistPhraseComposer.AppendFragment(ArtistPhraseEditorSuffix, insert.Fragment, ArtistPhraseInsertTarget.Suffix);
-                }
-                break;
-        }
-    }
-
-    private void SaveArtistPhraseEditor()
-    {
-        var normalizedPreview = ArtistPhraseEditorPreview;
-        var useGeneratedPhrase = string.Equals(
-            normalizedPreview,
-            ArtistPhraseEditorGeneratedPhrase,
-            StringComparison.OrdinalIgnoreCase);
-
-        if (_isEditingPrimaryArtistPhrase)
-        {
-            _primaryArtistPhraseOverride = useGeneratedPhrase
-                ? new ArtistPhraseOverride()
-                : new ArtistPhraseOverride
-                {
-                    IsEnabled = true,
-                    ArtistName = ArtistPhraseEditorArtistName,
-                    Prefix = ArtistPhraseEditorPrefix,
-                    Suffix = ArtistPhraseEditorSuffix,
-                };
-            StatusMessage = useGeneratedPhrase
-                ? "Primary artist phrase reset to generated."
-                : "Primary artist phrase updated.";
-        }
-        else
-        {
-            _secondaryArtistPhraseOverride = useGeneratedPhrase
-                ? new ArtistPhraseOverride()
-                : new ArtistPhraseOverride
-                {
-                    IsEnabled = true,
-                    ArtistName = ArtistPhraseEditorArtistName,
-                    Prefix = ArtistPhraseEditorPrefix,
-                    Suffix = ArtistPhraseEditorSuffix,
-                };
-            StatusMessage = useGeneratedPhrase
-                ? "Secondary artist phrase reset to generated."
-                : "Secondary artist phrase updated.";
-        }
-
-        IsArtistPhraseEditorOpen = false;
-        RegeneratePrompt();
+        PromptPreview = string.Empty;
+        NegativePromptPreview = string.Empty;
+        SyncStandardLanePanels();
+        RaiseArtistBlendSummaryChanged();
+        RaiseCopyCommandCanExecuteChanged();
     }
 
     private void SwapArtistInfluences()
@@ -2693,114 +2683,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         RegeneratePrompt();
         RefreshArtistPairGuidance();
         StatusMessage = "Primary and secondary artists swapped.";
-    }
-
-    private void ResetArtistPhraseEditorToGenerated()
-    {
-        if (!TryGetArtistPhraseSlotState(_isEditingPrimaryArtistPhrase, out var slotState))
-        {
-            return;
-        }
-
-        var parts = ArtistPhraseComposer.SplitPhrase(slotState.GeneratedPhrase, slotState.DisplayName);
-        ArtistPhraseEditorPrefix = parts.Prefix;
-        ArtistPhraseEditorArtistName = slotState.DisplayName;
-        ArtistPhraseEditorSuffix = parts.Suffix;
-        ArtistPhraseEditorGeneratedPhrase = slotState.GeneratedPhrase;
-        _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
-        _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
-        _artistPhraseEditorStructuredSuffixTrailingText = parts.Suffix;
-    }
-
-    private void CancelArtistPhraseEditor()
-    {
-        IsArtistPhraseEditorOpen = false;
-        ArtistPhraseQuickInsertGroups = Array.Empty<ArtistPhraseQuickInsertGroup>();
-        _artistPhraseEditorStructuredSuffixGroups = Array.Empty<ArtistPhraseSuffixRoleGroup>();
-        _artistPhraseEditorStructuredSuffixLastRendered = string.Empty;
-        _artistPhraseEditorStructuredSuffixTrailingText = string.Empty;
-    }
-
-    private bool TryGetArtistPhraseSlotState(bool isPrimary, out ArtistPhraseSlotState slotState)
-    {
-        var selectedArtist = isPrimary ? ArtistInfluencePrimary : ArtistInfluenceSecondary;
-        var strength = isPrimary ? InfluenceStrengthPrimary : InfluenceStrengthSecondary;
-        var phraseOverride = isPrimary ? _primaryArtistPhraseOverride : _secondaryArtistPhraseOverride;
-
-        if (!HasActiveArtist(selectedArtist, strength))
-        {
-            slotState = new ArtistPhraseSlotState(string.Empty, 0, string.Empty, string.Empty);
-            return false;
-        }
-
-        var profile = _artistProfileService.GetProfile(selectedArtist);
-        var displayName = profile?.Name ?? selectedArtist;
-        var generatedPhrase = ArtistPhraseComposer.BuildGeneratedPhrase(displayName, strength, profile is not null, IntentMode);
-        var currentPhrase = ArtistPhraseComposer.BuildFinalPhrase(displayName, strength, profile is not null, phraseOverride, IntentMode);
-
-        slotState = new ArtistPhraseSlotState(displayName, strength, generatedPhrase, currentPhrase);
-        return true;
-    }
-
-    private void HandleArtistSelectionChanged(bool isPrimary)
-    {
-        if (_isApplyingConfiguration || _suspendArtistOverrideReset)
-        {
-            return;
-        }
-
-        if (isPrimary)
-        {
-            _primaryArtistPhraseOverride = new ArtistPhraseOverride();
-        }
-        else
-        {
-            _secondaryArtistPhraseOverride = new ArtistPhraseOverride();
-        }
-
-        if (IsArtistPhraseEditorOpen && _isEditingPrimaryArtistPhrase == isPrimary)
-        {
-            IsArtistPhraseEditorOpen = false;
-            ArtistPhraseQuickInsertGroups = Array.Empty<ArtistPhraseQuickInsertGroup>();
-        }
-
-        RaiseArtistPhraseEditorAvailabilityChanged();
-    }
-
-    private void RaiseArtistPhraseEditorAvailabilityChanged()
-    {
-        OnPropertyChanged(nameof(CanEditPrimaryArtistPhrase));
-        OnPropertyChanged(nameof(CanEditSecondaryArtistPhrase));
-        OnPropertyChanged(nameof(CanSwapArtistInfluences));
-        EditPrimaryArtistPhraseCommand.RaiseCanExecuteChanged();
-        EditSecondaryArtistPhraseCommand.RaiseCanExecuteChanged();
-        SwapArtistInfluencesCommand.RaiseCanExecuteChanged();
-    }
-
-    private void UpdateArtistPhraseOverrideTargetNames()
-    {
-        UpdateArtistPhraseOverrideTargetName(_primaryArtistPhraseOverride, ArtistInfluencePrimary);
-        UpdateArtistPhraseOverrideTargetName(_secondaryArtistPhraseOverride, ArtistInfluenceSecondary);
-    }
-
-    private void UpdateArtistPhraseOverrideTargetName(ArtistPhraseOverride phraseOverride, string selectedArtist)
-    {
-        if (phraseOverride is null || !phraseOverride.IsEnabled)
-        {
-            return;
-        }
-
-        if (!HasSelectedArtistValue(selectedArtist))
-        {
-            phraseOverride.IsEnabled = false;
-            phraseOverride.ArtistName = string.Empty;
-            phraseOverride.Prefix = string.Empty;
-            phraseOverride.Suffix = string.Empty;
-            return;
-        }
-
-        var profile = _artistProfileService.GetProfile(selectedArtist);
-        phraseOverride.ArtistName = profile?.Name ?? selectedArtist;
     }
 
     private void RefreshArtistPairGuidance()
@@ -2907,215 +2789,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private PromptConfiguration CaptureConfiguration()
     {
-        var configuration = new PromptConfiguration
-        {
-        IntentMode = NormalizeIntentMode(IntentMode),
-        Subject = Subject,
-        Action = Action,
-        Relationship = Relationship,
-        Temperature = Temperature,
-        ExcludeTemperatureFromPrompt = ExcludeTemperatureFromPrompt,
-        LightingIntensity = LightingIntensity,
-        ExcludeLightingIntensityFromPrompt = ExcludeLightingIntensityFromPrompt,
-        Stylization = Stylization,
-        ExcludeStylizationFromPrompt = ExcludeStylizationFromPrompt,
-        Realism = Realism,
-        ExcludeRealismFromPrompt = ExcludeRealismFromPrompt,
-        TextureDepth = TextureDepth,
-        ExcludeTextureDepthFromPrompt = ExcludeTextureDepthFromPrompt,
-        NarrativeDensity = NarrativeDensity,
-        ExcludeNarrativeDensityFromPrompt = ExcludeNarrativeDensityFromPrompt,
-        Symbolism = Symbolism,
-        ExcludeSymbolismFromPrompt = ExcludeSymbolismFromPrompt,
-        AtmosphericDepth = AtmosphericDepth,
-        ExcludeAtmosphericDepthFromPrompt = ExcludeAtmosphericDepthFromPrompt,
-        SurfaceAge = SurfaceAge,
-        ExcludeSurfaceAgeFromPrompt = ExcludeSurfaceAgeFromPrompt,
-        Chaos = Chaos,
-        ExcludeChaosFromPrompt = ExcludeChaosFromPrompt,
-        Framing = Framing,
-        ExcludeFramingFromPrompt = ExcludeFramingFromPrompt,
-        Material = Material,
-        ArtStyle = ArtStyle,
-        AnimeStyle = AnimeStyle,
-        AnimeEra = AnimeEra,
-        AnimeCelShading = AnimeCelShading,
-        AnimeCleanLineArt = AnimeCleanLineArt,
-        AnimeExpressiveEyes = AnimeExpressiveEyes,
-        AnimeDynamicAction = AnimeDynamicAction,
-        AnimeCinematicLighting = AnimeCinematicLighting,
-        AnimeStylizedHair = AnimeStylizedHair,
-        AnimeAtmosphericEffects = AnimeAtmosphericEffects,
-        ChildrensBookStyle = ChildrensBookStyle,
-        ChildrensBookSoftColorPalette = ChildrensBookSoftColorPalette,
-        ChildrensBookTexturedPaper = ChildrensBookTexturedPaper,
-        ChildrensBookInkLinework = ChildrensBookInkLinework,
-        ChildrensBookExpressiveCharacters = ChildrensBookExpressiveCharacters,
-        ChildrensBookMinimalBackground = ChildrensBookMinimalBackground,
-        ChildrensBookDecorativeDetails = ChildrensBookDecorativeDetails,
-        ChildrensBookGentleLighting = ChildrensBookGentleLighting,
-        ComicBookStyle = ComicBookStyle,
-        ComicBookBoldInk = ComicBookBoldInk,
-        ComicBookHalftoneShading = ComicBookHalftoneShading,
-        ComicBookPanelFraming = ComicBookPanelFraming,
-        ComicBookDynamicPoses = ComicBookDynamicPoses,
-        ComicBookSpeedLines = ComicBookSpeedLines,
-        ComicBookHighContrastLighting = ComicBookHighContrastLighting,
-        ComicBookSpeechBubbles = ComicBookSpeechBubbles,
-        SpeechBubbleMode = SpeechBubbleMode,
-        SpeechBubbleSize = SpeechBubbleSize,
-        StylizedSpeechBubbleShape = StylizedSpeechBubbleShape,
-        CinematicSubtype = CinematicSubtype,
-        CinematicLetterboxedFraming = CinematicLetterboxedFraming,
-        CinematicShallowDepthOfField = CinematicShallowDepthOfField,
-        CinematicPracticalLighting = CinematicPracticalLighting,
-        CinematicAtmosphericHaze = CinematicAtmosphericHaze,
-        CinematicFilmGrain = CinematicFilmGrain,
-        CinematicAnamorphicFlares = CinematicAnamorphicFlares,
-        CinematicDramaticBacklight = CinematicDramaticBacklight,
-        ThreeDRenderSubtype = ThreeDRenderSubtype,
-        ThreeDRenderGlobalIllumination = ThreeDRenderGlobalIllumination,
-        ThreeDRenderVolumetricLighting = ThreeDRenderVolumetricLighting,
-        ThreeDRenderRayTracedReflections = ThreeDRenderRayTracedReflections,
-        ThreeDRenderDepthOfField = ThreeDRenderDepthOfField,
-        ThreeDRenderSubsurfaceScattering = ThreeDRenderSubsurfaceScattering,
-        ThreeDRenderHardSurfacePrecision = ThreeDRenderHardSurfacePrecision,
-        ThreeDRenderStudioBackdrop = ThreeDRenderStudioBackdrop,
-        ConceptArtSubtype = ConceptArtSubtype,
-        ConceptArtDesignCallouts = ConceptArtDesignCallouts,
-        ConceptArtTurnaroundReadability = ConceptArtTurnaroundReadability,
-        ConceptArtMaterialBreakdown = ConceptArtMaterialBreakdown,
-        ConceptArtScaleReference = ConceptArtScaleReference,
-        ConceptArtWorldbuildingAccents = ConceptArtWorldbuildingAccents,
-        ConceptArtProductionNotesFeel = ConceptArtProductionNotesFeel,
-        ConceptArtSilhouetteClarity = ConceptArtSilhouetteClarity,
-        PixelArtSubtype = PixelArtSubtype,
-        PixelArtLimitedPalette = PixelArtLimitedPalette,
-        PixelArtDithering = PixelArtDithering,
-        PixelArtTileableDesign = PixelArtTileableDesign,
-        PixelArtSpriteSheetReadability = PixelArtSpriteSheetReadability,
-        PixelArtCleanOutline = PixelArtCleanOutline,
-        PixelArtSubpixelShading = PixelArtSubpixelShading,
-        PixelArtHudUiFraming = PixelArtHudUiFraming,
-        WatercolorStyle = WatercolorStyle,
-        WatercolorTransparentWashes = WatercolorTransparentWashes,
-        WatercolorSoftBleeds = WatercolorSoftBleeds,
-        WatercolorPaperTexture = WatercolorPaperTexture,
-        WatercolorInkAndWatercolor = WatercolorInkAndWatercolor,
-        WatercolorAtmosphericWash = WatercolorAtmosphericWash,
-        WatercolorGouacheAccents = WatercolorGouacheAccents,
-        FantasyIllustrationRegister = FantasyIllustrationRegister,
-        FantasyIllustrationCharacterSketch = FantasyIllustrationCharacterSketch,
-        FantasyIllustrationCharacterCentric = FantasyIllustrationCharacterCentric,
-        FantasyIllustrationEnvironmentConcept = FantasyIllustrationEnvironmentConcept,
-        FantasyIllustrationKeyArt = FantasyIllustrationKeyArt,
-        FantasyIllustrationCleanBackground = FantasyIllustrationCleanBackground,
-        FantasyIllustrationSilhouetteReadability = FantasyIllustrationSilhouetteReadability,
-        FantasyIllustrationPhotorealistic = FantasyIllustrationPhotorealistic,
-        FantasyIllustrationCartoonArt = FantasyIllustrationCartoonArt,
-        FantasyIllustrationPropArtifactFocus = FantasyIllustrationPropArtifactFocus,
-        FantasyIllustrationCreatureDesign = FantasyIllustrationCreatureDesign,
-        EditorialIllustrationBlackAndWhiteMonochrome = EditorialIllustrationBlackAndWhiteMonochrome,
-        GraphicDesignType = GraphicDesignType,
-        GraphicDesignMinimalLayout = GraphicDesignMinimalLayout,
-        GraphicDesignBoldHierarchy = GraphicDesignBoldHierarchy,
-        PhotographyType = PhotographyType,
-        PhotographyEra = PhotographyEra,
-        PhotographyCandidCapture = PhotographyCandidCapture,
-        PhotographyPosedStagedCapture = PhotographyPosedStagedCapture,
-        PhotographyAvailableLight = PhotographyAvailableLight,
-        PhotographyOnCameraFlash = PhotographyOnCameraFlash,
-        PhotographyEditorialPolish = PhotographyEditorialPolish,
-        PhotographyRawDocumentaryTexture = PhotographyRawDocumentaryTexture,
-        PhotographyEnvironmentalPortraitContext = PhotographyEnvironmentalPortraitContext,
-        PhotographyFilmAnalogCharacter = PhotographyFilmAnalogCharacter,
-        ProductPhotographyShotType = ProductPhotographyShotType,
-        ProductPhotographyWithPackaging = ProductPhotographyWithPackaging,
-        ProductPhotographyPedestalDisplay = ProductPhotographyPedestalDisplay,
-        ProductPhotographyReflectiveSurface = ProductPhotographyReflectiveSurface,
-        ProductPhotographyFloatingPresentation = ProductPhotographyFloatingPresentation,
-        ProductPhotographyScaleCueHand = ProductPhotographyScaleCueHand,
-        ProductPhotographyBrandProps = ProductPhotographyBrandProps,
-        ProductPhotographyGroupedVariants = ProductPhotographyGroupedVariants,
-        FoodPhotographyShotMode = FoodPhotographyShotMode,
-        FoodPhotographyVisibleSteam = FoodPhotographyVisibleSteam,
-        FoodPhotographyGarnishEmphasis = FoodPhotographyGarnishEmphasis,
-        FoodPhotographyUtensilContext = FoodPhotographyUtensilContext,
-        FoodPhotographyHandServiceCue = FoodPhotographyHandServiceCue,
-        FoodPhotographyIngredientScatter = FoodPhotographyIngredientScatter,
-        FoodPhotographyCondensationEmphasis = FoodPhotographyCondensationEmphasis,
-        LifestyleAdvertisingShotMode = LifestyleAdvertisingShotMode,
-        LifestyleAdvertisingNaturalInteraction = LifestyleAdvertisingNaturalInteraction,
-        LifestyleAdvertisingProductInUse = LifestyleAdvertisingProductInUse,
-        LifestyleAdvertisingBrandColorAccent = LifestyleAdvertisingBrandColorAccent,
-        LifestyleAdvertisingPropContext = LifestyleAdvertisingPropContext,
-        LifestyleAdvertisingSunlitOptimism = LifestyleAdvertisingSunlitOptimism,
-        LifestyleAdvertisingMotionCandidness = LifestyleAdvertisingMotionCandidness,
-        ArchitectureArchvizViewMode = ArchitectureArchvizViewMode,
-        ArchitectureArchvizHumanScaleCues = ArchitectureArchvizHumanScaleCues,
-        ArchitectureArchvizLandscapeEmphasis = ArchitectureArchvizLandscapeEmphasis,
-        ArchitectureArchvizFurnishingEmphasis = ArchitectureArchvizFurnishingEmphasis,
-        ArchitectureArchvizWarmInteriorGlow = ArchitectureArchvizWarmInteriorGlow,
-        ArchitectureArchvizReflectiveSurfaceAccents = ArchitectureArchvizReflectiveSurfaceAccents,
-        ArchitectureArchvizAmenityFocus = ArchitectureArchvizAmenityFocus,
-        ArtistInfluencePrimary = ArtistInfluencePrimary,
-        InfluenceStrengthPrimary = InfluenceStrengthPrimary,
-        PrimaryArtistPhraseOverride = _primaryArtistPhraseOverride.Clone(),
-        ArtistInfluenceSecondary = ArtistInfluenceSecondary,
-        InfluenceStrengthSecondary = InfluenceStrengthSecondary,
-        SecondaryArtistPhraseOverride = _secondaryArtistPhraseOverride.Clone(),
-        CameraDistance = CameraDistance,
-        ExcludeCameraDistanceFromPrompt = ExcludeCameraDistanceFromPrompt,
-        CameraAngle = CameraAngle,
-        ExcludeCameraAngleFromPrompt = ExcludeCameraAngleFromPrompt,
-        BackgroundComplexity = BackgroundComplexity,
-        ExcludeBackgroundComplexityFromPrompt = ExcludeBackgroundComplexityFromPrompt,
-        MotionEnergy = MotionEnergy,
-        ExcludeMotionEnergyFromPrompt = ExcludeMotionEnergyFromPrompt,
-        FocusDepth = FocusDepth,
-        ExcludeFocusDepthFromPrompt = ExcludeFocusDepthFromPrompt,
-        ImageCleanliness = ImageCleanliness,
-        ExcludeImageCleanlinessFromPrompt = ExcludeImageCleanlinessFromPrompt,
-        DetailDensity = DetailDensity,
-        ExcludeDetailDensityFromPrompt = ExcludeDetailDensityFromPrompt,
-        Whimsy = Whimsy,
-        ExcludeWhimsyFromPrompt = ExcludeWhimsyFromPrompt,
-        Tension = Tension,
-        ExcludeTensionFromPrompt = ExcludeTensionFromPrompt,
-        Awe = Awe,
-        ExcludeAweFromPrompt = ExcludeAweFromPrompt,
-        Lighting = Lighting,
-        Saturation = Saturation,
-        ExcludeSaturationFromPrompt = ExcludeSaturationFromPrompt,
-        Contrast = Contrast,
-        ExcludeContrastFromPrompt = ExcludeContrastFromPrompt,
-        AspectRatio = AspectRatio,
-        PrintReady = PrintReady,
-        TransparentBackground = TransparentBackground,
-        UseNegativePrompt = UseNegativePrompt,
-        CompressPromptSemantics = CompressPromptSemantics,
-        ReduceRepeatedLaneWords = ReduceRepeatedLaneWords,
-        TrimRepeatedLongWords = TrimRepeatedLongWords,
-        AvoidClutter = AvoidClutter,
-        AvoidMuddyLighting = AvoidMuddyLighting,
-        AvoidDistortedAnatomy = AvoidDistortedAnatomy,
-        AvoidExtraLimbs = AvoidExtraLimbs,
-        AvoidTextArtifacts = AvoidTextArtifacts,
-        AvoidOversaturation = AvoidOversaturation,
-        AvoidFlatComposition = AvoidFlatComposition,
-        AvoidMessyBackground = AvoidMessyBackground,
-        AvoidWeakMaterialDefinition = AvoidWeakMaterialDefinition,
-        AvoidBlurryDetail = AvoidBlurryDetail,
-        VintageBendEasternBlocGdr = VintageBendEasternBlocGdr,
-        VintageBendThrillerUndertone = VintageBendThrillerUndertone,
-        VintageBendInstitutionalAusterity = VintageBendInstitutionalAusterity,
-        VintageBendSurveillanceStateAtmosphere = VintageBendSurveillanceStateAtmosphere,
-        VintageBendPeriodArtifacts = VintageBendPeriodArtifacts,
-        VintageBendUrbanCivilian = VintageBendUrbanCivilian,
-        };
-
-        configuration.StandardLaneStates = _ordinaryLaneStates.Clone();
-        StandardLaneStateAdapter.ApplyToConfiguration(configuration, configuration.StandardLaneStates);
+        var configuration = CreateConfigurationFromCurrentState();
         UiEventLog.Write(
             $"capture-configuration intent='{configuration.IntentMode}' stylization={configuration.Stylization} realism={configuration.Realism} textureDepth={configuration.TextureDepth} narrativeDensity={configuration.NarrativeDensity} symbolism={configuration.Symbolism} surfaceAge={configuration.SurfaceAge} framing={configuration.Framing} cameraDistance={configuration.CameraDistance} cameraAngle={configuration.CameraAngle} background={configuration.BackgroundComplexity} motion={configuration.MotionEnergy} atmospheric={configuration.AtmosphericDepth} chaos={configuration.Chaos} focusDepth={configuration.FocusDepth} imageCleanliness={configuration.ImageCleanliness} detailDensity={configuration.DetailDensity} temperature={configuration.Temperature} lightingIntensity={configuration.LightingIntensity} saturation={configuration.Saturation} contrast={configuration.Contrast} excludeNarrative={configuration.ExcludeNarrativeDensityFromPrompt} excludeSymbolism={configuration.ExcludeSymbolismFromPrompt} excludeAtmospheric={configuration.ExcludeAtmosphericDepthFromPrompt} excludeChaos={configuration.ExcludeChaosFromPrompt} excludeFraming={configuration.ExcludeFramingFromPrompt} excludeCameraDistance={configuration.ExcludeCameraDistanceFromPrompt} excludeCameraAngle={configuration.ExcludeCameraAngleFromPrompt} excludeBackground={configuration.ExcludeBackgroundComplexityFromPrompt} excludeMotion={configuration.ExcludeMotionEnergyFromPrompt} excludeWhimsy={configuration.ExcludeWhimsyFromPrompt} excludeTension={configuration.ExcludeTensionFromPrompt} excludeAwe={configuration.ExcludeAweFromPrompt} excludeTemperature={configuration.ExcludeTemperatureFromPrompt} excludeLightingIntensity={configuration.ExcludeLightingIntensityFromPrompt} excludeStylization={configuration.ExcludeStylizationFromPrompt} excludeRealism={configuration.ExcludeRealismFromPrompt} excludeTextureDepth={configuration.ExcludeTextureDepthFromPrompt} excludeSurfaceAge={configuration.ExcludeSurfaceAgeFromPrompt} excludeFocusDepth={configuration.ExcludeFocusDepthFromPrompt} excludeImageCleanliness={configuration.ExcludeImageCleanlinessFromPrompt} excludeDetailDensity={configuration.ExcludeDetailDensityFromPrompt} excludeSaturation={configuration.ExcludeSaturationFromPrompt} excludeContrast={configuration.ExcludeContrastFromPrompt}");
         if (ShouldLogOverrideSliderDiagnostics(configuration.IntentMode))
@@ -3140,218 +2814,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void ApplyConfiguration(PromptConfiguration configuration)
     {
         StandardLaneStateAdapter.HydrateConfiguration(configuration);
-        _ordinaryLaneStates = configuration.StandardLaneStates.Clone();
         _isApplyingConfiguration = true;
         _fantasyIllustrationAppliedSliderSuppressions.Clear();
         _editorialIllustrationAppliedSliderSuppressions.Clear();
         _graphicDesignAppliedSliderSuppressions.Clear();
-        IntentMode = NormalizeIntentMode(configuration.IntentMode);
-        Subject = configuration.Subject;
-        Action = configuration.Action;
-        Relationship = configuration.Relationship;
-        Temperature = configuration.Temperature;
-        ExcludeTemperatureFromPrompt = configuration.ExcludeTemperatureFromPrompt;
-        LightingIntensity = configuration.LightingIntensity;
-        ExcludeLightingIntensityFromPrompt = configuration.ExcludeLightingIntensityFromPrompt;
-        Stylization = configuration.Stylization;
-        ExcludeStylizationFromPrompt = configuration.ExcludeStylizationFromPrompt;
-        Realism = configuration.Realism;
-        ExcludeRealismFromPrompt = configuration.ExcludeRealismFromPrompt;
-        TextureDepth = configuration.TextureDepth;
-        ExcludeTextureDepthFromPrompt = configuration.ExcludeTextureDepthFromPrompt;
-        NarrativeDensity = configuration.NarrativeDensity;
-        ExcludeNarrativeDensityFromPrompt = configuration.ExcludeNarrativeDensityFromPrompt;
-        Symbolism = configuration.Symbolism;
-        ExcludeSymbolismFromPrompt = configuration.ExcludeSymbolismFromPrompt;
-        AtmosphericDepth = configuration.AtmosphericDepth;
-        ExcludeAtmosphericDepthFromPrompt = configuration.ExcludeAtmosphericDepthFromPrompt;
-        SurfaceAge = configuration.SurfaceAge;
-        ExcludeSurfaceAgeFromPrompt = configuration.ExcludeSurfaceAgeFromPrompt;
-        Chaos = configuration.Chaos;
-        ExcludeChaosFromPrompt = configuration.ExcludeChaosFromPrompt;
-        Framing = configuration.Framing;
-        ExcludeFramingFromPrompt = configuration.ExcludeFramingFromPrompt;
-        Material = configuration.Material;
-        ArtStyle = configuration.ArtStyle;
-        AnimeStyle = configuration.AnimeStyle;
-        AnimeEra = configuration.AnimeEra;
-        AnimeCelShading = configuration.AnimeCelShading;
-        AnimeCleanLineArt = configuration.AnimeCleanLineArt;
-        AnimeExpressiveEyes = configuration.AnimeExpressiveEyes;
-        AnimeDynamicAction = configuration.AnimeDynamicAction;
-        AnimeCinematicLighting = configuration.AnimeCinematicLighting;
-        AnimeStylizedHair = configuration.AnimeStylizedHair;
-        AnimeAtmosphericEffects = configuration.AnimeAtmosphericEffects;
-        ChildrensBookStyle = configuration.ChildrensBookStyle;
-        ChildrensBookSoftColorPalette = configuration.ChildrensBookSoftColorPalette;
-        ChildrensBookTexturedPaper = configuration.ChildrensBookTexturedPaper;
-        ChildrensBookInkLinework = configuration.ChildrensBookInkLinework;
-        ChildrensBookExpressiveCharacters = configuration.ChildrensBookExpressiveCharacters;
-        ChildrensBookMinimalBackground = configuration.ChildrensBookMinimalBackground;
-        ChildrensBookDecorativeDetails = configuration.ChildrensBookDecorativeDetails;
-        ChildrensBookGentleLighting = configuration.ChildrensBookGentleLighting;
-        ComicBookStyle = configuration.ComicBookStyle;
-        ComicBookBoldInk = configuration.ComicBookBoldInk;
-        ComicBookHalftoneShading = configuration.ComicBookHalftoneShading;
-        ComicBookPanelFraming = configuration.ComicBookPanelFraming;
-        ComicBookDynamicPoses = configuration.ComicBookDynamicPoses;
-        ComicBookSpeedLines = configuration.ComicBookSpeedLines;
-        ComicBookHighContrastLighting = configuration.ComicBookHighContrastLighting;
-        ComicBookSpeechBubbles = configuration.ComicBookSpeechBubbles;
-        SpeechBubbleMode = configuration.SpeechBubbleMode;
-        SpeechBubbleSize = configuration.SpeechBubbleSize;
-        StylizedSpeechBubbleShape = configuration.StylizedSpeechBubbleShape;
-        IsSpeechBubbleOptionsOpen = false;
-        CinematicSubtype = configuration.CinematicSubtype;
-        CinematicLetterboxedFraming = configuration.CinematicLetterboxedFraming;
-        CinematicShallowDepthOfField = configuration.CinematicShallowDepthOfField;
-        CinematicPracticalLighting = configuration.CinematicPracticalLighting;
-        CinematicAtmosphericHaze = configuration.CinematicAtmosphericHaze;
-        CinematicFilmGrain = configuration.CinematicFilmGrain;
-        CinematicAnamorphicFlares = configuration.CinematicAnamorphicFlares;
-        CinematicDramaticBacklight = configuration.CinematicDramaticBacklight;
-        ThreeDRenderSubtype = configuration.ThreeDRenderSubtype;
-        ThreeDRenderGlobalIllumination = configuration.ThreeDRenderGlobalIllumination;
-        ThreeDRenderVolumetricLighting = configuration.ThreeDRenderVolumetricLighting;
-        ThreeDRenderRayTracedReflections = configuration.ThreeDRenderRayTracedReflections;
-        ThreeDRenderDepthOfField = configuration.ThreeDRenderDepthOfField;
-        ThreeDRenderSubsurfaceScattering = configuration.ThreeDRenderSubsurfaceScattering;
-        ThreeDRenderHardSurfacePrecision = configuration.ThreeDRenderHardSurfacePrecision;
-        ThreeDRenderStudioBackdrop = configuration.ThreeDRenderStudioBackdrop;
-        ConceptArtSubtype = configuration.ConceptArtSubtype;
-        ConceptArtDesignCallouts = configuration.ConceptArtDesignCallouts;
-        ConceptArtTurnaroundReadability = configuration.ConceptArtTurnaroundReadability;
-        ConceptArtMaterialBreakdown = configuration.ConceptArtMaterialBreakdown;
-        ConceptArtScaleReference = configuration.ConceptArtScaleReference;
-        ConceptArtWorldbuildingAccents = configuration.ConceptArtWorldbuildingAccents;
-        ConceptArtProductionNotesFeel = configuration.ConceptArtProductionNotesFeel;
-        ConceptArtSilhouetteClarity = configuration.ConceptArtSilhouetteClarity;
-        PixelArtSubtype = configuration.PixelArtSubtype;
-        PixelArtLimitedPalette = configuration.PixelArtLimitedPalette;
-        PixelArtDithering = configuration.PixelArtDithering;
-        PixelArtTileableDesign = configuration.PixelArtTileableDesign;
-        PixelArtSpriteSheetReadability = configuration.PixelArtSpriteSheetReadability;
-        PixelArtCleanOutline = configuration.PixelArtCleanOutline;
-        PixelArtSubpixelShading = configuration.PixelArtSubpixelShading;
-        PixelArtHudUiFraming = configuration.PixelArtHudUiFraming;
-        WatercolorStyle = configuration.WatercolorStyle;
-        WatercolorTransparentWashes = configuration.WatercolorTransparentWashes;
-        WatercolorSoftBleeds = configuration.WatercolorSoftBleeds;
-        WatercolorPaperTexture = configuration.WatercolorPaperTexture;
-        WatercolorInkAndWatercolor = configuration.WatercolorInkAndWatercolor;
-        WatercolorAtmosphericWash = configuration.WatercolorAtmosphericWash;
-        WatercolorGouacheAccents = configuration.WatercolorGouacheAccents;
-        FantasyIllustrationRegister = configuration.FantasyIllustrationRegister;
-        FantasyIllustrationCharacterSketch = configuration.FantasyIllustrationCharacterSketch;
-        FantasyIllustrationCharacterCentric = configuration.FantasyIllustrationCharacterCentric;
-        FantasyIllustrationEnvironmentConcept = configuration.FantasyIllustrationEnvironmentConcept;
-        FantasyIllustrationKeyArt = configuration.FantasyIllustrationKeyArt;
-        FantasyIllustrationCleanBackground = configuration.FantasyIllustrationCleanBackground;
-        FantasyIllustrationSilhouetteReadability = configuration.FantasyIllustrationSilhouetteReadability;
-        FantasyIllustrationPhotorealistic = configuration.FantasyIllustrationPhotorealistic;
-        FantasyIllustrationCartoonArt = configuration.FantasyIllustrationCartoonArt;
-        FantasyIllustrationPropArtifactFocus = configuration.FantasyIllustrationPropArtifactFocus;
-        FantasyIllustrationCreatureDesign = configuration.FantasyIllustrationCreatureDesign;
-        EditorialIllustrationBlackAndWhiteMonochrome = configuration.EditorialIllustrationBlackAndWhiteMonochrome;
-        GraphicDesignType = configuration.GraphicDesignType;
-        GraphicDesignMinimalLayout = configuration.GraphicDesignMinimalLayout;
-        GraphicDesignBoldHierarchy = configuration.GraphicDesignBoldHierarchy;
-        PhotographyType = configuration.PhotographyType;
-        PhotographyEra = configuration.PhotographyEra;
-        PhotographyCandidCapture = configuration.PhotographyCandidCapture;
-        PhotographyPosedStagedCapture = configuration.PhotographyPosedStagedCapture;
-        PhotographyAvailableLight = configuration.PhotographyAvailableLight;
-        PhotographyOnCameraFlash = configuration.PhotographyOnCameraFlash;
-        PhotographyEditorialPolish = configuration.PhotographyEditorialPolish;
-        PhotographyRawDocumentaryTexture = configuration.PhotographyRawDocumentaryTexture;
-        PhotographyEnvironmentalPortraitContext = configuration.PhotographyEnvironmentalPortraitContext;
-        PhotographyFilmAnalogCharacter = configuration.PhotographyFilmAnalogCharacter;
-        ProductPhotographyShotType = configuration.ProductPhotographyShotType;
-        ProductPhotographyWithPackaging = configuration.ProductPhotographyWithPackaging;
-        ProductPhotographyPedestalDisplay = configuration.ProductPhotographyPedestalDisplay;
-        ProductPhotographyReflectiveSurface = configuration.ProductPhotographyReflectiveSurface;
-        ProductPhotographyFloatingPresentation = configuration.ProductPhotographyFloatingPresentation;
-        ProductPhotographyScaleCueHand = configuration.ProductPhotographyScaleCueHand;
-        ProductPhotographyBrandProps = configuration.ProductPhotographyBrandProps;
-        ProductPhotographyGroupedVariants = configuration.ProductPhotographyGroupedVariants;
-        FoodPhotographyShotMode = configuration.FoodPhotographyShotMode;
-        FoodPhotographyVisibleSteam = configuration.FoodPhotographyVisibleSteam;
-        FoodPhotographyGarnishEmphasis = configuration.FoodPhotographyGarnishEmphasis;
-        FoodPhotographyUtensilContext = configuration.FoodPhotographyUtensilContext;
-        FoodPhotographyHandServiceCue = configuration.FoodPhotographyHandServiceCue;
-        FoodPhotographyIngredientScatter = configuration.FoodPhotographyIngredientScatter;
-        FoodPhotographyCondensationEmphasis = configuration.FoodPhotographyCondensationEmphasis;
-        LifestyleAdvertisingShotMode = configuration.LifestyleAdvertisingShotMode;
-        LifestyleAdvertisingNaturalInteraction = configuration.LifestyleAdvertisingNaturalInteraction;
-        LifestyleAdvertisingProductInUse = configuration.LifestyleAdvertisingProductInUse;
-        LifestyleAdvertisingBrandColorAccent = configuration.LifestyleAdvertisingBrandColorAccent;
-        LifestyleAdvertisingPropContext = configuration.LifestyleAdvertisingPropContext;
-        LifestyleAdvertisingSunlitOptimism = configuration.LifestyleAdvertisingSunlitOptimism;
-        LifestyleAdvertisingMotionCandidness = configuration.LifestyleAdvertisingMotionCandidness;
-        ArchitectureArchvizViewMode = configuration.ArchitectureArchvizViewMode;
-        ArchitectureArchvizHumanScaleCues = configuration.ArchitectureArchvizHumanScaleCues;
-        ArchitectureArchvizLandscapeEmphasis = configuration.ArchitectureArchvizLandscapeEmphasis;
-        ArchitectureArchvizFurnishingEmphasis = configuration.ArchitectureArchvizFurnishingEmphasis;
-        ArchitectureArchvizWarmInteriorGlow = configuration.ArchitectureArchvizWarmInteriorGlow;
-        ArchitectureArchvizReflectiveSurfaceAccents = configuration.ArchitectureArchvizReflectiveSurfaceAccents;
-        ArchitectureArchvizAmenityFocus = configuration.ArchitectureArchvizAmenityFocus;
-        ArtistInfluencePrimary = configuration.ArtistInfluencePrimary;
-        InfluenceStrengthPrimary = configuration.InfluenceStrengthPrimary;
-        _primaryArtistPhraseOverride = configuration.PrimaryArtistPhraseOverride?.Clone() ?? new ArtistPhraseOverride();
-        ArtistInfluenceSecondary = configuration.ArtistInfluenceSecondary;
-        InfluenceStrengthSecondary = configuration.InfluenceStrengthSecondary;
-        _secondaryArtistPhraseOverride = configuration.SecondaryArtistPhraseOverride?.Clone() ?? new ArtistPhraseOverride();
-        CameraDistance = configuration.CameraDistance;
-        ExcludeCameraDistanceFromPrompt = configuration.ExcludeCameraDistanceFromPrompt;
-        CameraAngle = configuration.CameraAngle;
-        ExcludeCameraAngleFromPrompt = configuration.ExcludeCameraAngleFromPrompt;
-        BackgroundComplexity = configuration.BackgroundComplexity;
-        ExcludeBackgroundComplexityFromPrompt = configuration.ExcludeBackgroundComplexityFromPrompt;
-        MotionEnergy = configuration.MotionEnergy;
-        ExcludeMotionEnergyFromPrompt = configuration.ExcludeMotionEnergyFromPrompt;
-        FocusDepth = configuration.FocusDepth;
-        ExcludeFocusDepthFromPrompt = configuration.ExcludeFocusDepthFromPrompt;
-        ImageCleanliness = configuration.ImageCleanliness;
-        ExcludeImageCleanlinessFromPrompt = configuration.ExcludeImageCleanlinessFromPrompt;
-        DetailDensity = configuration.DetailDensity;
-        ExcludeDetailDensityFromPrompt = configuration.ExcludeDetailDensityFromPrompt;
-        Whimsy = configuration.Whimsy;
-        ExcludeWhimsyFromPrompt = configuration.ExcludeWhimsyFromPrompt;
-        Tension = configuration.Tension;
-        ExcludeTensionFromPrompt = configuration.ExcludeTensionFromPrompt;
-        Awe = configuration.Awe;
-        ExcludeAweFromPrompt = configuration.ExcludeAweFromPrompt;
-        Lighting = configuration.Lighting;
-        Saturation = configuration.Saturation;
-        ExcludeSaturationFromPrompt = configuration.ExcludeSaturationFromPrompt;
-        Contrast = configuration.Contrast;
-        ExcludeContrastFromPrompt = configuration.ExcludeContrastFromPrompt;
-        SyncFantasyIllustrationSliderSuppressions();
-        AspectRatio = configuration.AspectRatio;
-        PrintReady = configuration.PrintReady;
-        TransparentBackground = configuration.TransparentBackground;
-        UseNegativePrompt = configuration.UseNegativePrompt;
-        AvoidClutter = configuration.AvoidClutter;
-        AvoidMuddyLighting = configuration.AvoidMuddyLighting;
-        AvoidDistortedAnatomy = configuration.AvoidDistortedAnatomy;
-        AvoidExtraLimbs = configuration.AvoidExtraLimbs;
-        AvoidTextArtifacts = configuration.AvoidTextArtifacts;
-        AvoidOversaturation = configuration.AvoidOversaturation;
-        AvoidFlatComposition = configuration.AvoidFlatComposition;
-        AvoidMessyBackground = configuration.AvoidMessyBackground;
-        AvoidWeakMaterialDefinition = configuration.AvoidWeakMaterialDefinition;
-        AvoidBlurryDetail = configuration.AvoidBlurryDetail;
-        VintageBendEasternBlocGdr = configuration.VintageBendEasternBlocGdr;
-        VintageBendThrillerUndertone = configuration.VintageBendThrillerUndertone;
-        VintageBendInstitutionalAusterity = configuration.VintageBendInstitutionalAusterity;
-        VintageBendSurveillanceStateAtmosphere = configuration.VintageBendSurveillanceStateAtmosphere;
-        VintageBendPeriodArtifacts = configuration.VintageBendPeriodArtifacts;
-        VintageBendUrbanCivilian = configuration.VintageBendUrbanCivilian;
+        _infographicAppliedSliderSuppressions.Clear();
+        _dataVizAppliedSliderSuppressions.Clear();
+        ApplyConfigurationState(configuration);
         ApplyCompressionConfiguration(configuration);
         SyncStandardLanePanelStates();
         SyncFantasyIllustrationSliderSuppressions();
         SyncEditorialIllustrationSliderSuppressions();
         SyncGraphicDesignSliderSuppressions();
+        SyncInfographicDataVisualizationSliderSuppressions();
+        SyncConceptArtSliderSuppressions();
         IsArtistPhraseEditorOpen = false;
         ApplyArtistNegativeConstraintDefaults();
         SyncExperimentalMacrosFromRaw();
@@ -3398,35 +2874,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             StatusMessage = "Could not copy the negative prompt.";
         }
     }
-    private void SavePreset()
-    {
-        var name = PresetName?.Trim();
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            StatusMessage = "Enter a preset name before saving.";
-            return;
-        }
-
-        var requiredUnlockPresetName = GetRequiredUnlockPresetName(IntentMode);
-        if (!string.IsNullOrWhiteSpace(requiredUnlockPresetName)
-            && !HasLockedLaneAccess
-            && !string.Equals(name, requiredUnlockPresetName, StringComparison.Ordinal))
-        {
-            StatusMessage = $"This lane unlock requires saving a preset named {requiredUnlockPresetName} while {IntentMode} is active.";
-            return;
-        }
-
-        _presetStorageService.Save(name, CaptureConfiguration());
-        RefreshPresetNames(name);
-        PresetName = string.Empty;
-        StatusMessage = !string.IsNullOrWhiteSpace(requiredUnlockPresetName) && string.Equals(name, requiredUnlockPresetName, StringComparison.Ordinal)
-            ? $"Preset '{requiredUnlockPresetName}' saved. {IntentMode} unlocked on this machine."
-            : $"Preset '{name}' saved.";
-    }
-    private void LoadPreset() { var name = SelectedPresetName?.Trim(); if (string.IsNullOrWhiteSpace(name)) { StatusMessage = "Select a preset to load."; return; } ApplyConfiguration(_presetStorageService.Load(name)); PresetName = name; StatusMessage = $"Preset '{name}' loaded."; }
-    private void RenamePreset() { var current = SelectedPresetName?.Trim(); var target = PresetName?.Trim(); if (string.IsNullOrWhiteSpace(current)) { StatusMessage = "Select a preset to rename."; return; } if (string.IsNullOrWhiteSpace(target)) { StatusMessage = "Enter the new preset name first."; return; } _presetStorageService.Rename(current, target); RefreshPresetNames(target); StatusMessage = $"Preset renamed to '{target}'."; }
-    private void DeletePreset() { var name = SelectedPresetName?.Trim(); if (string.IsNullOrWhiteSpace(name)) { StatusMessage = "Select a preset to delete."; return; } _presetStorageService.Delete(name); RefreshPresetNames(); StatusMessage = $"Preset '{name}' deleted."; }
-
     private void Reset()
     {
         PresetName = string.Empty;
@@ -3533,6 +2980,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             GraphicDesignType = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.GraphicDesignName, SharedLaneKeys.GraphicDesign.TypeSelector, SharedLaneKeys.GraphicDesign.DefaultTypeLabel),
             GraphicDesignMinimalLayout = false,
             GraphicDesignBoldHierarchy = false,
+            InfographicDataVisualizationSubdomain = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.InfographicDataVisualizationName, SharedLaneKeys.InfographicDataVisualization.SubdomainSelector, SharedLaneKeys.InfographicDataVisualization.DefaultSubdomainLabel),
+            InfographicModeLeanExplainer = true,
+            InfographicModePublicPoster = false,
+            InfographicModeReferenceSheet = false,
+            DataVizModeChartPurity = true,
+            DataVizModeDashboard = false,
+            DataVizModeReportGraphic = false,
             PhotographyType = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.PhotographyName, SharedLaneKeys.Photography.TypeSelector, SharedLaneKeys.Photography.DefaultTypeLabel),
             PhotographyEra = LaneRegistry.GetDefaultSubtypeValue(IntentModeCatalog.PhotographyName, SharedLaneKeys.Photography.EraSelector, SharedLaneKeys.Photography.DefaultEraLabel),
             PhotographyCandidCapture = false,
@@ -3598,6 +3052,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             CompressPromptSemantics = false,
             ReduceRepeatedLaneWords = false,
             TrimRepeatedLongWords = false,
+            SemanticPairInteractions = true,
             AvoidClutter = true,
             AvoidMuddyLighting = true,
             AvoidDistortedAnatomy = true,
@@ -3701,12 +3156,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private bool CanCopyPrompt()
     {
-        return !IsDemoExpired && !IsVintageBendLocked && (!IsDemoMode || RemainingDemoCopies > 0);
+        return !IsDemoExpired && !IsLockedLaneActive && (!IsDemoMode || RemainingDemoCopies > 0);
     }
 
     private bool CanCopyNegativePrompt()
     {
-        return !IsDemoExpired && !IsVintageBendLocked;
+        return !IsDemoExpired && !IsLockedLaneActive;
     }
 
     private bool CopyExportText(string text, string label)
@@ -3747,20 +3202,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return true;
     }
 
-    private void RefreshPresetNames(string? selected = null)
+    private void UpdateLockedLaneAccessState()
     {
-        PresetNames.Clear();
-        var presetNames = _presetStorageService.GetPresetNames();
-        foreach (var name in presetNames) PresetNames.Add(name);
-        SelectedPresetName = selected ?? PresetNames.FirstOrDefault();
-        UpdateLockedLaneAccessState(presetNames);
-    }
-
-    private void UpdateLockedLaneAccessState(IReadOnlyCollection<string> presetNames)
-    {
-        var requiredUnlockPresetName = GetRequiredUnlockPresetName(IntentMode);
-        var hasAccess = string.IsNullOrWhiteSpace(requiredUnlockPresetName)
-            || presetNames.Any(name => string.Equals(name, requiredUnlockPresetName, StringComparison.Ordinal));
+        var laneRequiresUnlock = RequiresLaneUnlock(IntentMode);
+        var hasAccess = HasLaneAccess(IntentMode);
 
         if (_hasLockedLaneAccess == hasAccess)
         {
@@ -3769,48 +3214,49 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         _hasLockedLaneAccess = hasAccess;
         OnPropertyChanged(nameof(HasLockedLaneAccess));
+        OnPropertyChanged(nameof(IsLockedLaneActive));
         OnPropertyChanged(nameof(IsVintageBendLocked));
         OnPropertyChanged(nameof(ShowInteractivePromptPreview));
         OnPropertyChanged(nameof(ShowDemoPromptPreview));
+        OnPropertyChanged(nameof(ShowLockedLaneAuthoringSections));
         OnPropertyChanged(nameof(ShowVintageBendAuthoringSections));
+        OnPropertyChanged(nameof(ShowLockedLanePane));
         OnPropertyChanged(nameof(ShowVintageBendLockedPane));
         OnPropertyChanged(nameof(ShowManualIntentControls));
         OnPropertyChanged(nameof(ShowLegacyManualCompositionCard));
         OnPropertyChanged(nameof(ShowEmbeddedLaneCompositionCard));
         OnPropertyChanged(nameof(ShowManualNegativeConstraints));
+        OnPropertyChanged(nameof(ShowCompactComicBookManualStack));
+        OnPropertyChanged(nameof(ShowCompactCinematicManualStack));
+        OnPropertyChanged(nameof(ShowCompactWatercolorManualStack));
+        OnPropertyChanged(nameof(ShowCompactChildrensBookManualStack));
+        OnPropertyChanged(nameof(ShowCompactThreeDRenderManualStack));
+        OnPropertyChanged(nameof(ShowCompactArchitectureArchvizManualStack));
+        OnPropertyChanged(nameof(ShowCompactTattooArtManualStack));
         OnPropertyChanged(nameof(ShowVintageBendModifierPanel));
         OnPropertyChanged(nameof(CanUseCompressionControls));
         OnPropertyChanged(nameof(ShowCompressionTierTwo));
         OnPropertyChanged(nameof(ShowCompressionTierThree));
         OnPropertyChanged(nameof(ShowNegativePrompt));
+        OnPropertyChanged(nameof(ShowCompactCinematicPanel));
+        OnPropertyChanged(nameof(ShowCompactWatercolorPanel));
+        OnPropertyChanged(nameof(ShowCompactChildrensBookPanel));
+        OnPropertyChanged(nameof(ShowCompactThreeDRenderPanel));
+        OnPropertyChanged(nameof(ShowCompactTattooArtPanel));
         OnPropertyChanged(nameof(ShowActiveStandardLanePanel));
+        OnPropertyChanged(nameof(ShowResolvedStandardLanePanel));
         OnPropertyChanged(nameof(ShowArtistBlendSummary));
         RaiseCopyCommandCanExecuteChanged();
 
-        if (TryGetLockedLaneUnlockPresetName(IntentMode, out _) && !_isApplyingConfiguration)
+        if (laneRequiresUnlock && !_isApplyingConfiguration)
         {
             RegeneratePrompt();
         }
     }
 
-    private static bool TryGetLockedLaneUnlockPresetName(string? intentMode, out string presetName)
+    private void CopyLaneHelpEmail()
     {
-        if (!string.IsNullOrWhiteSpace(intentMode)
-            && LockedLaneUnlockPresetNames.TryGetValue(intentMode, out var requiredPresetName))
-        {
-            presetName = requiredPresetName;
-            return true;
-        }
-
-        presetName = string.Empty;
-        return false;
-    }
-
-    private static string? GetRequiredUnlockPresetName(string? intentMode)
-    {
-        return TryGetLockedLaneUnlockPresetName(intentMode, out var presetName)
-            ? presetName
-            : null;
+        CopyExportText(LaneHelpTooltipCatalog.ContactEmail, "Email address");
     }
 
     private void ApplyArtistNegativeConstraintDefaults()
@@ -3998,6 +3444,44 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return string.IsNullOrWhiteSpace(value) ? "Custom" : value.Trim();
     }
 
+    private static string NormalizePresentationMode(string? value)
+    {
+        return string.Equals(value, CompactPresentationMode, StringComparison.OrdinalIgnoreCase)
+            ? CompactPresentationMode
+            : StandardPresentationMode;
+    }
+
+    private void RaiseCompactPresentationRoutingChanged()
+    {
+        OnPropertyChanged(nameof(ShowStandardManualStyleControlsCard));
+        OnPropertyChanged(nameof(ShowCompactAnimeManualStyleControlsCard));
+        OnPropertyChanged(nameof(ShowStandardManualMoodCard));
+        OnPropertyChanged(nameof(ShowCompactAnimeManualMoodCard));
+        OnPropertyChanged(nameof(ShowStandardManualLightingAndColorCard));
+        OnPropertyChanged(nameof(ShowCompactAnimeManualLightingAndColorCard));
+        OnPropertyChanged(nameof(ShowStandardManualImageFinishCard));
+        OnPropertyChanged(nameof(ShowCompactAnimeManualImageFinishCard));
+        OnPropertyChanged(nameof(ShowStandardManualOutputCard));
+        OnPropertyChanged(nameof(ShowCompactAnimeManualOutputCard));
+        OnPropertyChanged(nameof(ShowCompactComicBookManualStack));
+        OnPropertyChanged(nameof(ShowCompactCinematicManualStack));
+        OnPropertyChanged(nameof(ShowCompactWatercolorManualStack));
+        OnPropertyChanged(nameof(ShowCompactChildrensBookManualStack));
+        OnPropertyChanged(nameof(ShowCompactThreeDRenderManualStack));
+        OnPropertyChanged(nameof(ShowCompactArchitectureArchvizManualStack));
+        OnPropertyChanged(nameof(ShowCompactTattooArtManualStack));
+        OnPropertyChanged(nameof(ShowStandardAnimePanel));
+        OnPropertyChanged(nameof(ShowCompactAnimePanel));
+        OnPropertyChanged(nameof(ShowSubjectContextFields));
+        OnPropertyChanged(nameof(ShowCompactCinematicPanel));
+        OnPropertyChanged(nameof(ShowCompactWatercolorPanel));
+        OnPropertyChanged(nameof(ShowCompactChildrensBookPanel));
+        OnPropertyChanged(nameof(ShowCompactThreeDRenderPanel));
+        OnPropertyChanged(nameof(ShowCompactTattooArtPanel));
+        OnPropertyChanged(nameof(ShowActiveStandardLanePanel));
+        OnPropertyChanged(nameof(ShowResolvedStandardLanePanel));
+    }
+
     private static readonly Dictionary<string, SliderBandMetadata> SliderBands = new(StringComparer.Ordinal)
     {
         ["Temperature"] = new("Cool", "Mild cool", "Neutral", "Warm", "Hot"),
@@ -4018,6 +3502,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         ["DetailDensity"] = new("Sparse", "Light", "Moderate", "Rich", "Dense"),
         ["AtmosphericDepth"] = new("Flat", "Light", "Air-filled", "Luminous", "Deep"),
         ["Chaos"] = new("Controlled", "Restless", "Volatile", "Orchestrated", "Unstable"),
+        // UI label is "Levity", but the internal key stays "Whimsy" so presets,
+        // bindings, and lane metadata remain compatible.
         ["Whimsy"] = new("Serious", "Subtle", "Playful", "Strong", "Bold"),
         ["Tension"] = new("Low", "Light", "Noticeable", "Strong", "Intense"),
         ["Awe"] = new("Grounded", "Slight", "Wonder", "Awe", "Grand"),
@@ -4200,6 +3686,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         if (IsPixelArtIntent)
         {
             var pixelArtPhrase = SliderLanguageCatalog.ResolvePixelArtPhrase(key, value, CaptureConfiguration());
+            if (string.Equals(key, "Realism", StringComparison.Ordinal) && value <= 20)
+            {
+                return $"Pixel Art: omit explicit realism{BuildArtistHelperTint(key)}".Trim();
+            }
+
             if (string.IsNullOrWhiteSpace(pixelArtPhrase))
             {
                 return string.Empty;
@@ -4351,7 +3842,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             "DetailDensity" => MapBand(value, "sparse detail treatment", "light detail presence", "moderate detail density", "rich fine detail", "dense detail layering"),
             "AtmosphericDepth" => MapBand(value, "limited atmospheric depth", "slight recession", "air-filled spatial depth", "luminous depth layering", "deep atmospheric perspective"),
             "Chaos" => MapBand(value, "controlled composition", "restless tension", "volatile energy", "orchestrated chaos", "high visual instability"),
-            "Whimsy" => MapBand(value, "serious tone", "subtle whimsy", "playful tone", "strong whimsical energy", "bold comedic whimsy"),
+            "Whimsy" => MapBand(value, "serious tone", "subtle levity", "playful tone", "strong playful energy", "bold comic levity"),
             "Tension" => MapBand(value, "low tension", "light dramatic tension", "noticeable tension", "strong interpersonal tension", "intense dramatic tension"),
             "Awe" => MapBand(value, "grounded scale", "slight wonder", "atmosphere of wonder", "strong sense of awe", "overwhelming grandeur"),
             "Saturation" => MapBand(value, "muted saturation", "restrained color", "balanced saturation", "rich color saturation", "vivid color saturation"),
@@ -4451,7 +3942,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 : IsThreeDRenderIntent
                     ? SliderLanguageCatalog.ResolveThreeDRenderGuideText(key)
                 : IsConceptArtIntent
-                    ? SliderLanguageCatalog.ResolveConceptArtGuideText(key)
+                    ? SliderLanguageCatalog.ResolveConceptArtGuideText(key, CaptureConfiguration())
                 : IsPixelArtIntent
                     ? SliderLanguageCatalog.ResolvePixelArtGuideText(key)
                 : IsFantasyIllustrationIntent
@@ -4460,6 +3951,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                     ? SliderLanguageCatalog.ResolveEditorialIllustrationGuideText(key)
                 : IsGraphicDesignIntent
                     ? SliderLanguageCatalog.ResolveGraphicDesignGuideText(key, CaptureConfiguration())
+                : IntentModeCatalog.IsInfographicDataVisualization(IntentMode)
+                    ? SliderLanguageCatalog.ResolveInfographicDataVisualizationGuideText(key, CaptureConfiguration())
                 : IsTattooArtIntent
                     ? SliderLanguageCatalog.ResolveTattooArtGuideText(key)
                 : IsWatercolorIntent
@@ -4549,7 +4042,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private sealed record ArtistPhraseSlotState(string DisplayName, int Strength, string GeneratedPhrase, string CurrentPhrase);
     private sealed record ArtistState(string Name, int Strength);
 }
 

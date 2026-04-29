@@ -18,6 +18,7 @@
     <Color x:Key="PopupBorderColor">#FF42526A</Color>
     <Color x:Key="SemanticChipSurfaceColor">#FF273245</Color>
     <Color x:Key="SemanticChipBorderColor">#FF36465E</Color>
+    <Color x:Key="OnboardingAccentColor">#CCFFF4D0</Color>
     <Color x:Key="ShadowColor">#FF000000</Color>
 
     <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}" />
@@ -37,9 +38,13 @@
     <SolidColorBrush x:Key="PopupBorderBrush" Color="{StaticResource PopupBorderColor}" />
     <SolidColorBrush x:Key="SemanticChipSurfaceBrush" Color="{StaticResource SemanticChipSurfaceColor}" />
     <SolidColorBrush x:Key="SemanticChipBorderBrush" Color="{StaticResource SemanticChipBorderColor}" />
+    <SolidColorBrush x:Key="OnboardingAccentBrush" Color="{StaticResource OnboardingAccentColor}" />
     <SolidColorBrush x:Key="SliderFlyoutCollapseCamouflageBrush" Color="{StaticResource CardColor}" />
     <SolidColorBrush x:Key="ComboBoxBackgroundBrush" Color="{StaticResource InputBackgroundColor}" />
     <SolidColorBrush x:Key="ComboBoxForegroundBrush" Color="{StaticResource TextPrimaryColor}" />
     <SolidColorBrush x:Key="ComboBoxDropDownBackgroundBrush" Color="{StaticResource PopupSurfaceColor}" />
     <SolidColorBrush x:Key="ComboBoxDropDownForegroundBrush" Color="{StaticResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="SelectorRadiantHoverBrush" Color="#BFD39A35" />
+    <SolidColorBrush x:Key="SelectorRadiantFocusBrush" Color="#E6D8AC5E" />
+    <SolidColorBrush x:Key="SelectorRadiantGlintBrush" Color="#CCFFF4D0" />
 </ResourceDictionary>

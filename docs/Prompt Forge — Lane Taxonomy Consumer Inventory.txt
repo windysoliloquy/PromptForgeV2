@@ -1,0 +1,172 @@
+Purpose
+
+- This document is Stage 3 from `docs/Prompt Forge — Lane Taxonomy Migration Plan.txt`.
+- The goal is to identify the safest future readers of taxonomy metadata before any implementation is considered.
+- This is a consumer inventory only. It does not propose code edits or runtime behavior changes.
+
+
+Inventory categories
+
+- `Safe first reader`
+  - a read-only grouping, summary, or presentation surface that could consume category/profile metadata without changing routing, resolver precedence, persistence, or orchestration timing
+- `Possible later reader`
+  - a surface where taxonomy metadata might help later, but only after a first read-only use proves stable
+- `True leaf-only concern`
+  - a surface that still fundamentally depends on exact lane identity rather than category/profile classification
+- `Unsafe first reader`
+  - a timing-sensitive, precedence-owning, or behavior-owning surface where taxonomy should not be introduced first
+
+
+Consumer inventory table
+
+- file / region: `PromptForge.App/ViewModels/MainWindowViewModel.cs` constructor intent list setup (`IntentModes = new ObservableCollection<string>(IntentModeCatalog.Names)`)
+  - currently reacts to: raw intent-name list
+  - inventory bucket: `Safe first reader`
+  - justification: picker organization is the cleanest user-facing grouping surface and can remain read-only if taxonomy is only used to group or present existing intent names
+
+- file / region: `PromptForge.App/ViewModels/MainWindowViewModel.cs` `BuildIntentModeSummary()`
+  - currently reacts to: `LaneRegistry.GetByIntentName(IntentMode)` plus many exact `IntentModeCatalog.Is...(...)` checks and special summaries
+  - inventory bucket: `Safe first reader`
+  - justification: the summary surface is presentation-oriented and already mixes registry summaries with intent-specific wording, so a later read-only category/profile label is plausible without touching routing
+
+- file / region: `PromptForge.App/ViewModels/MainWindowViewModel.cs` `IntentModeSummary` property surface
+  - currently reacts to: exact lane summary generation
+  - inventory bucket: `Safe first reader`
+  - justification: this is a presentation output, not a control-flow owner
+
+- file / region: `PromptForge.Core/Services/LaneRegistry.cs` lane `Summary` metadata
+  - currently reacts to: exact lane definitions by `Id` and `IntentNames`
+  - inventory bucket: `Safe first reader`
+  - justification: registry-owned summaries are already read-only metadata consumers, so adjacent taxonomy metadata could sit near this usage without changing runtime decisions
+
+- file / region: `PromptForge.App/ViewModels/MainWindowViewModel.cs` lock/unlock presentation properties such as `IsVintageBendLocked`, `ShowVintageBendLockedPane`, locked headline/body
+  - currently reacts to: exact locked intent leaves and preset ownership
+  - inventory bucket: `Possible later reader`
+  - justification: category/profile metadata could help describe “locked lane family” in presentation, but the current surface is still tightly tied to exact unlock semantics and should not be the first consumer
+
+- file / region: `PromptForge.App/ViewModels/MainWindowViewModel.cs` boolean UI visibility properties such as `IsAnimeIntent`, `IsPhotographyIntent`, `IsGraphicDesignIntent`, `IsVintageBendIntent`
+  - currently reacts to: exact `IntentModeCatalog.Is...(...)` leaf checks
+  - inventory bucket: `True leaf-only concern`
+  - justification: these properties drive lane-specific UI composition, not just grouping; category/profile metadata would not replace the need for exact leaf identity here
+
+- file / region: `PromptForge.App/ViewModels/MainWindowViewModel.cs` lock map `LockedLaneUnlockPresetNames` and `UpdateLockedLaneAccessState(...)`
+  - currently reacts to: exact locked intent leaves
+  - inventory bucket: `True leaf-only concern`
+  - justification: unlock behavior is still leaf-owned product behavior, not just classification
+
+- file / region: `PromptForge.App/ViewModels/MainWindowViewModel.cs` lane-specific preview phrase / guide-text routing around `ResolveVintageBendPhrase(...)`, `ResolveAnimePhrase(...)`, `ResolveGraphicDesignPhrase(...)`, etc.
+  - currently reacts to: exact lane resolver and guide-text ownership
+  - inventory bucket: `Unsafe first reader`
+  - justification: this is resolver-adjacent lane routing and would blur taxonomy with phrase authority immediately
+
+- file / region: `PromptForge.App/ViewModels/MainWindowViewModel.cs` `CaptureConfiguration()` lane-specific capture branches
+  - currently reacts to: exact lane leaf identity and lane-specific config fields
+  - inventory bucket: `True leaf-only concern`
+  - justification: config capture must still know the exact lane leaf and its concrete fields; taxonomy does not replace that
+
+- file / region: `PromptForge.App/ViewModels/MainWindowViewModel.cs` `ApplyConfiguration(...)` / `StandardLaneStateAdapter.HydrateConfiguration(...)`
+  - currently reacts to: exact lane state/config replay semantics
+  - inventory bucket: `Unsafe first reader`
+  - justification: apply/reset and hydration are persistence-sensitive and should not be the first place taxonomy metadata appears
+
+- file / region: `PromptForge.Core/Services/PromptBuilderService.cs` `Build(...)`
+  - currently reacts to: exact experimental vs standard route ownership
+  - inventory bucket: `Unsafe first reader`
+  - justification: build entry is a stabilized routing core and taxonomy must not be introduced there first
+
+- file / region: `PromptForge.Core/Services/PromptBuilderService.cs` `BuildStandardPrompt(...)` lane booleans and contributor lookup
+  - currently reacts to: exact leaf checks and `LanePromptContributorRegistry.TryGet(...)`
+  - inventory bucket: `Unsafe first reader`
+  - justification: this is behavior-owning branch selection, not read-only classification
+
+- file / region: `PromptForge.Core/Services/PromptBuilderService.cs` debug/logging surfaces such as builder-decision logging
+  - currently reacts to: exact intent inputs and effective intent outputs
+  - inventory bucket: `Possible later reader`
+  - justification: read-only taxonomy labels could help diagnostics later, but logging is not the best first proof surface compared with picker/summaries
+
+- file / region: `PromptForge.Core/Services/SliderLanguageCatalog.cs` `ResolvePhrase(...)`
+  - currently reacts to: exact intent leaf route chain into lane-local resolvers or standard shared selection
+  - inventory bucket: `Unsafe first reader`
+  - justification: this is resolver-precedence ownership, which the taxonomy plan explicitly must not touch first
+
+- file / region: `PromptForge.Core/Services/SliderLanguageCatalog.cs` `ResolvePromptPhraseOrFallback(...)` and `ResolveFallbackPromptPhrase(...)`
+  - currently reacts to: exact phrase-first and fallback precedence rules
+  - inventory bucket: `Unsafe first reader`
+  - justification: fallback ownership is even less suitable than summary surfaces because it is behavior-defining, not presentational
+
+- file / region: `PromptForge.Core/Services/SliderLanguageCatalog.cs` `ResolveStandardPhrase(...)`
+  - currently reacts to: shared-standard phrase selection ownership after dispatch
+  - inventory bucket: `True leaf-only concern`
+  - justification: the taxonomy helps explain why some lanes use this shared path, but final phrase selection itself is not a taxonomy reader
+
+- file / region: `PromptForge.Core/Services/Lanes/LanePromptContributorRegistry.cs`
+  - currently reacts to: exact contributor-owned intent names
+  - inventory bucket: `True leaf-only concern`
+  - justification: contributor registry ownership is itself one of the behavior-profile signals, but the registry still has to map exact leaf identity to a contributor
+
+- file / region: `PromptForge.Core/Services/Lanes/*.cs` contributor implementations such as `FantasyIllustrationLane`, `EditorialIllustrationLane`, `GraphicDesignLane`, `ComicBookLane`, `TattooArtLane`
+  - currently reacts to: exact lane-local build, overlay, and suppression behavior
+  - inventory bucket: `True leaf-only concern`
+  - justification: contributor implementations are concrete leaf-owned behavior and should stay that way
+
+- file / region: `PromptForge.Core/Services/LaneRegistry.cs` `TryGetByIntentName(...)` / `GetByIntentName(...)`
+  - currently reacts to: exact intent-to-lane mapping
+  - inventory bucket: `Possible later reader`
+  - justification: registry lookups are already the cleanest narrow place to join taxonomy metadata later, but not all current registry consumers are safe first readers
+
+- file / region: `PromptForge.Core/Services/LaneRegistry.cs` lane definition inventory as a whole
+  - currently reacts to: exact lane metadata keyed by `Id` and `IntentNames`
+  - inventory bucket: `Possible later reader`
+  - justification: this is the right metadata home area, but merely living near the registry does not mean every registry consumer is safe first
+
+
+Best first consumer candidate
+
+- safest first future reader: `PromptForge.App/ViewModels/MainWindowViewModel.cs` intent picker / grouping presentation surface
+- why this is safest:
+  - it is read-only presentation
+  - it can consume `Category` without changing resolver routing, builder routing, fallback behavior, or persistence semantics
+  - it tests whether taxonomy adds real user-facing value before any central behavior surface is touched
+  - it is safer than `IntentModeSummary` because picker grouping can stay purely organizational, while summaries already mix in more special-case wording
+
+
+Unsafe first consumers
+
+- `PromptForge.Core/Services/SliderLanguageCatalog.cs` dispatch and fallback surfaces
+  - most dangerous because they own resolver precedence and fallback behavior
+- `PromptForge.Core/Services/PromptBuilderService.cs` build entry and standard-path routing surfaces
+  - dangerous because they own branch selection and final builder timing
+- `PromptForge.App/ViewModels/MainWindowViewModel.cs` stabilized orchestration shells
+  - dangerous because they own timing-sensitive UI behavior, access gating, apply/reset sequencing, and regeneration timing
+- `StandardLaneStateAdapter` and config replay surfaces
+  - dangerous because taxonomy does not belong in hydration or persistence paths first
+
+
+What taxonomy will not solve
+
+- exact unlock behavior for `Vintage Bend`, `Product Photography`, `Food Photography`, and `Lifestyle Advertising Photography`
+- exact contributor ownership in `LanePromptContributorRegistry`
+- exact lane-local phrase authority in `SliderLanguageCatalog.[Lane].cs`
+- exact guide-text routing in `MainWindowViewModel`
+- exact config capture/apply/reset fields for each lane leaf
+- exact builder branch ownership where a lane has special descriptor or contributor behavior
+- exact resolver dispatch and fallback precedence
+
+Why not
+
+- these are still leaf-owned or behavior-owned concerns
+- taxonomy can classify them, but classification does not replace exact lane identity where the runtime still needs the exact leaf
+
+
+Assessment
+
+- Yes, the consumer inventory supports a future minimal read-only implementation phase.
+- The strongest evidence is that at least one genuinely safe first reader exists:
+  - picker / grouping presentation in `MainWindowViewModel`
+- The inventory also shows clear boundaries where taxonomy should not be introduced first, which makes the later implementation phase easier to scope honestly.
+
+
+Recommendation
+
+- `Proceed to Stage 4 later`
+- The inventory shows one clear low-risk first reader, several possible later readers, and a large set of true leaf-only or unsafe behavior surfaces, which is exactly the kind of evidence needed before considering a minimal read-only implementation phase.

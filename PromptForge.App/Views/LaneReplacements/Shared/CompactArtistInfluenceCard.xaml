@@ -1,0 +1,316 @@
+﻿<UserControl x:Class="PromptForge.App.Views.LaneReplacements.Shared.CompactArtistInfluenceCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:PromptForge.App.Controls"
+             Focusable="False">
+    <UserControl.Resources>
+        <BitmapImage x:Key="CompactArtistInfluenceHideGateNormalImage"
+                     UriSource="pack://application:,,,/Assets/HoverDeck/Gates/hd_hide_gate_obsidian_n.png" />
+        <BitmapImage x:Key="CompactArtistInfluenceHideGateHoverImage"
+                     UriSource="pack://application:,,,/Assets/HoverDeck/Gates/hd_hide_gate_obsidian_h.png" />
+        <BitmapImage x:Key="CompactArtistInfluenceHideGatePressedImage"
+                     UriSource="pack://application:,,,/Assets/HoverDeck/Gates/hd_hide_gate_obsidian_p.png" />
+        <BitmapImage x:Key="CompactArtistInfluenceHideGateDisabledImage"
+                     UriSource="pack://application:,,,/Assets/HoverDeck/Gates/hd_hide_gate_obsidian_d.png" />
+        <Thickness x:Key="CompactArtistInfluenceCollapsedPadding">10,7</Thickness>
+        <Thickness x:Key="CompactArtistInfluenceCollapsedMargin">0,0,0,4</Thickness>
+        <Style x:Key="CompactArtistInfluenceSectionCardStyle" TargetType="Border" BasedOn="{StaticResource SectionCardStyle}">
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="Background" Value="{DynamicResource SubtleSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}" />
+        </Style>
+        <Style x:Key="CompactArtistInfluenceActionButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="MinWidth" Value="52" />
+            <Setter Property="Height" Value="26" />
+            <Setter Property="Padding" Value="8,1" />
+            <Setter Property="FontSize" Value="10.5" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="CompactArtistInfluenceGateButtonStyle" TargetType="Button" BasedOn="{StaticResource CompactArtistInfluenceActionButtonStyle}">
+            <Setter Property="Width" Value="72" />
+            <Setter Property="MinWidth" Value="72" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="#FFF0E1BC" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Image x:Name="HideGatePlate"
+                                   Width="72"
+                                   Height="28"
+                                   Source="{StaticResource CompactArtistInfluenceHideGateNormalImage}"
+                                   Stretch="Fill"
+                                   SnapsToDevicePixels="True" />
+                            <Border Background="Transparent"
+                                    Panel.ZIndex="5"
+                                    IsHitTestVisible="False">
+                                <TextBlock x:Name="HideGateLabel"
+                                           Text="{TemplateBinding Content}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           TextAlignment="Center"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           FontSize="{TemplateBinding FontSize}"
+                                           FontWeight="SemiBold"
+                                           SnapsToDevicePixels="True">
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect BlurRadius="1.2"
+                                                          ShadowDepth="0"
+                                                          Opacity="0.72"
+                                                          Color="#D8040506" />
+                                    </TextBlock.Effect>
+                                </TextBlock>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="HideGatePlate"
+                                        Property="Source"
+                                        Value="{StaticResource CompactArtistInfluenceHideGateDisabledImage}" />
+                                <Setter TargetName="HideGateLabel"
+                                        Property="Foreground"
+                                        Value="#B8CBBEAA" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="HideGatePlate"
+                                        Property="Source"
+                                        Value="{StaticResource CompactArtistInfluenceHideGatePressedImage}" />
+                                <Setter TargetName="HideGateLabel"
+                                        Property="Foreground"
+                                        Value="#FFFFE8BA" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="IsPressed" Value="False" />
+                                    <Condition Property="IsEnabled" Value="True" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="HideGatePlate"
+                                        Property="Source"
+                                        Value="{StaticResource CompactArtistInfluenceHideGateHoverImage}" />
+                                <Setter TargetName="HideGateLabel"
+                                        Property="Foreground"
+                                        Value="#FFFFE6AE" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CompactArtistInfluenceTitleButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Border x:Name="ArtistInfluenceCard"
+            Style="{StaticResource CompactArtistInfluenceSectionCardStyle}"
+            MinWidth="0"
+            HorizontalAlignment="Stretch">
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Style="{StaticResource CompactArtistInfluenceTitleButtonStyle}"
+                        Click="OnArtistInfluenceTitleClick">
+                    <TextBlock Text="Artist Influence" Style="{StaticResource SectionTitleTextStyle}" />
+                </Button>
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal">
+                    <Button x:Name="ArtistInfluenceResetButton"
+                            Content="(╯°□°)╯︵ ┻━┻"
+                            Style="{StaticResource CompactArtistInfluenceActionButtonStyle}"
+                            Margin="0,0,8,0"
+                            Click="OnArtistInfluenceResetClick"
+                            ToolTip="Reset both artist influence selections to None.">
+                        <Button.ContentTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"
+                                           Style="{StaticResource OnboardingAccentTextStyle}"
+                                           FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=Button}}"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                    </Button>
+                    <Button Content="Hide"
+                            Style="{StaticResource CompactArtistInfluenceGateButtonStyle}"
+                            Click="OnArtistInfluenceGateClick"
+                            ToolTip="Collapse artist influence." />
+                </StackPanel>
+            </Grid>
+            <StackPanel x:Name="ArtistInfluenceBody">
+                <TextBlock Text="Artist influence stays active whether you use a bundled intent or the full custom structure."
+                           Style="{StaticResource BodyMutedTextStyle}"
+                           TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,6,0,0"
+                            Visibility="{Binding ShowArtistPairGuidanceIcon, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Button Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Cursor="Hand"
+                            ToolTip="{Binding ArtistPairGuidanceTooltip}"
+                            Focusable="True"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            ToolTipService.InitialShowDelay="10">
+                        <Border Width="24"
+                                Height="24"
+                                CornerRadius="12"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource TextPrimaryBrush}"
+                                Background="{DynamicResource AppBackgroundBrush}">
+                            <TextBlock Text="i"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" />
+                        </Border>
+                    </Button>
+                </StackPanel>
+                <TextBlock Text="Primary Artist Influence" Style="{StaticResource FieldLabelTextStyle}" />
+                <StackPanel>
+                    <ComboBox x:Name="PrimaryArtistInfluenceComboBox"
+                              ItemsSource="{Binding ArtistInfluences}"
+                              SelectedItem="{Binding ArtistInfluencePrimary}"
+                              Text="{Binding ArtistInfluencePrimary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              IsEditable="True"
+                              IsTextSearchEnabled="True"
+                              Style="{StaticResource AppComboBoxStyle}" />
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,6,0,0">
+                        <TextBlock Text="When mixing 2 artists, you have to use these buttons ---&gt;"
+                                   Style="{StaticResource OnboardingAccentTextStyle}"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0" />
+                        <Button Content="(•_•)/"
+                                Command="{Binding EditPrimaryArtistPhraseCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0"
+                                Padding="12,7"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                ToolTip="Edit the phrase wrapped around the primary artist name.">
+                            <Button.ContentTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                                               Style="{StaticResource OnboardingAccentTextStyle}"
+                                               FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=Button}}"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                <controls:SliderFlyout Label="Primary Strength" Value="{Binding InfluenceStrengthPrimary}" ValueText="{Binding InfluenceStrengthPrimaryValueText}" GuideText="{Binding InfluenceStrengthPrimaryGuideText}" HelperText="Adjusts how strongly the primary artist shapes the prompt." />
+
+                <Grid Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Secondary Artist Influence" Style="{StaticResource FieldLabelTextStyle}" />
+                    <Button Grid.Column="1"
+                            Content="⇅"
+                            Command="{Binding SwapArtistInfluencesCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="42"
+                            Height="34"
+                            Padding="0"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Margin="10,0,0,0"
+                            VerticalAlignment="Center"
+                            ToolTip="Swap the selected primary and secondary artists while keeping each slot's phrase wrapper and strength in place.">
+                        <Button.ContentTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"
+                                           Style="{StaticResource OnboardingAccentTextStyle}"
+                                           FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=Button}}"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </DataTemplate>
+                        </Button.ContentTemplate>
+                    </Button>
+                </Grid>
+                <StackPanel>
+                    <ComboBox x:Name="SecondaryArtistInfluenceComboBox"
+                              ItemsSource="{Binding ArtistInfluences}"
+                              SelectedItem="{Binding ArtistInfluenceSecondary}"
+                              Text="{Binding ArtistInfluenceSecondary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              IsEditable="True"
+                              IsTextSearchEnabled="True"
+                              Style="{StaticResource AppComboBoxStyle}" />
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,6,0,0">
+                        <TextBlock Text="When mixing 2 artists, you have to use these buttons ---&gt;"
+                                   Style="{StaticResource OnboardingAccentTextStyle}"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0" />
+                        <Button Content="(•_•)/"
+                                Command="{Binding EditSecondaryArtistPhraseCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0"
+                                Padding="12,7"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                ToolTip="Edit the phrase wrapped around the secondary artist name.">
+                            <Button.ContentTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                                               Style="{StaticResource OnboardingAccentTextStyle}"
+                                               FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=Button}}"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                <controls:SliderFlyout Label="Secondary Strength" Value="{Binding InfluenceStrengthSecondary}" ValueText="{Binding InfluenceStrengthSecondaryValueText}" GuideText="{Binding InfluenceStrengthSecondaryGuideText}" HelperText="Adjusts how strongly the secondary artist accents the prompt." />
+                <StackPanel Margin="0,6,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Material" Style="{StaticResource FieldLabelTextStyle}" />
+                        <ComboBox ItemsSource="{Binding Materials}" SelectedItem="{Binding Material}" Style="{StaticResource AppComboBoxStyle}" />
+                    </StackPanel>
+                    <StackPanel Margin="0,6,0,0">
+                        <TextBlock Text="Art Style" Style="{StaticResource FieldLabelTextStyle}" />
+                        <ComboBox ItemsSource="{Binding ArtStyles}" SelectedItem="{Binding ArtStyle}" Style="{StaticResource AppComboBoxStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -26,7 +26,11 @@ Current behavior:
 - unlock files are portable
 - unlock persistence is plain JSON under `%LocalAppData%`
 - demo copy limits are plain JSON under `%LocalAppData%`
-- app validates a signature correctly, but it does not enforce machine binding or lane entitlements
+- app validates signatures
+- app supports `MachineBound` and `Temporary` license modes
+- app enforces machine-token matching for `MachineBound` licenses
+- signed `AllowedLanes` participate in actual lane access gating
+- unlock persistence is still plain JSON and not yet DPAPI-hardened
 
 ## V5 Target Schema
 
@@ -77,6 +81,16 @@ App validation rules:
 ## Lane Gating
 
 Lane access should be data-driven from the signed license, not inferred from UI state.
+
+Current implemented rule:
+
+- base/free lane
+- OR local durable lane unlock
+- OR signed `AllowedLanes` contains the intent name
+
+Current limitation:
+
+- `EntitlementProfile` is persisted and visible, but current lane access is enforced through explicit `AllowedLanes` rather than profile-name inference alone
 
 Recommended first entitlement profiles:
 
@@ -156,5 +170,8 @@ Before shipping V5 licensing:
 As of this plan:
 
 - the cryptographic base is already present
-- V5 schema fields, machine-token handling, and signed `Temporary` / `MachineBound` modes are now being wired into the app and generator
-- lane-entitlement enforcement is still the next follow-up after the base mode flow is verified
+- V5 schema fields are implemented in the app and generator
+- signed `Temporary` and `MachineBound` modes are implemented
+- machine-token validation is implemented for `MachineBound`
+- signed `AllowedLanes` are part of current lane-access enforcement
+- remaining hardening work is mainly persistence protection and any future profile-to-lane expansion beyond explicit `AllowedLanes`

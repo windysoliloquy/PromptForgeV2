@@ -1,0 +1,1016 @@
+<UserControl x:Class="PromptForge.App.Views.CompactWorkstation.HoverDeckExperimentalCompressedBody"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:PromptForge.App.Controls"
+             xmlns:sharedLaneReplacements="clr-namespace:PromptForge.App.Views.LaneReplacements.Shared"
+             Focusable="False">
+    <UserControl.Resources>
+        <BitmapImage x:Key="HoverDeckCollapsedRowNormalLeftImage"
+                     UriSource="/Assets/HoverDeck/Rows/hd_row_plate_collapsed_obsidian_n_l.png" />
+        <BitmapImage x:Key="HoverDeckCollapsedRowNormalCenterImage"
+                     UriSource="/Assets/HoverDeck/Rows/hd_row_plate_collapsed_obsidian_n_c.png" />
+        <BitmapImage x:Key="HoverDeckCollapsedRowNormalRightImage"
+                     UriSource="/Assets/HoverDeck/Rows/hd_row_plate_collapsed_obsidian_n_r.png" />
+        <BitmapImage x:Key="HoverDeckCollapsedRowHoverLeftImage"
+                     UriSource="/Assets/HoverDeck/Rows/hd_row_plate_collapsed_obsidian_h_l.png" />
+        <BitmapImage x:Key="HoverDeckCollapsedRowHoverCenterImage"
+                     UriSource="/Assets/HoverDeck/Rows/hd_row_plate_collapsed_obsidian_h_c.png" />
+        <BitmapImage x:Key="HoverDeckCollapsedRowHoverRightImage"
+                     UriSource="/Assets/HoverDeck/Rows/hd_row_plate_collapsed_obsidian_h_r.png" />
+        <BitmapImage x:Key="HoverDeckCollapsedRowActiveLeftImage"
+                     UriSource="/Assets/HoverDeck/Rows/hd_row_plate_collapsed_obsidian_a_l.png" />
+        <BitmapImage x:Key="HoverDeckCollapsedRowActiveCenterImage"
+                     UriSource="/Assets/HoverDeck/Rows/hd_row_plate_collapsed_obsidian_a_c.png" />
+        <BitmapImage x:Key="HoverDeckCollapsedRowActiveRightImage"
+                     UriSource="/Assets/HoverDeck/Rows/hd_row_plate_collapsed_obsidian_a_r.png" />
+
+        <BitmapImage x:Key="HoverDeckCopyPromptNormalLeftImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_n_l.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptNormalCenterImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_n_c.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptNormalRightImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_n_r.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptHoverLeftImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_h_l.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptHoverCenterImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_h_c.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptHoverRightImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_h_r.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptPressedLeftImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_p_l.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptPressedCenterImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_p_c.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptPressedRightImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_p_r.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptDisabledLeftImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_d_l.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptDisabledCenterImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_d_c.png" />
+        <BitmapImage x:Key="HoverDeckCopyPromptDisabledRightImage"
+                     UriSource="/Assets/HoverDeck/Buttons/hd_copy_prompt_plate_d_r.png" />
+        <BitmapImage x:Key="HoverDeckHideGateNormalImage"
+                     UriSource="/Assets/HoverDeck/Gates/hd_hide_gate_obsidian_n.png" />
+        <BitmapImage x:Key="HoverDeckHideGateHoverImage"
+                     UriSource="/Assets/HoverDeck/Gates/hd_hide_gate_obsidian_h.png" />
+        <BitmapImage x:Key="HoverDeckHideGatePressedImage"
+                     UriSource="/Assets/HoverDeck/Gates/hd_hide_gate_obsidian_p.png" />
+        <BitmapImage x:Key="HoverDeckHideGateDisabledImage"
+                     UriSource="/Assets/HoverDeck/Gates/hd_hide_gate_obsidian_d.png" />
+
+        <Style x:Key="HoverDeckCompressedSectionCardStyle" TargetType="Border" BasedOn="{StaticResource SectionCardStyle}">
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Background" Value="{DynamicResource HoverDeckInnerShellGradientBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource HoverDeckCardBorderBrush}" />
+        </Style>
+        <Style x:Key="HoverDeckCollapsedSectionCardStyle" TargetType="Border" BasedOn="{StaticResource HoverDeckCompressedSectionCardStyle}">
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="MinHeight" Value="38" />
+        </Style>
+        <Style x:Key="HoverDeckCompressedRowLabelTextStyle" TargetType="TextBlock" BasedOn="{StaticResource FieldLabelTextStyle}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="TextTrimming" Value="None" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="HoverDeckCollapsedRowTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource OnboardingAccentTextStyle}">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="HoverDeckCollapsedGateButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="MinWidth" Value="52" />
+            <Setter Property="Height" Value="26" />
+            <Setter Property="Padding" Value="8,1" />
+            <Setter Property="FontSize" Value="10.5" />
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Grid>
+                            <TextBlock x:Name="GateText"
+                                       Text="{Binding}"
+                                       FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=Button}}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <TextBlock x:Name="GateSparkText"
+                                       Text="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}, TargetNullValue=***, FallbackValue=***}"
+                                       Style="{StaticResource OnboardingAccentTextStyle}"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed" />
+                            <TextBlock x:Name="GateHideText"
+                                       Text="(つ﹏⊂)"
+                                       Style="{StaticResource OnboardingAccentTextStyle}"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed" />
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding}" Value="Show">
+                                <Setter TargetName="GateText" Property="Visibility" Value="Collapsed" />
+                                <Setter TargetName="GateSparkText" Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding}" Value="Hide">
+                                <Setter TargetName="GateText" Property="Visibility" Value="Collapsed" />
+                                <Setter TargetName="GateHideText" Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HoverDeckImageHideGateButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="Width" Value="72" />
+            <Setter Property="MinWidth" Value="72" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontSize" Value="10.5" />
+            <Setter Property="Foreground" Value="#FFF0E1BC" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Width="{TemplateBinding Width}"
+                              Height="{TemplateBinding Height}"
+                              Background="Transparent"
+                              SnapsToDevicePixels="True">
+                            <Image x:Name="HideGatePlate"
+                                   Width="72"
+                                   Height="28"
+                                   Source="{StaticResource HoverDeckHideGateNormalImage}"
+                                   Stretch="Fill"
+                                   SnapsToDevicePixels="True" />
+                            <Border Background="Transparent"
+                                    Panel.ZIndex="5"
+                                    IsHitTestVisible="False">
+                                <TextBlock x:Name="HideGateLabel"
+                                           Text="{TemplateBinding Content}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           TextAlignment="Center"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           FontSize="{TemplateBinding FontSize}"
+                                           FontWeight="SemiBold"
+                                           SnapsToDevicePixels="True">
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect BlurRadius="1.2"
+                                                          ShadowDepth="0"
+                                                          Opacity="0.72"
+                                                          Color="#D8040506" />
+                                    </TextBlock.Effect>
+                                </TextBlock>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="HideGatePlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckHideGateDisabledImage}" />
+                                <Setter TargetName="HideGateLabel"
+                                        Property="Foreground"
+                                        Value="#B8CBBEAA" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="HideGatePlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckHideGatePressedImage}" />
+                                <Setter TargetName="HideGateLabel"
+                                        Property="Foreground"
+                                        Value="#FFFFE8BA" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="IsPressed" Value="False" />
+                                    <Condition Property="IsEnabled" Value="True" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="HideGatePlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckHideGateHoverImage}" />
+                                <Setter TargetName="HideGateLabel"
+                                        Property="Foreground"
+                                        Value="#FFFFE6AE" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HoverDeckSectionTitleButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HoverDeckCollapsedRowHeaderButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="26,0,26,0" />
+            <Setter Property="Margin" Value="-10,-7" />
+            <Setter Property="MinHeight" Value="46" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="True" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="Transparent"
+                              SnapsToDevicePixels="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="64" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="64" />
+                            </Grid.ColumnDefinitions>
+
+                            <Image x:Name="LeftPlate"
+                                   Grid.Column="0"
+                                   Width="64"
+                                   Height="46"
+                                   Source="{StaticResource HoverDeckCollapsedRowNormalLeftImage}"
+                                   Stretch="Fill"
+                                   SnapsToDevicePixels="True" />
+                            <Image x:Name="CenterPlate"
+                                   Grid.Column="1"
+                                   Height="46"
+                                   Source="{StaticResource HoverDeckCollapsedRowNormalCenterImage}"
+                                   Stretch="Fill"
+                                   SnapsToDevicePixels="True" />
+                            <Image x:Name="RightPlate"
+                                   Grid.Column="2"
+                                   Width="64"
+                                   Height="46"
+                                   Source="{StaticResource HoverDeckCollapsedRowNormalRightImage}"
+                                   Stretch="Fill"
+                                   SnapsToDevicePixels="True" />
+
+                            <Border Grid.ColumnSpan="3"
+                                    Background="Transparent"
+                                    Panel.ZIndex="5"
+                                    IsHitTestVisible="False">
+                                <TextBlock x:Name="CollapsedRowLabel"
+                                           Style="{StaticResource HoverDeckCollapsedRowTitleTextStyle}"
+                                           Margin="{TemplateBinding Padding}"
+                                           Text="{TemplateBinding Content}"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           TextAlignment="Left"
+                                           FontSize="{TemplateBinding FontSize}"
+                                           FontWeight="{TemplateBinding FontWeight}"
+                                           TextTrimming="CharacterEllipsis"
+                                           SnapsToDevicePixels="True">
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect BlurRadius="1.4"
+                                                          ShadowDepth="0"
+                                                          Opacity="0.72"
+                                                          Color="#D8040506" />
+                                    </TextBlock.Effect>
+                                </TextBlock>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="{x:Static Visibility.Visible}">
+                                <Setter TargetName="LeftPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCollapsedRowActiveLeftImage}" />
+                                <Setter TargetName="CenterPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCollapsedRowActiveCenterImage}" />
+                                <Setter TargetName="RightPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCollapsedRowActiveRightImage}" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="Tag" Value="{x:Static Visibility.Collapsed}" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="LeftPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCollapsedRowHoverLeftImage}" />
+                                <Setter TargetName="CenterPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCollapsedRowHoverCenterImage}" />
+                                <Setter TargetName="RightPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCollapsedRowHoverRightImage}" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HoverDeckCopyPromptButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Foreground" Value="#FFF5E7BF" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Width="{TemplateBinding Width}"
+                              MinHeight="{TemplateBinding MinHeight}"
+                              Background="Transparent"
+                              SnapsToDevicePixels="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="18" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="18" />
+                            </Grid.ColumnDefinitions>
+
+                            <Image x:Name="LeftPlate"
+                                   Grid.Column="0"
+                                   Width="18"
+                                   Height="30"
+                                   Source="{StaticResource HoverDeckCopyPromptNormalLeftImage}"
+                                   Stretch="Fill"
+                                   SnapsToDevicePixels="True" />
+                            <Image x:Name="CenterPlate"
+                                   Grid.Column="1"
+                                   Height="30"
+                                   Source="{StaticResource HoverDeckCopyPromptNormalCenterImage}"
+                                   Stretch="Fill"
+                                   SnapsToDevicePixels="True" />
+                            <Image x:Name="RightPlate"
+                                   Grid.Column="2"
+                                   Width="18"
+                                   Height="30"
+                                   Source="{StaticResource HoverDeckCopyPromptNormalRightImage}"
+                                   Stretch="Fill"
+                                   SnapsToDevicePixels="True" />
+
+                            <TextBlock x:Name="CopyPromptLabel"
+                                       Grid.ColumnSpan="3"
+                                       Margin="{TemplateBinding Padding}"
+                                       Text="{TemplateBinding Content}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       TextAlignment="Center"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       FontWeight="{TemplateBinding FontWeight}"
+                                       TextTrimming="CharacterEllipsis"
+                                       SnapsToDevicePixels="True">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect BlurRadius="1.5"
+                                                      ShadowDepth="0"
+                                                      Opacity="0.72"
+                                                      Color="#CC050607" />
+                                </TextBlock.Effect>
+                            </TextBlock>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="LeftPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCopyPromptDisabledLeftImage}" />
+                                <Setter TargetName="CenterPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCopyPromptDisabledCenterImage}" />
+                                <Setter TargetName="RightPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCopyPromptDisabledRightImage}" />
+                                <Setter TargetName="CopyPromptLabel"
+                                        Property="Foreground"
+                                        Value="#B8D4C3A1" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="LeftPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCopyPromptPressedLeftImage}" />
+                                <Setter TargetName="CenterPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCopyPromptPressedCenterImage}" />
+                                <Setter TargetName="RightPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCopyPromptPressedRightImage}" />
+                                <Setter TargetName="CopyPromptLabel"
+                                        Property="Foreground"
+                                        Value="#FFFFF1CF" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="IsPressed" Value="False" />
+                                    <Condition Property="IsEnabled" Value="True" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="LeftPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCopyPromptHoverLeftImage}" />
+                                <Setter TargetName="CenterPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCopyPromptHoverCenterImage}" />
+                                <Setter TargetName="RightPlate"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckCopyPromptHoverRightImage}" />
+                                <Setter TargetName="CopyPromptLabel"
+                                        Property="Foreground"
+                                        Value="#FFFFF2D6" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HoverDeckIntentModeComboBoxItemStyle" TargetType="ComboBoxItem" BasedOn="{StaticResource AppComboBoxItemStyle}" />
+        <Storyboard x:Key="HoverDeckCopyPromptFeedbackStoryboard"
+                    FillBehavior="Stop">
+            <ColorAnimation Storyboard.TargetName="HoverDeckSubjectCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="#FFDFA43A"
+                            BeginTime="0:0:0.12"
+                            Duration="0:0:0.09" />
+            <ColorAnimation Storyboard.TargetName="HoverDeckSubjectCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="#FFF6D98C"
+                            BeginTime="0:0:0.21"
+                            Duration="0:0:0.12" />
+            <ColorAnimation Storyboard.TargetName="HoverDeckSubjectCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="#33F3C66B"
+                            BeginTime="0:0:0.35"
+                            Duration="0:0:0.22" />
+            <DoubleAnimation Storyboard.TargetName="HoverDeckSubjectCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="1"
+                             BeginTime="0:0:0.12"
+                             Duration="0:0:0.08" />
+            <DoubleAnimation Storyboard.TargetName="HoverDeckSubjectCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0"
+                             BeginTime="0:0:0.24"
+                             Duration="0:0:0.28" />
+            <DoubleAnimation Storyboard.TargetName="HoverDeckCopyPromptSuccessText"
+                             Storyboard.TargetProperty="Opacity"
+                             To="1"
+                             BeginTime="0:0:0.29"
+                             Duration="0:0:0.08" />
+            <ColorAnimation Storyboard.TargetName="HoverDeckForgeSuccessBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="#FFF6D17A"
+                            BeginTime="0:0:0.29"
+                            Duration="0:0:0.08" />
+            <DoubleAnimation Storyboard.TargetName="HoverDeckCopyPromptSuccessText"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0"
+                             BeginTime="0:0:1.3"
+                             Duration="0:0:0.2" />
+            <ColorAnimation Storyboard.TargetName="HoverDeckForgeSuccessBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="#00F6D17A"
+                            BeginTime="0:0:1.3"
+                            Duration="0:0:0.2" />
+        </Storyboard>
+        <Storyboard x:Key="HoverDeckCopyPromptFeedbackReducedMotionStoryboard"
+                    FillBehavior="Stop">
+            <ColorAnimation Storyboard.TargetName="HoverDeckSubjectCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="#FFF6D98C"
+                            BeginTime="0:0:0.03"
+                            Duration="0:0:0.09" />
+            <ColorAnimation Storyboard.TargetName="HoverDeckSubjectCardBorderOverlayBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="#33F3C66B"
+                            BeginTime="0:0:0.18"
+                            Duration="0:0:0.18" />
+            <DoubleAnimation Storyboard.TargetName="HoverDeckSubjectCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0.82"
+                             BeginTime="0:0:0.03"
+                             Duration="0:0:0.05" />
+            <DoubleAnimation Storyboard.TargetName="HoverDeckSubjectCardBorderOverlay"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0"
+                             BeginTime="0:0:0.18"
+                             Duration="0:0:0.18" />
+            <DoubleAnimation Storyboard.TargetName="HoverDeckCopyPromptSuccessText"
+                             Storyboard.TargetProperty="Opacity"
+                             To="1"
+                             BeginTime="0:0:0.22"
+                             Duration="0:0:0.05" />
+            <ColorAnimation Storyboard.TargetName="HoverDeckForgeSuccessBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="#FFF6D17A"
+                            BeginTime="0:0:0.22"
+                            Duration="0:0:0.05" />
+            <DoubleAnimation Storyboard.TargetName="HoverDeckCopyPromptSuccessText"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0"
+                             BeginTime="0:0:1.3"
+                             Duration="0:0:0.2" />
+            <ColorAnimation Storyboard.TargetName="HoverDeckForgeSuccessBrush"
+                            Storyboard.TargetProperty="Color"
+                            To="#00F6D17A"
+                            BeginTime="0:0:1.3"
+                            Duration="0:0:0.2" />
+        </Storyboard>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <Border Style="{StaticResource HoverDeckCompressedSectionCardStyle}">
+            <StackPanel>
+                <TextBlock Text="Intent"
+                           Style="{StaticResource SectionTitleTextStyle}" />
+                <TextBlock Text="Start by choosing the kind of image you want to create. Each domain includes its own lane, and many lanes include subdomains to help you narrow the direction."
+                           Style="{StaticResource BodyMutedTextStyle}"
+                           TextWrapping="Wrap" />
+                <CheckBox IsChecked="{Binding OverrideDefaultSliderPositions}"
+                          Content="Override default slider positions"
+                          Style="{StaticResource AppCheckBoxStyle}"
+                          Margin="0,8,0,0" />
+                <TextBlock Text="Intent Mode"
+                           Style="{StaticResource FieldLabelTextStyle}" />
+                <ComboBox x:Name="HoverDeckIntentModeComboBox"
+                          ItemsSource="{Binding HoverDeckIntentModes, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          SelectedItem="{Binding IntentMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          BorderBrush="{DynamicResource InputBorderFocusBrush}"
+                          ItemContainerStyle="{StaticResource HoverDeckIntentModeComboBoxItemStyle}"
+                          DropDownOpened="OnHoverDeckIntentModeDropDownOpened"
+                          DropDownClosed="OnHoverDeckIntentModeDropDownClosed"
+                          GotKeyboardFocus="OnHoverDeckIntentModeGotKeyboardFocus"
+                          LostKeyboardFocus="OnHoverDeckIntentModeLostKeyboardFocus"
+                          PreviewMouseLeftButtonDown="OnHoverDeckIntentModePreviewMouseLeftButtonDown"
+                          SelectionChanged="OnHoverDeckIntentModeSelectionChanged"
+                          Style="{StaticResource AppComboBoxStyle}" />
+                <TextBlock Margin="0,7,0,0"
+                           Text="{Binding IntentModeSummary}"
+                           Style="{StaticResource BodyMutedTextStyle}"
+                           TextWrapping="Wrap" />
+                <StackPanel Margin="0,12,0,0"
+                            Visibility="{Binding ShowCustomRandomizeControls, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="Randomize all sliders"
+                               Style="{StaticResource BodyMutedTextStyle}"
+                               TextWrapping="Wrap" />
+                    <CheckBox Content="Exclude Artist Sliders"
+                              IsChecked="{Binding ExcludeArtistSlidersFromRandomize}"
+                              Style="{StaticResource AppCheckBoxStyle}"
+                              Margin="0,8,0,0" />
+                    <Button Content="Randomize"
+                            Command="{Binding RandomizeSlidersCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Margin="0,8,0,0" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid>
+            <Border Style="{StaticResource HoverDeckCompressedSectionCardStyle}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Subject"
+                                   Style="{StaticResource SectionTitleTextStyle}"
+                                   VerticalAlignment="Center" />
+                        <Button Grid.Column="1"
+                                Content="(╯°□°)╯︵ ┻━┻"
+                                Click="OnHoverDeckClearSubjectClick"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                MinWidth="0"
+                                MinHeight="24"
+                                Padding="8,2"
+                                Margin="10,0,0,0"
+                                FontSize="10.5"
+                                VerticalAlignment="Center"
+                                ToolTip="Clear subject">
+                            <Button.ContentTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                                               Style="{StaticResource OnboardingAccentTextStyle}"
+                                               FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=Button}}"
+                                               FontWeight="SemiBold" />
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                        <TextBlock x:Name="HoverDeckCopyPromptSuccessText"
+                                   Grid.Column="3"
+                                   Text="Forged"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Opacity="0"
+                                   IsHitTestVisible="False"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0">
+                            <TextBlock.Foreground>
+                                <SolidColorBrush x:Name="HoverDeckForgeSuccessBrush" Color="#00F6D17A" />
+                            </TextBlock.Foreground>
+                        </TextBlock>
+                        <TextBlock x:Name="HoverDeckCopyPromptStateText"
+                                   Grid.Column="4"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,0,0"
+                                   Style="{StaticResource BodyMutedTextStyle}"
+                                   Visibility="{Binding ShowDemoModeBanner, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <Button Grid.Column="5"
+                                Content="Copy Prompt"
+                                Command="{Binding CopyPromptCommand}"
+                                Click="OnHoverDeckCopyPromptClick"
+                                Style="{StaticResource HoverDeckCopyPromptButtonStyle}"
+                                Width="112"
+                                MinHeight="30"
+                                Padding="10,5"
+                                Margin="10,0,0,0"
+                                FontSize="11"
+                                VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBox x:Name="HoverDeckSubjectTextBox"
+                             Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             Style="{StaticResource AppTextBoxStyle}">
+                        <TextBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Command="ApplicationCommands.Cut" />
+                                <MenuItem Command="ApplicationCommands.Copy" />
+                                <MenuItem Command="ApplicationCommands.Paste" />
+                                <Separator />
+                                <MenuItem Header="Select All"
+                                          Click="OnHoverDeckSubjectSelectAllClick" />
+                            </ContextMenu>
+                        </TextBox.ContextMenu>
+                    </TextBox>
+                </StackPanel>
+            </Border>
+            <Border x:Name="HoverDeckSubjectCardBorderOverlay"
+                    Margin="0,0,0,4"
+                    CornerRadius="12"
+                    BorderThickness="1"
+                    Opacity="0"
+                    IsHitTestVisible="False">
+                <Border.BorderBrush>
+                    <SolidColorBrush x:Name="HoverDeckSubjectCardBorderOverlayBrush" Color="#33F3C66B" />
+                </Border.BorderBrush>
+            </Border>
+        </Grid>
+
+        <Border Style="{StaticResource HoverDeckCompressedSectionCardStyle}">
+            <StackPanel>
+                <TextBlock Text="Lighting" Style="{StaticResource SectionTitleTextStyle}" />
+                <ComboBox ItemsSource="{Binding Lightings}"
+                          SelectedItem="{Binding Lighting}"
+                          Style="{StaticResource AppComboBoxStyle}"
+                          HorizontalAlignment="Stretch"
+                          Margin="0,6,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="StyleMoodCollapsedCard"
+                Style="{StaticResource HoverDeckCollapsedSectionCardStyle}">
+            <Button Style="{StaticResource HoverDeckCollapsedRowHeaderButtonStyle}"
+                    Content="Style Controls/Mood"
+                    Tag="{Binding Visibility, ElementName=StyleMoodProjectedContent}"
+                    PreviewMouseLeftButtonDown="OnStyleMoodGatePreviewMouseLeftButtonDown"
+                    PreviewMouseLeftButtonUp="OnStyleMoodGatePreviewMouseLeftButtonUp"
+                    MouseLeave="OnStyleMoodGateMouseLeave"
+                    Click="OnStyleMoodGateClick" />
+        </Border>
+
+        <Grid x:Name="StyleMoodProjectedContent"
+              Margin="0,0,0,4"
+              Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Style="{StaticResource HoverDeckCompressedSectionCardStyle}"
+                    Margin="0">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource HoverDeckSectionTitleButtonStyle}"
+                                Click="OnStyleMoodGateClick">
+                            <TextBlock Text="Style Controls" Style="{StaticResource SectionTitleTextStyle}" />
+                        </Button>
+                        <Button Grid.Column="1"
+                                Content="Hide"
+                                Style="{StaticResource HoverDeckImageHideGateButtonStyle}"
+                                Margin="8,0,0,0"
+                                Tag="***"
+                                Click="OnStyleMoodGateClick" />
+                    </Grid>
+                    <Grid Margin="0,2,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Stylization" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Stylization" Value="{Binding Stylization}" ValueText="{Binding StylizationValueText}" GuideText="{Binding StylizationGuideText}" HelperText="{Binding StylizationHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeStylizationFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Realism" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Realism" Value="{Binding Realism}" ValueText="{Binding RealismValueText}" GuideText="{Binding RealismGuideText}" HelperText="{Binding RealismHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeRealismFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Texture Depth" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Texture Depth" Value="{Binding TextureDepth}" ValueText="{Binding TextureDepthValueText}" GuideText="{Binding TextureDepthGuideText}" HelperText="{Binding TextureDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeTextureDepthFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Narrative Density" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="3" Grid.Column="1" Label="Narrative Density" Value="{Binding NarrativeDensity}" ValueText="{Binding NarrativeDensityValueText}" GuideText="{Binding NarrativeDensityGuideText}" HelperText="{Binding NarrativeDensityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeNarrativeDensityFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Symbolism" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="4" Grid.Column="1" Label="Symbolism" Value="{Binding Symbolism}" ValueText="{Binding SymbolismValueText}" GuideText="{Binding SymbolismGuideText}" HelperText="{Binding SymbolismHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeSymbolismFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Surface Age" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,0" />
+                        <controls:SliderFlyout Grid.Row="5" Grid.Column="1" Label="Surface Age" Value="{Binding SurfaceAge}" ValueText="{Binding SurfaceAgeValueText}" GuideText="{Binding SurfaceAgeGuideText}" HelperText="{Binding SurfaceAgeHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeSurfaceAgeFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2"
+                    Style="{StaticResource HoverDeckCompressedSectionCardStyle}"
+                    Margin="0">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource HoverDeckSectionTitleButtonStyle}"
+                                Click="OnStyleMoodGateClick">
+                            <TextBlock Text="Mood" Style="{StaticResource SectionTitleTextStyle}" />
+                        </Button>
+                        <Button Grid.Column="1"
+                                Content="Hide"
+                                Style="{StaticResource HoverDeckImageHideGateButtonStyle}"
+                                Margin="8,0,0,0"
+                                Tag="***"
+                                Click="OnStyleMoodGateClick" />
+                    </Grid>
+                    <Grid Margin="0,2,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Levity" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Levity" Value="{Binding Whimsy}" ValueText="{Binding WhimsyValueText}" GuideText="{Binding WhimsyGuideText}" HelperText="{Binding WhimsyHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeWhimsyFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Tension" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Tension" Value="{Binding Tension}" ValueText="{Binding TensionValueText}" GuideText="{Binding TensionGuideText}" HelperText="{Binding TensionHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeTensionFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Awe" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,0" />
+                        <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Awe" Value="{Binding Awe}" ValueText="{Binding AweValueText}" GuideText="{Binding AweGuideText}" HelperText="{Binding AweHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeAweFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                    </Grid>
+                    <StackPanel Margin="0,10,0,0">
+                        <TextBlock Text="Aspect Ratio" Style="{StaticResource FieldLabelTextStyle}" Margin="0,0,0,4" />
+                        <ComboBox ItemsSource="{Binding AspectRatios}"
+                                  SelectedItem="{Binding AspectRatio}"
+                                  Style="{StaticResource AppComboBoxStyle}"
+                                  Margin="0,0,0,4" />
+                        <CheckBox Content="Print-ready"
+                                  IsChecked="{Binding PrintReady}"
+                                  Style="{StaticResource AppCheckBoxStyle}" />
+                        <CheckBox Content="Transparent background"
+                                  IsChecked="{Binding TransparentBackground}"
+                                  Style="{StaticResource AppCheckBoxStyle}" />
+                        <CheckBox Content="Include negative prompt"
+                                  IsChecked="{Binding UseNegativePrompt}"
+                                  Style="{StaticResource AppCheckBoxStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border x:Name="ControlLightingImageFinishCollapsedCard"
+                Style="{StaticResource HoverDeckCollapsedSectionCardStyle}">
+            <Button Style="{StaticResource HoverDeckCollapsedRowHeaderButtonStyle}"
+                    Content="Control Lighting/Image Finish"
+                    Tag="{Binding Visibility, ElementName=ControlLightingImageFinishProjectedContent}"
+                    Click="OnControlLightingImageFinishGateClick" />
+        </Border>
+
+        <Grid x:Name="ControlLightingImageFinishProjectedContent"
+              Margin="0,0,0,4"
+              Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Style="{StaticResource HoverDeckCompressedSectionCardStyle}"
+                    Margin="0">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource HoverDeckSectionTitleButtonStyle}"
+                                Click="OnControlLightingImageFinishGateClick">
+                            <TextBlock Text="Control Lighting" Style="{StaticResource SectionTitleTextStyle}" />
+                        </Button>
+                        <Button Grid.Column="1"
+                                Content="Hide"
+                                Style="{StaticResource HoverDeckImageHideGateButtonStyle}"
+                                Margin="8,0,0,0"
+                                Tag="***"
+                                Click="OnControlLightingImageFinishGateClick" />
+                    </Grid>
+                    <Grid Margin="0,2,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Temperature" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Temperature" Value="{Binding Temperature}" ValueText="{Binding TemperatureValueText}" GuideText="{Binding TemperatureGuideText}" HelperText="{Binding TemperatureHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeTemperatureFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Lighting Intensity" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Lighting Intensity" Value="{Binding LightingIntensity}" ValueText="{Binding LightingIntensityValueText}" GuideText="{Binding LightingIntensityGuideText}" HelperText="{Binding LightingIntensityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeLightingIntensityFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Saturation" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Saturation" Value="{Binding Saturation}" ValueText="{Binding SaturationValueText}" GuideText="{Binding SaturationGuideText}" HelperText="{Binding SaturationHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeSaturationFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Contrast" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,0" />
+                        <controls:SliderFlyout Grid.Row="3" Grid.Column="1" Label="Contrast" Value="{Binding Contrast}" ValueText="{Binding ContrastValueText}" GuideText="{Binding ContrastGuideText}" HelperText="{Binding ContrastHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeContrastFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2"
+                    Style="{StaticResource HoverDeckCompressedSectionCardStyle}"
+                    Margin="0">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource HoverDeckSectionTitleButtonStyle}"
+                                Click="OnControlLightingImageFinishGateClick">
+                            <TextBlock Text="Image Finish" Style="{StaticResource SectionTitleTextStyle}" />
+                        </Button>
+                        <Button Grid.Column="1"
+                                Content="Hide"
+                                Style="{StaticResource HoverDeckImageHideGateButtonStyle}"
+                                Margin="8,0,0,0"
+                                Tag="***"
+                                Click="OnControlLightingImageFinishGateClick" />
+                    </Grid>
+                    <Grid Margin="0,2,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Focus / Depth of Field" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Focus / Depth of Field" Value="{Binding FocusDepth}" ValueText="{Binding FocusDepthValueText}" GuideText="{Binding FocusDepthGuideText}" HelperText="{Binding FocusDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeFocusDepthFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Image Cleanliness" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                        <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Image Cleanliness" Value="{Binding ImageCleanliness}" ValueText="{Binding ImageCleanlinessValueText}" GuideText="{Binding ImageCleanlinessGuideText}" HelperText="{Binding ImageCleanlinessHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeImageCleanlinessFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Detail Density" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,0" />
+                        <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Detail Density" Value="{Binding DetailDensity}" ValueText="{Binding DetailDensityValueText}" GuideText="{Binding DetailDensityGuideText}" HelperText="{Binding DetailDensityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeDetailDensityFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border x:Name="SceneCompositionCollapsedCard"
+                Style="{StaticResource HoverDeckCollapsedSectionCardStyle}">
+            <Button Style="{StaticResource HoverDeckCollapsedRowHeaderButtonStyle}"
+                    Content="Scene Composition"
+                    Tag="{Binding Visibility, ElementName=SceneCompositionProjectedContent}"
+                    Click="OnSceneCompositionGateClick" />
+        </Border>
+
+        <Border x:Name="SceneCompositionProjectedContent"
+                Style="{StaticResource HoverDeckCompressedSectionCardStyle}"
+                Visibility="Collapsed">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button Style="{StaticResource HoverDeckSectionTitleButtonStyle}"
+                            Click="OnSceneCompositionGateClick">
+                        <TextBlock Text="Scene Composition" Style="{StaticResource SectionTitleTextStyle}" />
+                    </Button>
+                    <Button Grid.Column="1"
+                            Content="Hide"
+                            Style="{StaticResource HoverDeckImageHideGateButtonStyle}"
+                            Margin="8,0,0,0"
+                            Tag="***"
+                            Click="OnSceneCompositionGateClick" />
+                </Grid>
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="18" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Composition" Style="{StaticResource FieldLabelTextStyle}" />
+                        <Grid Margin="0,8,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Framing" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Framing" Value="{Binding Framing}" ValueText="{Binding FramingValueText}" GuideText="{Binding FramingGuideText}" HelperText="{Binding FramingHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeFramingFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Camera Distance" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Camera Distance" Value="{Binding CameraDistance}" ValueText="{Binding CameraDistanceValueText}" GuideText="{Binding CameraDistanceGuideText}" HelperText="{Binding CameraDistanceHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeCameraDistanceFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Camera Angle" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Camera Angle" Value="{Binding CameraAngle}" ValueText="{Binding CameraAngleValueText}" GuideText="{Binding CameraAngleGuideText}" HelperText="{Binding CameraAngleHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeCameraAngleFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Background Complexity" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,0" />
+                            <controls:SliderFlyout Grid.Row="3" Grid.Column="1" Label="Background Complexity" Value="{Binding BackgroundComplexity}" ValueText="{Binding BackgroundComplexityValueText}" GuideText="{Binding BackgroundComplexityGuideText}" HelperText="{Binding BackgroundComplexityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeBackgroundComplexityFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Output Controls" Style="{StaticResource FieldLabelTextStyle}" />
+                        <Grid Margin="0,8,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Motion Energy" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Motion Energy" Value="{Binding MotionEnergy}" ValueText="{Binding MotionEnergyValueText}" GuideText="{Binding MotionEnergyGuideText}" HelperText="{Binding MotionEnergyHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeMotionEnergyFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Atmospheric Depth" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Atmospheric Depth" Value="{Binding AtmosphericDepth}" ValueText="{Binding AtmosphericDepthValueText}" GuideText="{Binding AtmosphericDepthGuideText}" HelperText="{Binding AtmosphericDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeAtmosphericDepthFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Chaos" Style="{StaticResource HoverDeckCompressedRowLabelTextStyle}" Margin="0,0,10,0" />
+                            <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Chaos" Value="{Binding Chaos}" ValueText="{Binding ChaosValueText}" GuideText="{Binding ChaosGuideText}" HelperText="{Binding ChaosHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeChaosFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="ArtistInfluenceCollapsedCard"
+                Style="{StaticResource HoverDeckCollapsedSectionCardStyle}">
+            <Button Style="{StaticResource HoverDeckCollapsedRowHeaderButtonStyle}"
+                    Content="Artist Influence"
+                    Tag="{Binding Visibility, ElementName=ArtistInfluenceProjectedContent}"
+                    Click="OnArtistInfluenceGateClick" />
+        </Border>
+
+        <Grid Visibility="{Binding Visibility, ElementName=ArtistInfluenceProjectedContent}">
+            <sharedLaneReplacements:CompactArtistInfluenceCard x:Name="ArtistInfluenceProjectedContent"
+                                                               UseHostCollapseRouting="True"
+                                                               CollapseRequested="OnArtistInfluenceProjectionCollapseRequested" />
+        </Grid>
+    </StackPanel>
+</UserControl>
+

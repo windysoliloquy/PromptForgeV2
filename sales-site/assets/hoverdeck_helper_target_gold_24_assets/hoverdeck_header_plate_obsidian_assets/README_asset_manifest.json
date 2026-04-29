@@ -1,0 +1,65 @@
+{
+  "asset_family": "hoverdeck_header_plate_obsidian",
+  "states": {
+    "n": "normal",
+    "f": "subtle hover/focus glow",
+    "a": "active/focused window"
+  },
+  "recommended_production_folder": "slices_486x86_cap96",
+  "recommended_assembled_size": "486x86",
+  "alternate_folder": "slices_510x90_cap100",
+  "slice_plan": {
+    "486x86": "left cap 96px, center stretch 294px, right cap 96px",
+    "510x90": "left cap 100px, center stretch 310px, right cap 100px"
+  },
+  "usage": "Header/title plate background for Prompt Forge HoverDeck. Text and close button should remain WPF-rendered on top; do not bake labels or controls into asset.",
+  "filenames": {
+    "full": "hd_header_plate_obsidian_[n|f|a].png",
+    "slices": "hd_header_plate_obsidian_[n|f|a]_[l|c|r].png"
+  },
+  "source_row_bboxes": [
+    [
+      108,
+      423
+    ],
+    [
+      520,
+      836
+    ],
+    [
+      935,
+      1251
+    ]
+  ],
+  "high_res_state_sizes": [
+    {
+      "state": "n",
+      "label": "normal",
+      "size": [
+        1785,
+        315
+      ]
+    },
+    {
+      "state": "f",
+      "label": "focus",
+      "size": [
+        1785,
+        315
+      ]
+    },
+    {
+      "state": "a",
+      "label": "active",
+      "size": [
+        1785,
+        316
+      ]
+    }
+  ],
+  "notes": [
+    "single full-width plate states are included for preview/testing",
+    "3-part slices are included for WPF stretch templates",
+    "right-side zone is decorative/control-safe but should not replace the real close button"
+  ]
+}

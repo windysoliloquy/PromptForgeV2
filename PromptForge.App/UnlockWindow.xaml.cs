@@ -89,11 +89,11 @@ public partial class UnlockWindow : Window
         ActivationRequestCodeTextBox.Text = _licenseService.GetActivationRequestCode();
 
         StatusHeadlineTextBlock.Text = isFullVersion
-            ? "Version: Full"
+            ? "Version: App Unlock"
             : "Version: Demo";
 
         StatusBodyTextBlock.Text = isFullVersion
-            ? "Prompt Forge Full is active on this machine."
+            ? "Prompt Forge is unlocked on this machine."
             : "Demo mode is active.";
 
         LicenseSummaryTextBlock.Text = _licenseService.IsUnlocked

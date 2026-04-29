@@ -1,0 +1,144 @@
+{
+  "source": "ig_0183b7ba440ee9240169f15157f5c481989dd1ca6854b41192.png",
+  "asset_family": "hoverdeck companion action button plates",
+  "state_mapping": {
+    "primary": {
+      "n": "row 1 normal",
+      "h": "row 2 hover",
+      "p": "row 3 pressed",
+      "d": "row 4 disabled"
+    },
+    "secondary": {
+      "n": "row 5 normal",
+      "h": "row 6 hover",
+      "p": "row 7 pressed",
+      "d": "row 8 disabled"
+    }
+  },
+  "recommended_production_folder": "slices_1200x208_cap144",
+  "alternate_folders": [
+    "slices_1200x208_cap128",
+    "slices_1200x208_cap160",
+    "slices_960x166_cap112"
+  ],
+  "wpf_notes": [
+    "Text should remain WPF-rendered.",
+    "Use left/center/right slices; center stretches horizontally.",
+    "Primary variant is intended for Copy Prompt.",
+    "Secondary variant is intended for Copy Negative Prompt."
+  ],
+  "bboxes": [
+    {
+      "variant": "primary",
+      "state": "n",
+      "source_bbox": [
+        75,
+        85,
+        1287,
+        308
+      ],
+      "crop_size": [
+        1197,
+        215
+      ]
+    },
+    {
+      "variant": "primary",
+      "state": "h",
+      "source_bbox": [
+        74,
+        336,
+        1287,
+        558
+      ],
+      "crop_size": [
+        1198,
+        215
+      ]
+    },
+    {
+      "variant": "primary",
+      "state": "p",
+      "source_bbox": [
+        74,
+        589,
+        1287,
+        812
+      ],
+      "crop_size": [
+        1198,
+        216
+      ]
+    },
+    {
+      "variant": "primary",
+      "state": "d",
+      "source_bbox": [
+        74,
+        839,
+        1287,
+        1063
+      ],
+      "crop_size": [
+        1198,
+        216
+      ]
+    },
+    {
+      "variant": "secondary",
+      "state": "n",
+      "source_bbox": [
+        72,
+        1095,
+        1290,
+        1315
+      ],
+      "crop_size": [
+        1203,
+        213
+      ]
+    },
+    {
+      "variant": "secondary",
+      "state": "h",
+      "source_bbox": [
+        73,
+        1343,
+        1287,
+        1563
+      ],
+      "crop_size": [
+        1199,
+        213
+      ]
+    },
+    {
+      "variant": "secondary",
+      "state": "p",
+      "source_bbox": [
+        72,
+        1594,
+        1288,
+        1802
+      ],
+      "crop_size": [
+        1201,
+        199
+      ]
+    },
+    {
+      "variant": "secondary",
+      "state": "d",
+      "source_bbox": [
+        72,
+        1825,
+        1289,
+        2010
+      ],
+      "crop_size": [
+        1202,
+        176
+      ]
+    }
+  ]
+}

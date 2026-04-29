@@ -6,6 +6,7 @@ public interface ILicenseService
 {
     bool IsUnlocked { get; }
     UnlockState CurrentState { get; }
+    bool HasAllowedLane(string? intentMode);
     string PurchasePrice { get; }
     string PurchaseEmail { get; }
     string GetActivationRequestCode();

@@ -14,7 +14,7 @@ public static partial class SliderLanguageCatalog
                 "light graphic lift",
                 "clear stylized rendering",
                 "strong pixel-art stylization",
-                "high-authorial tile language"),
+                "authorial tilework"),
             Realism => MapBand(value,
                 string.Empty,
                 "loosely observed sprite depiction",
@@ -109,8 +109,8 @@ public static partial class SliderLanguageCatalog
                 "serious tone",
                 "light playful charm",
                 "balanced visual playfulness",
-                "strong whimsical energy",
-                "bold arcade whimsy"),
+                "strong playful energy",
+                "bold arcade play"),
             Tension => MapBand(value,
                 "low tension",
                 "light dramatic charge",
@@ -133,7 +133,7 @@ public static partial class SliderLanguageCatalog
     {
         var labels = sliderKey switch
         {
-            Stylization => new[] { "grounded sprite treatment", "light graphic lift", "clear stylized rendering", "strong pixel-art stylization", "high-authorial tile language" },
+            Stylization => new[] { "grounded sprite treatment", "light graphic lift", "clear stylized rendering", "strong pixel-art stylization", "authorial tilework" },
             Realism => new[] { "omit explicit realism", "loosely observed sprite depiction", "moderately realistic sprite depiction", "high-legibility representational form", "advanced representational rendering" },
             DetailDensity => new[] { "sparse information load", "light sprite detailing", "clear descriptive detail", "dense layered detail", "high-density information packing" },
             BackgroundComplexity => new[] { "minimal backdrop support", "restrained backdrop detail", "supporting environment structure", "rich scene support", "densely layered environment" },
@@ -149,7 +149,7 @@ public static partial class SliderLanguageCatalog
             AtmosphericDepth => new[] { "limited atmospheric depth", "slight spatial recession", "air-filled scene depth", "luminous atmosphere", "deep layered atmosphere" },
             SurfaceAge => new[] { "fresh finish", "slight surface wear", "gentle aging", "noticeable retro wear", "time-softened character" },
             Awe => new[] { "grounded scale", "slight visual wonder", "atmosphere of significance", "strong scale awe", "overwhelming grandeur" },
-            Whimsy => new[] { "serious tone", "light playful charm", "balanced visual playfulness", "strong whimsical energy", "bold arcade whimsy" },
+            Whimsy => new[] { "serious tone", "light playful charm", "balanced visual playfulness", "strong playful energy", "bold arcade play" },
             Tension => new[] { "low tension", "light dramatic charge", "scene-level pressure", "strong gameplay tension", "intense arcade pressure" },
             MotionEnergy => new[] { "still composition", "gentle scene motion", "active gameplay energy", "dynamic motion", "high-kinetic arcade motion" },
             _ => Array.Empty<string>(),

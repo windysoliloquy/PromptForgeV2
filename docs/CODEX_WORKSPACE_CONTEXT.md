@@ -349,6 +349,13 @@ UI event log:
 
 - `AppContext.BaseDirectory\ui-event-log.txt`
 
+Release-clean backup helper:
+
+- `tools\release\Manage-LocalRuntimeState.ps1`
+- `-Mode Backup` creates a manifest-backed copy under `artifacts\local-state-backups\PromptForgeLocalState_<timestamp>`
+- `-Mode ClearForReleaseTest` and `-Mode Restore` require an explicit `-BackupPath`
+- use this helper before clearing any local app-data state for release-first-run testing
+
 Important nuance:
 
 - demo and license state share the same local directory name while demo mode is enabled

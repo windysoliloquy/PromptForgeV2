@@ -36,3 +36,6 @@ tools/trusted-signing/*.log
 tools/trusted-signing/nuget.exe
 tools/trusted-signing/packages/
 tools/licensing/private/
+
+# Local Netlify folder
+.netlify

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using PromptForge.App.Models;
+using PromptForge.App.Services;
 
 namespace PromptForge.App.ViewModels;
 
@@ -8,6 +9,7 @@ public sealed class StandardLanePanelViewModel : ViewModelBase
 {
     private readonly StandardLaneStateViewModel _laneState;
     private readonly string _defaultDescription;
+    private readonly LaneHelpTooltipContent? _laneHelpTooltipContent;
 
     public StandardLanePanelViewModel(LaneDefinition definition, StandardLaneStateViewModel laneState)
     {
@@ -24,6 +26,7 @@ public sealed class StandardLanePanelViewModel : ViewModelBase
         }
 
         Modifiers = new ObservableCollection<StandardLaneModifierViewModel>(definition.Modifiers.Select(modifier => new StandardLaneModifierViewModel(_laneState, modifier)));
+        LaneHelpTooltipCatalog.TryGet(definition.PrimaryIntentName, out _laneHelpTooltipContent);
     }
 
     public string LaneId { get; }
@@ -39,6 +42,17 @@ public sealed class StandardLanePanelViewModel : ViewModelBase
     public bool HasSubtypeSelectors => SubtypeSelectors.Count > 0;
     public bool HasModifiers => Modifiers.Count > 0;
     public bool HasAccentSectionTitle => HasModifiers && !string.IsNullOrWhiteSpace(AccentSectionTitle);
+    public bool ExcludeFromNormalizedSharedLayout => string.Equals(LaneId, "infographic-data-visualization", StringComparison.OrdinalIgnoreCase);
+    public bool UseNormalizedSideBySideLayout => !ExcludeFromNormalizedSharedLayout && HasSubtypeSelectors && HasModifiers;
+    public bool UseNormalizedSingleColumnLayout => !UseNormalizedSideBySideLayout;
+    public bool UseSplitModifierLayout => Layout == LanePanelLayout.SplitColumns;
+    public bool ShowLaneHelpFooter => _laneHelpTooltipContent is not null;
+    public bool HasLaneHelpTooltip => _laneHelpTooltipContent is not null;
+    public string LaneHelpFooterPrefix => ShowLaneHelpFooter ? LaneHelpTooltipCatalog.FooterContactPrefixText : string.Empty;
+    public string LaneHelpFooterEmail => ShowLaneHelpFooter ? LaneHelpTooltipCatalog.ContactEmail : string.Empty;
+    public string LaneHelpPrinciple => _laneHelpTooltipContent?.Principle ?? string.Empty;
+    public string LaneHelpWeak => _laneHelpTooltipContent?.Weak ?? string.Empty;
+    public string LaneHelpStronger => _laneHelpTooltipContent?.Stronger ?? string.Empty;
 
     public void ReplaceState(StandardLaneState state)
     {

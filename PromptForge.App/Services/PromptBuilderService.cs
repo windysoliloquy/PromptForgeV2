@@ -380,7 +380,14 @@ public sealed class PromptBuilderService : IPromptBuilderService
         yield return MapTension(configuration.Tension, configuration.ArtStyle);
         yield return MapAwe(configuration.Awe, configuration.ArtStyle);
         yield return MapSymbolism(configuration.Symbolism, configuration.ArtStyle);
-        if (configuration.Whimsy >= 70 && configuration.Tension >= 50) yield return "comedic interpersonal tension";
+        if (!configuration.ExcludeWhimsyFromPrompt
+            && !configuration.ExcludeTensionFromPrompt
+            && !configuration.SemanticPairInteractions
+            && configuration.Whimsy >= 70
+            && configuration.Tension >= 50)
+        {
+            yield return "comedic interpersonal tension";
+        }
     }
 
     private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration)
@@ -730,9 +737,9 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private static string MapWhimsy(int value, string artStyle) => artStyle switch
     {
-        "Surreal Symbolic" => MapBand(value, string.Empty, "subtle surreal playfulness", "playful dream logic", "strong whimsical strangeness", "bold absurdist whimsy"),
-        "Stained Glass" => MapBand(value, string.Empty, "subtle folkloric whimsy", "playful iconographic tone", "strong ornamental whimsy", "bold storybook whimsy"),
-        _ => MapBand(value, string.Empty, "subtle whimsy", "playful tone", "strong whimsical energy", "bold comedic whimsy"),
+        "Surreal Symbolic" => MapBand(value, string.Empty, "subtle surreal playfulness", "playful dream logic", "strong playful strangeness", "bold absurdist play"),
+        "Stained Glass" => MapBand(value, string.Empty, "subtle folkloric levity", "playful iconographic tone", "strong ornamental playfulness", "bold storybook play"),
+        _ => MapBand(value, string.Empty, "subtle levity", "playful tone", "strong playful energy", "bold comic levity"),
     };
 
     private static string MapTension(int value, string artStyle) => artStyle switch

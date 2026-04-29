@@ -1,0 +1,20 @@
+{
+  "asset_family": "hoverdeck_companion_action_primary_lowprofile",
+  "source": "ig_098106cb86b02b880169f15a0ccb208199b64817bbb0ade7cb.png",
+  "variant": "primary / Copy Prompt",
+  "states": {
+    "n": "normal",
+    "h": "hover",
+    "p": "pressed",
+    "d": "disabled"
+  },
+  "recommended_production_folder": "slices_620x42_cap80",
+  "recommended_runtime": "wide shallow Copy Prompt button, WPF-rendered text, 42px visual height",
+  "fallbacks": [
+    "slices_620x42_cap72 if caps still feel too dominant",
+    "slices_560x38_cap72 if runtime button stays closer to 36-38px height",
+    "slices_700x42_cap88 if row needs stronger cap presence"
+  ],
+  "slice_naming": "hd_companion_action_primary_{state}_{l|c|r}.png",
+  "notes": "Low-profile re-render cut into 3-part slices; no baked text."
+}

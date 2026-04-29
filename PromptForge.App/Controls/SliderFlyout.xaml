@@ -29,40 +29,122 @@
     <Grid>
         <Grid x:Name="FlyoutPlacementAnchor">
             <ToggleButton x:Name="FlyoutButton"
-                          Style="{DynamicResource SliderFlyoutButtonStyle}"
-                          MinHeight="84"
-                          HorizontalAlignment="Stretch"
-                          HorizontalContentAlignment="Stretch"
                           RenderTransformOrigin="0.5,0.5"
                           Checked="FlyoutButton_OnChecked"
                           Unchecked="FlyoutButton_OnUnchecked">
+                <ToggleButton.Style>
+                    <Style TargetType="ToggleButton" BasedOn="{StaticResource SliderFlyoutButtonStyle}">
+                        <Setter Property="MinHeight" Value="84" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="RootBorder"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="14"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource InputBorderHoverBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding UseCompactChipTrigger, ElementName=Root}" Value="True">
+                                <Setter Property="MinHeight" Value="32" />
+                                <Setter Property="Padding" Value="9,4" />
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
                 <ToggleButton.RenderTransform>
                     <ScaleTransform x:Name="FlyoutButtonScaleTransform"
                                     ScaleX="1"
                                     ScaleY="1" />
                 </ToggleButton.RenderTransform>
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding UseCompactChipTrigger, ElementName=Root}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0"
-                               Text="{Binding Label, ElementName=Root}"
-                               Style="{DynamicResource BodyTextStyle}"
-                               FontWeight="SemiBold"
-                               TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="0"
+                                   Text="{Binding Label, ElementName=Root}"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding UseCompactChipTrigger, ElementName=Root}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
-                    <Border Grid.Row="1"
-                            Style="{DynamicResource SemanticValuePillBorderStyle}"
-                            Margin="0,8,0,0"
-                            HorizontalAlignment="Left">
-                        <TextBlock Text="{Binding ValueText, ElementName=Root}"
-                                   Style="{DynamicResource SemanticValuePillTextStyle}" />
-                    </Border>
+                        <Border Grid.Row="1"
+                                Margin="0,8,0,0"
+                                HorizontalAlignment="Left">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource SemanticValuePillBorderStyle}">
+                                    <Setter Property="Margin" Value="0,8,0,0" />
+                                    <Setter Property="HorizontalAlignment" Value="Left" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding UseCompactChipTrigger, ElementName=Root}" Value="True">
+                                            <Setter Property="Margin" Value="0" />
+                                            <Setter Property="HorizontalAlignment" Value="Center" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="{Binding ButtonValueText, ElementName=Root}"
+                                       Style="{DynamicResource SemanticValuePillTextStyle}" />
+                        </Border>
 
-                    <Border Grid.Row="2" Height="0" Background="Transparent" />
+                        <Border Grid.Row="2" Height="0" Background="Transparent" />
+                    </Grid>
+
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding UseCompactChipTrigger, ElementName=Root}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Border Style="{DynamicResource SemanticValuePillBorderStyle}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ButtonValueText, ElementName=Root}"
+                                       Style="{DynamicResource SemanticValuePillTextStyle}" />
+                        </Border>
+                    </Grid>
                 </Grid>
             </ToggleButton>
 

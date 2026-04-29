@@ -1,0 +1,20 @@
+{
+  "asset_family": "hoverdeck_companion_action_secondary_lowprofile",
+  "source": "ig_098106cb86b02b880169f15ae726748199a77602a5065fa2dd.png",
+  "variant": "secondary / Copy Negative Prompt",
+  "states": {
+    "n": "normal",
+    "h": "hover",
+    "p": "pressed",
+    "d": "disabled"
+  },
+  "recommended_production_folder": "slices_620x36_cap80",
+  "recommended_runtime": "wide shallow Copy Negative Prompt button, WPF-rendered text, 36px visual height",
+  "fallbacks": [
+    "slices_620x36_cap72 if caps still feel too dominant",
+    "slices_560x34_cap72 if runtime button stays closer to 34px height",
+    "slices_700x36_cap88 if row needs stronger cap presence"
+  ],
+  "slice_naming": "hd_companion_action_secondary_{state}_{l|c|r}.png",
+  "notes": "Low-profile re-render cut into 3-part slices; no baked text."
+}

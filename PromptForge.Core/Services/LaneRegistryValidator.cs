@@ -10,6 +10,9 @@ public static class LaneRegistryValidator
         var errors = new List<string>();
         var seenLaneIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var seenIntentNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var configurationProperties = configurationType
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .ToDictionary(static property => property.Name, StringComparer.Ordinal);
 
         foreach (var definition in definitions)
         {
@@ -36,8 +39,8 @@ public static class LaneRegistryValidator
                 }
             }
 
-            ValidateSelectors(definition, configurationType, errors);
-            ValidateModifiers(definition, configurationType, errors);
+            ValidateSelectors(definition, configurationProperties, errors);
+            ValidateModifiers(definition, configurationProperties, errors);
             ValidateWeightGroups(definition, errors);
         }
 
@@ -55,7 +58,7 @@ public static class LaneRegistryValidator
         throw new InvalidOperationException($"Lane registry validation failed:{Environment.NewLine}- {string.Join($"{Environment.NewLine}- ", errors)}");
     }
 
-    private static void ValidateSelectors(LaneDefinition definition, Type configurationType, ICollection<string> errors)
+    private static void ValidateSelectors(LaneDefinition definition, IReadOnlyDictionary<string, PropertyInfo> configurationProperties, ICollection<string> errors)
     {
         var seenSelectorKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -76,15 +79,14 @@ public static class LaneRegistryValidator
                 errors.Add($"Lane '{definition.Id}' selector '{selector.Key}' must declare exactly one default option.");
             }
 
-            var property = configurationType.GetProperty(selector.SelectedValuePropertyName, BindingFlags.Instance | BindingFlags.Public);
-            if (property is null || property.PropertyType != typeof(string))
+            if (!HasConfigurationProperty(configurationProperties, selector.SelectedValuePropertyName, typeof(string)))
             {
                 errors.Add($"Lane '{definition.Id}' selector '{selector.Key}' references missing or non-string config property '{selector.SelectedValuePropertyName}'.");
             }
         }
     }
 
-    private static void ValidateModifiers(LaneDefinition definition, Type configurationType, ICollection<string> errors)
+    private static void ValidateModifiers(LaneDefinition definition, IReadOnlyDictionary<string, PropertyInfo> configurationProperties, ICollection<string> errors)
     {
         var seenModifierKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var weightGroups = new HashSet<string>(definition.WeightGroups.Select(static group => group.Key), StringComparer.OrdinalIgnoreCase);
@@ -106,8 +108,7 @@ public static class LaneRegistryValidator
                 errors.Add($"Lane '{definition.Id}' modifier '{modifier.Key}' references unknown weight group '{modifier.WeightGroup}'.");
             }
 
-            var property = configurationType.GetProperty(modifier.StatePropertyName, BindingFlags.Instance | BindingFlags.Public);
-            if (property is null || property.PropertyType != typeof(bool))
+            if (!HasConfigurationProperty(configurationProperties, modifier.StatePropertyName, typeof(bool)))
             {
                 errors.Add($"Lane '{definition.Id}' modifier '{modifier.Key}' references missing or non-bool config property '{modifier.StatePropertyName}'.");
             }
@@ -149,5 +150,11 @@ public static class LaneRegistryValidator
                 }
             }
         }
+    }
+
+    private static bool HasConfigurationProperty(IReadOnlyDictionary<string, PropertyInfo> configurationProperties, string propertyName, Type expectedType)
+    {
+        return configurationProperties.TryGetValue(propertyName, out var property)
+            && property.PropertyType == expectedType;
     }
 }

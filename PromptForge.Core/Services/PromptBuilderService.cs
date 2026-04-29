@@ -6,9 +6,8 @@ using PromptForge.App.Services.Lanes;
 
 namespace PromptForge.App.Services;
 
-public sealed class PromptBuilderService : IPromptBuilderService
+public sealed partial class PromptBuilderService : IPromptBuilderService
 {
-    private const string DefaultNegativePrompt = "no blurry detail, no muddy lighting, no distorted anatomy, no extra limbs, no text artifacts, no oversaturated color, no flat composition, no messy background, no poorly defined material texture";
     private const string EnableUiEventLogEnvironmentVariable = "PROMPTFORGE_ENABLE_UI_EVENT_LOG";
     private static readonly Regex HyphenatedLanguageTokenRegex = new(@"(?<=[\p{L}\p{N}])-language\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
     private static readonly Regex LanguageTokenRegex = new(@"\blanguage\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
@@ -62,130 +61,50 @@ public sealed class PromptBuilderService : IPromptBuilderService
         var usePhotographyLane = IntentModeCatalog.IsPhotography(configuration.IntentMode);
         var useThreeDRenderLane = IntentModeCatalog.IsThreeDRender(configuration.IntentMode);
         var useConceptArtLane = IntentModeCatalog.IsConceptArt(configuration.IntentMode);
+        var useInfographicDataVisualizationLane = IntentModeCatalog.IsInfographicDataVisualization(configuration.IntentMode);
         var usePixelArtLane = IntentModeCatalog.IsPixelArt(configuration.IntentMode);
         var useFantasyIllustrationLane = IntentModeCatalog.IsFantasyIllustration(configuration.IntentMode);
         var useLaneContributor = LanePromptContributorRegistry.TryGet(configuration.IntentMode, out var laneContributor);
+        var neutralBandEmissionContext = NeutralBandEmissionContext.Create(configuration);
 
         AddUnique(phrases, seen, BuildSubjectSection(configuration), preserveFromCompression: true);
         AddUnique(phrases, seen, BuildRelationshipSection(configuration), preserveFromCompression: true);
-        if (useWatercolorLane)
-        {
-            foreach (var phrase in BuildWatercolorSection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-        else if (useChildrensBookLane)
-        {
-            foreach (var phrase in BuildChildrensBookSection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-        else if (useLaneContributor)
-        {
-            foreach (var phrase in laneContributor.BuildEarlyDescriptors(configuration))
-            {
-                AddUnique(phrases, seen, phrase.Text, phrase.PreserveFromCompression);
-            }
-        }
-        else if (useCinematicLane)
-        {
-            foreach (var phrase in BuildCinematicSection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-        else if (useThreeDRenderLane)
-        {
-            foreach (var phrase in Build3DRenderSection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-        else if (useConceptArtLane)
-        {
-            foreach (var phrase in BuildConceptArtSection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-        else if (usePixelArtLane)
-        {
-            foreach (var phrase in BuildPixelArtSection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-        else if (useProductPhotographyLane)
-        {
-            foreach (var phrase in BuildProductPhotographySection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-        else if (useFoodPhotographyLane)
-        {
-            foreach (var phrase in BuildFoodPhotographySection(configuration))
-            {
-                AddUnique(phrases, seen, phrase.Text, phrase.PreserveFromCompression);
-            }
-        }
-        else if (useLifestyleAdvertisingPhotographyLane)
-        {
-            foreach (var phrase in BuildLifestyleAdvertisingPhotographySection(configuration))
-            {
-                AddUnique(phrases, seen, phrase.Text, phrase.PreserveFromCompression);
-            }
-        }
-        else if (useArchitectureArchvizLane)
-        {
-            foreach (var phrase in BuildArchitectureArchvizSection(configuration))
-            {
-                AddUnique(phrases, seen, phrase.Text, phrase.PreserveFromCompression);
-            }
-        }
-        else if (usePhotographyLane)
-        {
-            foreach (var phrase in BuildPhotographySection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-        else if (useVintageBend)
-        {
-            foreach (var phrase in BuildVintageBendStyleSection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-        if (!useVintageBend)
-        {
-            foreach (var phrase in BuildStyleSection(configuration))
-            {
-                AddUnique(phrases, seen, phrase);
-            }
-        }
-
-        foreach (var phrase in BuildCompositionSection(configuration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildMoodSection(configuration)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildLightingAndColorSection(configuration, useVintageBend, useProductPhotographyLane, useFoodPhotographyLane, useLifestyleAdvertisingPhotographyLane, useArchitectureArchvizLane, usePhotographyLane, useCinematicLane, useThreeDRenderLane, useConceptArtLane, useFantasyIllustrationLane)) AddUnique(phrases, seen, phrase);
-        foreach (var phrase in BuildImageFinishSection(configuration)) AddUnique(phrases, seen, phrase);
-        if (useVintageBend)
-        {
-            phrases = [.. VintageBendModifierService.Apply(phrases.Select(fragment => fragment.Text).ToList(), configuration)
-                .Select(text => new PromptFragment(text))];
-            seen = new HashSet<string>(phrases.Select(fragment => fragment.Text), StringComparer.OrdinalIgnoreCase);
-        }
-        foreach (var phrase in BuildOutputSection(configuration)) AddUnique(phrases, seen, phrase, preserveFromCompression: true);
-        foreach (var phrase in useAnimeLane ? BuildAnimeSection(configuration) : Array.Empty<string>()) AddUnique(phrases, seen, phrase, preserveFromCompression: true);
-        if (PromptCompressionService.ShouldCompress(configuration))
-        {
-            phrases = PromptCompressionService.Apply(phrases, configuration).ToList();
-        }
-
-        phrases = CleanPromptOutputFragments(phrases).ToList();
-        var positivePrompt = string.Join(", ", phrases.Select(fragment => fragment.Text));
+        ExecuteEarlyDescriptorBranching(
+            phrases,
+            seen,
+            configuration,
+            useAnimeLane,
+            useWatercolorLane,
+            useChildrensBookLane,
+            useLaneContributor,
+            laneContributor,
+            useCinematicLane,
+            useThreeDRenderLane,
+            useConceptArtLane,
+            useInfographicDataVisualizationLane,
+            usePixelArtLane,
+            useProductPhotographyLane,
+            useFoodPhotographyLane,
+            useLifestyleAdvertisingPhotographyLane,
+            useArchitectureArchvizLane,
+            usePhotographyLane,
+            useVintageBend);
+        AccumulateSharedStandardSections(
+            phrases,
+            seen,
+            configuration,
+            useVintageBend,
+            useProductPhotographyLane,
+            useFoodPhotographyLane,
+            useLifestyleAdvertisingPhotographyLane,
+            useArchitectureArchvizLane,
+            usePhotographyLane,
+            useCinematicLane,
+            useThreeDRenderLane,
+            useConceptArtLane,
+            useFantasyIllustrationLane,
+            neutralBandEmissionContext);
+        var positivePrompt = FinalizePositivePrompt(phrases, seen, configuration, useVintageBend);
         WriteOverrideSliderDebug(
             configuration,
             $"builder-final intent='{configuration.IntentMode}' stylization={configuration.Stylization} narrativeDensity={configuration.NarrativeDensity} contrast={configuration.Contrast} prompt='{FormatPromptForDebug(positivePrompt)}'");
@@ -310,28 +229,23 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private static IEnumerable<PromptFragment> BuildFoodPhotographySection(PromptConfiguration configuration)
     {
-        var preserve = true;
-        foreach (var phrase in SliderLanguageCatalog.ResolveFoodPhotographyDescriptors(configuration))
-        {
-            yield return new PromptFragment(phrase, preserve);
-            preserve = false;
-        }
+        return WrapWithFirstFragmentPreserved(SliderLanguageCatalog.ResolveFoodPhotographyDescriptors(configuration));
     }
 
     private static IEnumerable<PromptFragment> BuildArchitectureArchvizSection(PromptConfiguration configuration)
     {
-        var preserve = true;
-        foreach (var phrase in SliderLanguageCatalog.ResolveArchitectureArchvizDescriptors(configuration))
-        {
-            yield return new PromptFragment(phrase, preserve);
-            preserve = false;
-        }
+        return WrapWithFirstFragmentPreserved(SliderLanguageCatalog.ResolveArchitectureArchvizDescriptors(configuration));
     }
 
     private static IEnumerable<PromptFragment> BuildLifestyleAdvertisingPhotographySection(PromptConfiguration configuration)
     {
+        return WrapWithFirstFragmentPreserved(SliderLanguageCatalog.ResolveLifestyleAdvertisingPhotographyDescriptors(configuration));
+    }
+
+    private static IEnumerable<PromptFragment> WrapWithFirstFragmentPreserved(IEnumerable<string> descriptors)
+    {
         var preserve = true;
-        foreach (var phrase in SliderLanguageCatalog.ResolveLifestyleAdvertisingPhotographyDescriptors(configuration))
+        foreach (var phrase in descriptors)
         {
             yield return new PromptFragment(phrase, preserve);
             preserve = false;
@@ -370,6 +284,14 @@ public sealed class PromptBuilderService : IPromptBuilderService
         }
     }
 
+    private static IEnumerable<string> BuildInfographicDataVisualizationSection(PromptConfiguration configuration)
+    {
+        foreach (var phrase in SliderLanguageCatalog.ResolveInfographicDataVisualizationDescriptors(configuration))
+        {
+            yield return phrase;
+        }
+    }
+
     private static IEnumerable<string> BuildPixelArtSection(PromptConfiguration configuration)
     {
         foreach (var phrase in SliderLanguageCatalog.ResolvePixelArtDescriptors(configuration))
@@ -403,106 +325,7 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private static string BuildRelationshipSection(PromptConfiguration configuration) => Clean(configuration.Relationship);
 
-    private static string BuildNegativePrompt(PromptConfiguration configuration)
-    {
-        var phrases = new List<string>();
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        if (IntentModeCatalog.IsVintageBend(configuration.IntentMode))
-        {
-            AddUnique(phrases, seen, "no hand deformity");
-            AddUnique(phrases, seen, "no unstable finger anatomy");
-            AddUnique(phrases, seen, "no warped object handling");
-            AddUnique(phrases, seen, "no melted facial features");
-            AddUnique(phrases, seen, "no unreadable facial structure");
-            AddUnique(phrases, seen, "no warped limb proportions");
-            AddUnique(phrases, seen, "no excessive softness obscuring structure");
-            AddUnique(phrases, seen, "no muddy detail");
-            AddUnique(phrases, seen, "no exaggerated sepia wash");
-            AddUnique(phrases, seen, "no fake antique damage");
-            AddUnique(phrases, seen, "no overprocessed vintage effects");
-        }
-
-        if (configuration.AvoidBlurryDetail)
-        {
-            AddUnique(phrases, seen, "no blurry detail");
-            AddUnique(phrases, seen, "no low detail");
-        }
-
-        if (configuration.AvoidClutter)
-        {
-            AddUnique(phrases, seen, "no cluttered composition");
-        }
-
-        if (configuration.AvoidMuddyLighting)
-        {
-            AddUnique(phrases, seen, "no muddy lighting");
-        }
-
-        if (configuration.AvoidDistortedAnatomy && !ShouldAllowDistortedAnatomy(configuration))
-        {
-            AddUnique(phrases, seen, "no distorted anatomy");
-        }
-
-        if (configuration.AvoidExtraLimbs)
-        {
-            AddUnique(phrases, seen, "no extra limbs");
-            AddUnique(phrases, seen, "no extra fingers");
-        }
-
-        if (configuration.AvoidTextArtifacts)
-        {
-            AddUnique(phrases, seen, "no text artifacts");
-            AddUnique(phrases, seen, "no watermark");
-        }
-
-        if (configuration.AvoidOversaturation)
-        {
-            AddUnique(phrases, seen, "no oversaturated color");
-        }
-
-        if (configuration.AvoidFlatComposition && !ShouldAllowFlatComposition(configuration))
-        {
-            AddUnique(phrases, seen, "no flat composition");
-        }
-
-        if (configuration.AvoidMessyBackground)
-        {
-            AddUnique(phrases, seen, "no messy background");
-        }
-
-        if (configuration.AvoidWeakMaterialDefinition)
-        {
-            AddUnique(phrases, seen, "no poorly defined material texture");
-        }
-
-        return phrases.Count == 0 ? DefaultNegativePrompt : string.Join(", ", phrases);
-    }
-
-    private static bool ShouldAllowDistortedAnatomy(PromptConfiguration configuration)
-    {
-        return HasAnyActiveArtist(configuration, "Pablo Picasso", "Salvador Dali", "Salvador Dalí", "El Greco", "Amedeo Modigliani", "Francis Bacon", "Egon Schiele");
-    }
-
-    private static bool ShouldAllowFlatComposition(PromptConfiguration configuration)
-    {
-        return HasAnyActiveArtist(configuration, "Pablo Picasso");
-    }
-
-    private static bool HasAnyActiveArtist(PromptConfiguration configuration, params string[] artists)
-    {
-        return artists.Any(artist => HasActiveArtist(configuration.ArtistInfluencePrimary, configuration.InfluenceStrengthPrimary, artist)
-            || HasActiveArtist(configuration.ArtistInfluenceSecondary, configuration.InfluenceStrengthSecondary, artist));
-    }
-
-    private static bool HasActiveArtist(string? name, int strength, string expectedArtist)
-    {
-        return strength > 20
-            && !string.IsNullOrWhiteSpace(name)
-            && string.Equals(name, expectedArtist, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private IEnumerable<string> BuildStyleSection(PromptConfiguration configuration)
+    private IEnumerable<string> BuildStyleSection(PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext)
     {
         yield return configuration.ArtStyle switch
         {
@@ -529,22 +352,22 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
         if (!configuration.ExcludeStylizationFromPrompt)
         {
-            yield return MapStylization(configuration.Stylization, configuration);
+            yield return MapStylization(configuration.Stylization, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeRealismFromPrompt)
         {
-            yield return MapRealism(configuration.Realism, configuration);
+            yield return MapRealism(configuration.Realism, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeTextureDepthFromPrompt)
         {
-            yield return MapTextureDepth(configuration.TextureDepth, configuration);
+            yield return MapTextureDepth(configuration.TextureDepth, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeSurfaceAgeFromPrompt)
         {
-            yield return MapSurfaceAge(configuration.SurfaceAge, configuration);
+            yield return MapSurfaceAge(configuration.SurfaceAge, configuration, neutralBandEmissionContext);
         }
 
         foreach (var phrase in BuildArtistBlend(configuration))
@@ -737,36 +560,36 @@ public sealed class PromptBuilderService : IPromptBuilderService
         return primaryWeight ? 5 : 3;
     }
 
-    private static IEnumerable<string> BuildCompositionSection(PromptConfiguration configuration)
+    private static IEnumerable<string> BuildCompositionSection(PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext)
     {
         if (!configuration.ExcludeFramingFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Framing, configuration.Framing, configuration);
+            yield return ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Framing, configuration.Framing, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeCameraDistanceFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.CameraDistance, configuration.CameraDistance, configuration);
+            yield return ResolveStandaloneSliderPhrase(SliderLanguageCatalog.CameraDistance, configuration.CameraDistance, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeCameraAngleFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.CameraAngle, configuration.CameraAngle, configuration);
+            yield return ResolveStandaloneSliderPhrase(SliderLanguageCatalog.CameraAngle, configuration.CameraAngle, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeBackgroundComplexityFromPrompt)
         {
-            yield return MapBackgroundComplexity(configuration.BackgroundComplexity, configuration);
+            yield return MapBackgroundComplexity(configuration.BackgroundComplexity, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeMotionEnergyFromPrompt)
         {
-            yield return MapMotionEnergy(configuration.MotionEnergy, configuration);
+            yield return MapMotionEnergy(configuration.MotionEnergy, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeNarrativeDensityFromPrompt)
         {
-            var narrativePhrase = MapNarrativeDensity(configuration.NarrativeDensity, configuration);
+            var narrativePhrase = MapNarrativeDensity(configuration.NarrativeDensity, configuration, neutralBandEmissionContext);
             WriteFantasyIllustrationDebug(
                 configuration,
                 $"composition-narrative emit=true value={configuration.NarrativeDensity} phrase='{FormatPromptForDebug(narrativePhrase)}'");
@@ -781,54 +604,61 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
         if (!configuration.ExcludeAtmosphericDepthFromPrompt)
         {
-            yield return MapAtmosphericDepth(configuration.AtmosphericDepth, configuration);
+            yield return MapAtmosphericDepth(configuration.AtmosphericDepth, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeChaosFromPrompt)
         {
-            yield return MapChaos(configuration.Chaos, configuration);
+            yield return MapChaos(configuration.Chaos, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeFocusDepthFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.FocusDepth, configuration.FocusDepth, configuration);
+            yield return ResolveStandaloneSliderPhrase(SliderLanguageCatalog.FocusDepth, configuration.FocusDepth, configuration, neutralBandEmissionContext);
         }
     }
 
-    private static IEnumerable<string> BuildMoodSection(PromptConfiguration configuration)
+    private static IEnumerable<string> BuildMoodSection(PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext)
     {
         if (!configuration.ExcludeWhimsyFromPrompt)
         {
-            yield return MapWhimsy(configuration.Whimsy, configuration);
+            yield return MapWhimsy(configuration.Whimsy, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeTensionFromPrompt)
         {
-            yield return MapTension(configuration.Tension, configuration);
+            yield return MapTension(configuration.Tension, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeAweFromPrompt)
         {
-            yield return MapAwe(configuration.Awe, configuration);
+            yield return MapAwe(configuration.Awe, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeSymbolismFromPrompt)
         {
-            yield return MapSymbolism(configuration.Symbolism, configuration);
+            yield return MapSymbolism(configuration.Symbolism, configuration, neutralBandEmissionContext);
         }
-        if (configuration.Whimsy >= 70 && configuration.Tension >= 50) yield return "comedic interpersonal tension";
+        if (!configuration.ExcludeWhimsyFromPrompt
+            && !configuration.ExcludeTensionFromPrompt
+            && !configuration.SemanticPairInteractions
+            && configuration.Whimsy >= 70
+            && configuration.Tension >= 50)
+        {
+            yield return "comedic interpersonal tension";
+        }
     }
 
-    private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration, bool useVintageBend, bool useProductPhotography, bool useFoodPhotography, bool useLifestyleAdvertisingPhotography, bool useArchitectureArchviz, bool usePhotography, bool useCinematic, bool useThreeDRender, bool useConceptArt, bool useFantasyIllustration)
+    private static IEnumerable<string> BuildLightingAndColorSection(PromptConfiguration configuration, bool useVintageBend, bool useProductPhotography, bool useFoodPhotography, bool useLifestyleAdvertisingPhotography, bool useArchitectureArchviz, bool usePhotography, bool useCinematic, bool useThreeDRender, bool useConceptArt, bool useFantasyIllustration, NeutralBandEmissionContext neutralBandEmissionContext)
     {
         if (!configuration.ExcludeTemperatureFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Temperature, configuration.Temperature, configuration);
+            yield return ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Temperature, configuration.Temperature, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeLightingIntensityFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.LightingIntensity, configuration.LightingIntensity, configuration);
+            yield return ResolveStandaloneSliderPhrase(SliderLanguageCatalog.LightingIntensity, configuration.LightingIntensity, configuration, neutralBandEmissionContext);
         }
 
         yield return useThreeDRender
@@ -854,12 +684,12 @@ public sealed class PromptBuilderService : IPromptBuilderService
                 : Lower(configuration.Lighting);
         if (!configuration.ExcludeSaturationFromPrompt)
         {
-            yield return MapSaturation(configuration.Saturation, configuration);
+            yield return MapSaturation(configuration.Saturation, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeContrastFromPrompt)
         {
-            yield return MapContrast(configuration.Contrast, configuration);
+            yield return MapContrast(configuration.Contrast, configuration, neutralBandEmissionContext);
         }
     }
 
@@ -869,16 +699,16 @@ public sealed class PromptBuilderService : IPromptBuilderService
         return string.IsNullOrWhiteSpace(laneLighting) ? Lower(configuration.Lighting) : laneLighting;
     }
 
-    private static IEnumerable<string> BuildImageFinishSection(PromptConfiguration configuration)
+    private static IEnumerable<string> BuildImageFinishSection(PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext)
     {
         if (!configuration.ExcludeImageCleanlinessFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.ImageCleanliness, configuration.ImageCleanliness, configuration);
+            yield return ResolveStandaloneSliderPhrase(SliderLanguageCatalog.ImageCleanliness, configuration.ImageCleanliness, configuration, neutralBandEmissionContext);
         }
 
         if (!configuration.ExcludeDetailDensityFromPrompt)
         {
-            yield return SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.DetailDensity, configuration.DetailDensity, configuration);
+            yield return ResolveStandaloneSliderPhrase(SliderLanguageCatalog.DetailDensity, configuration.DetailDensity, configuration, neutralBandEmissionContext);
         }
     }
 
@@ -889,19 +719,19 @@ public sealed class PromptBuilderService : IPromptBuilderService
         if (configuration.TransparentBackground) { yield return "isolated subject"; yield return "clean background separation"; }
     }
 
-    private static string MapStylization(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Stylization, value, configuration);
+    private static string MapStylization(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Stylization, value, configuration, neutralBandEmissionContext);
 
-    private static string MapRealism(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Realism, value, configuration);
+    private static string MapRealism(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Realism, value, configuration, neutralBandEmissionContext);
 
-    private static string MapTextureDepth(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.TextureDepth, value, configuration);
+    private static string MapTextureDepth(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.TextureDepth, value, configuration, neutralBandEmissionContext);
 
-    private static string MapSurfaceAge(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.SurfaceAge, value, configuration);
+    private static string MapSurfaceAge(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.SurfaceAge, value, configuration, neutralBandEmissionContext);
 
-    private static string MapBackgroundComplexity(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.BackgroundComplexity, value, configuration);
+    private static string MapBackgroundComplexity(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.BackgroundComplexity, value, configuration, neutralBandEmissionContext);
 
-    private static string MapMotionEnergy(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.MotionEnergy, value, configuration);
+    private static string MapMotionEnergy(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.MotionEnergy, value, configuration, neutralBandEmissionContext);
 
-    private static string MapNarrativeDensity(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.NarrativeDensity, value, configuration);
+    private static string MapNarrativeDensity(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.NarrativeDensity, value, configuration, neutralBandEmissionContext);
 
     private static void WriteFantasyIllustrationDebug(PromptConfiguration configuration, string message)
     {
@@ -964,21 +794,67 @@ public sealed class PromptBuilderService : IPromptBuilderService
         return singleLine.Length <= 320 ? singleLine : $"{singleLine[..320]}...";
     }
 
-    private static string MapAtmosphericDepth(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.AtmosphericDepth, value, configuration);
+    private static string ResolveStandaloneSliderPhrase(
+        string sliderKey,
+        int value,
+        PromptConfiguration configuration,
+        NeutralBandEmissionContext neutralBandEmissionContext)
+    {
+        return neutralBandEmissionContext.ShouldSuppress(sliderKey, value)
+            ? string.Empty
+            : SliderLanguageCatalog.ResolvePromptPhraseOrFallback(sliderKey, value, configuration);
+    }
 
-    private static string MapChaos(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Chaos, value, configuration);
+    private readonly struct NeutralBandEmissionContext
+    {
+        private readonly bool _isInstalled;
+        private readonly IReadOnlySet<string> _pairSliderKeys;
 
-    private static string MapWhimsy(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Whimsy, value, configuration);
+        private NeutralBandEmissionContext(bool isInstalled, IReadOnlySet<string> pairSliderKeys)
+        {
+            _isInstalled = isInstalled;
+            _pairSliderKeys = pairSliderKeys;
+        }
 
-    private static string MapTension(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Tension, value, configuration);
+        public static NeutralBandEmissionContext Create(PromptConfiguration configuration)
+        {
+            return SliderLanguageCatalog.TryGetInstalledNeutralBandPairSliderKeys(
+                configuration.IntentMode,
+                configuration,
+                out var pairSliderKeys)
+                ? new NeutralBandEmissionContext(true, pairSliderKeys)
+                : new NeutralBandEmissionContext(false, EmptySliderKeys);
+        }
 
-    private static string MapAwe(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Awe, value, configuration);
+        public bool ShouldSuppress(string sliderKey, int value)
+        {
+            if (!_isInstalled)
+            {
+                return false;
+            }
 
-    private static string MapSymbolism(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Symbolism, value, configuration);
+            return value is >= 40 and <= 59
+                && !_pairSliderKeys.Contains(sliderKey);
+        }
+    }
 
-    private static string MapSaturation(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Saturation, value, configuration);
+    private static readonly IReadOnlySet<string> EmptySliderKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-    private static string MapContrast(int value, PromptConfiguration configuration) => SliderLanguageCatalog.ResolvePromptPhraseOrFallback(SliderLanguageCatalog.Contrast, value, configuration);
+    private static string MapAtmosphericDepth(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.AtmosphericDepth, value, configuration, neutralBandEmissionContext);
+
+    private static string MapChaos(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Chaos, value, configuration, neutralBandEmissionContext);
+
+    private static string MapWhimsy(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Whimsy, value, configuration, neutralBandEmissionContext);
+
+    private static string MapTension(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Tension, value, configuration, neutralBandEmissionContext);
+
+    private static string MapAwe(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Awe, value, configuration, neutralBandEmissionContext);
+
+    private static string MapSymbolism(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Symbolism, value, configuration, neutralBandEmissionContext);
+
+    private static string MapSaturation(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Saturation, value, configuration, neutralBandEmissionContext);
+
+    private static string MapContrast(int value, PromptConfiguration configuration, NeutralBandEmissionContext neutralBandEmissionContext) => ResolveStandaloneSliderPhrase(SliderLanguageCatalog.Contrast, value, configuration, neutralBandEmissionContext);
 
     private static string MapStylization(int value, string artStyle) => artStyle switch
     {
@@ -1279,9 +1155,9 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
     private static string MapWhimsy(int value, string artStyle) => artStyle switch
     {
-        "Surreal Symbolic" => MapBand(value, string.Empty, "subtle surreal playfulness", "playful dream logic", "strong whimsical strangeness", "bold absurdist whimsy"),
-        "Stained Glass" => MapBand(value, string.Empty, "subtle folkloric whimsy", "playful iconographic tone", "strong ornamental whimsy", "bold storybook whimsy"),
-        _ => MapBand(value, string.Empty, "subtle whimsy", "playful tone", "strong whimsical energy", "bold comedic whimsy"),
+        "Surreal Symbolic" => MapBand(value, string.Empty, "subtle surreal playfulness", "playful dream logic", "strong playful strangeness", "bold absurdist play"),
+        "Stained Glass" => MapBand(value, string.Empty, "subtle folkloric levity", "playful iconographic tone", "strong ornamental playfulness", "bold storybook play"),
+        _ => MapBand(value, string.Empty, "subtle levity", "playful tone", "strong playful energy", "bold comic levity"),
     };
 
     private static string MapTension(int value, string artStyle) => artStyle switch
@@ -1543,96 +1419,6 @@ public sealed class PromptBuilderService : IPromptBuilderService
         return phrase;
     }
 
-    private static bool TryRewritePromptFragment(string phrase, out string rewritten)
-    {
-        rewritten = phrase;
-
-        switch (phrase)
-        {
-            case "supporting environment":
-            case "supporting scene detail":
-                rewritten = "gentle background detail";
-                return true;
-            case "layered storytelling cues":
-                rewritten = "subtle narrative detail";
-                return true;
-            case "slight recession":
-                rewritten = "soft depth";
-                return true;
-            case "balanced tonal contrast":
-                rewritten = "tonal contrast";
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsExactLowSignalFragment(string phrase)
-    {
-        return phrase is "balanced framing"
-            or "controlled composition"
-            or "balanced focus depth"
-            or "balanced cleanliness"
-            or "balanced detail";
-    }
-
-    private static bool IsCompressionScaffold(string phrase)
-    {
-        if (IsExactLowSignalFragment(phrase))
-        {
-            return true;
-        }
-
-        return phrase.StartsWith("balanced ", StringComparison.OrdinalIgnoreCase)
-            || phrase.StartsWith("controlled ", StringComparison.OrdinalIgnoreCase)
-            || phrase.StartsWith("supporting ", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(phrase, "layered storytelling cues", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(phrase, "slight recession", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsHighSignalFragment(string phrase)
-    {
-        return phrase.Contains("paper texture", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("ink linework", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("speech bubble", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("cel-shaded", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("transparent washes", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("soft glow", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("vivid color", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("gouache", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("stylized hair", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("expressive characters", StringComparison.OrdinalIgnoreCase)
-            || phrase.Contains("atmospheric effects", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string CleanPromptOutputFragment(string? value)
-    {
-        var cleaned = Clean(value);
-        if (string.IsNullOrWhiteSpace(cleaned))
-        {
-            return string.Empty;
-        }
-
-        cleaned = HyphenatedLanguageTokenRegex.Replace(cleaned, string.Empty);
-        cleaned = LanguageTokenRegex.Replace(cleaned, string.Empty);
-        return ExtraWhitespaceRegex.Replace(cleaned, " ").Trim().Trim(',');
-    }
-
-    private static IEnumerable<PromptFragment> CleanPromptOutputFragments(IEnumerable<PromptFragment> fragments)
-    {
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var fragment in fragments)
-        {
-            var cleaned = CleanPromptOutputFragment(fragment.Text);
-            if (string.IsNullOrWhiteSpace(cleaned) || !seen.Add(cleaned))
-            {
-                continue;
-            }
-
-            yield return new PromptFragment(cleaned, fragment.PreserveFromCompression);
-        }
-    }
-
     private static IEnumerable<string> CleanPromptOutputFragments(IEnumerable<string> fragments)
     {
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -1646,14 +1432,6 @@ public sealed class PromptBuilderService : IPromptBuilderService
 
             yield return cleaned;
         }
-    }
-
-    private static string Clean(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
-        var builder = new StringBuilder(value.Trim());
-        builder.Replace("  ", " ");
-        return builder.ToString().Trim().Trim(',');
     }
 
     private static string Lower(string? value)

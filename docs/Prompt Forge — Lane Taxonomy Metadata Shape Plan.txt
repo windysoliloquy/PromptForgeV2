@@ -1,0 +1,195 @@
+Purpose
+
+- This document is Stage 2 from `docs/Prompt Forge — Lane Taxonomy Migration Plan.txt`.
+- The goal is to find the smallest honest registry-side metadata expansion that could support:
+  - user-facing category
+  - engine-facing behavior profile
+  - the existing lane leaf identity
+- This is metadata-shape planning only. It does not propose code edits or runtime behavior changes.
+
+
+What must remain stable
+
+- current `IntentMode` routing behavior
+- current `SliderLanguageCatalog.ResolvePhrase(...)` resolver precedence
+- current fallback precedence and fallback wording behavior
+- current `PromptBuilderService.Build(...)` routing and experimental fallback behavior
+- current lane-local descriptor and resolver authority in `SliderLanguageCatalog.[Lane].cs`
+- current save/load/apply/reset semantics
+- current `LaneRegistry` lane identity semantics:
+  - `LaneDefinition.Id`
+  - `IntentNames`
+  - `PrimaryIntentName`
+- current `BehaviorFlags`, `PolicyKey`, selector metadata, modifier metadata, and defaults behavior
+- current intentional central ownership boundaries in:
+  - `PromptForge.App/ViewModels/MainWindowViewModel.cs`
+  - `PromptForge.Core/Services/PromptBuilderService.cs`
+  - `PromptForge.Core/Services/SliderLanguageCatalog.cs`
+
+
+Best metadata home
+
+Options considered
+
+- directly on `LaneDefinition`
+  - pro:
+    - taxonomy would live beside the existing lane identity metadata
+    - consumer code could read one object
+  - risk:
+    - `LaneDefinition` is already validation-sensitive and behavior-adjacent
+    - adding taxonomy fields there too early makes classification look more behavioral than it really is
+    - it widens the shared core model immediately, even though Stage 2 is still trying to prove the taxonomy
+
+- adjacent to `LaneDefinition`
+  - pro:
+    - keeps taxonomy explicitly separate from current runtime-driving metadata
+    - allows the map to stabilize without implying that category/profile are already part of the core behavior contract
+    - avoids widening `LaneRegistryValidator` and other existing registry consumers in the first implementation phase
+  - risk:
+    - consumers would need one extra lookup step later
+
+- another narrow registry-side metadata structure
+  - this is effectively the adjacent option, but stated positively as the future shape rather than just “not on `LaneDefinition`”
+
+Safest recommendation
+
+- `adjacent metadata, not direct LaneDefinition expansion` is the safest choice for the first metadata phase.
+- Best home:
+  - a narrow taxonomy map keyed by existing `LaneDefinition.Id`, owned beside `LaneRegistry`
+- Why this is safest in this repo:
+  - `LaneDefinition` already carries behavior-sensitive fields such as `BehaviorFlags`, `PolicyKey`, selectors, modifiers, and defaults
+  - the new taxonomy is still classificatory, not authoritative for routing
+  - keeping it adjacent reduces the chance that later work accidentally treats category/profile as runtime-routing truth before that has been proven
+
+
+Proposed metadata fields
+
+- smallest honest field set:
+  - `LaneId`
+    - exact existing lane leaf identity
+    - key field for the taxonomy map
+  - `Category`
+    - user-facing grouping
+  - `BehaviorProfile`
+    - engine-facing classification
+
+Suggested repo-specific shape
+
+- `LaneTaxonomyMetadata`
+  - `string LaneId`
+  - `string Category`
+  - `string BehaviorProfile`
+
+- supporting registry-side lookup shape
+  - taxonomy map keyed by existing `LaneDefinition.Id`
+
+Why this is enough
+
+- `LaneId` anchors the taxonomy to current registry truth
+- `Category` covers the user-facing grouping need
+- `BehaviorProfile` covers the engine-facing classification need
+- no extra descriptive text, sort order, display alias, or decorative labels are needed yet
+- no separate “locked” boolean, “contributor-owned” boolean, or “shared-standard” boolean is needed if `BehaviorProfile` already names those families honestly
+
+Why not add more now
+
+- `IntentNames` already live on `LaneDefinition`
+- `DisplayTitle` already lives on `LaneDefinition`
+- `BehaviorFlags` and `PolicyKey` already capture existing runtime behavior signals
+- duplicating those into taxonomy metadata would add surface area without reducing lane pressure
+
+
+How each current lane would map into the proposed shape
+
+- The Stage 1 classification map lands cleanly into a `LaneId -> Category + BehaviorProfile` structure.
+- Every current lane already has a stable `LaneDefinition.Id`, so the taxonomy can attach without inventing a new leaf key.
+- The current map fits the proposed shape with no extra field required for most lanes:
+  - `Illustration` + one of:
+    - `Lane-local resolver lane`
+    - `Contributor-owned lane`
+  - `Photography` + one of:
+    - `Lane-local resolver lane`
+    - `Locked lane-local lane`
+  - `Design` + one of:
+    - `Lane-local resolver lane`
+    - `Contributor-owned lane`
+  - `Digital Render` + one of:
+    - `Lane-local resolver lane`
+    - `Shared-standard lane`
+- This means the structure is expressive enough for the current lane set without repeating the full registry table.
+
+
+Awkward cases
+
+- `Vintage Bend`
+  - the proposed shape handles it adequately as:
+    - `Category = Photography`
+    - `BehaviorProfile = Locked lane-local lane`
+  - this is honest, but not perfectly specific
+  - `Vintage Bend` also carries a policy hook and a more singular language-pack identity than the other locked lanes
+  - conclusion:
+    - no extra field is required yet
+    - if a later phase reveals multiple policy-hook lanes with different families, that would be the point to revisit the profile vocabulary, not the metadata shape
+
+- `Cinematic`
+  - the proposed shape handles it cleanly as:
+    - `Category = Digital Render`
+    - `BehaviorProfile = Shared-standard lane`
+  - this is exactly the kind of mismatch the taxonomy is supposed to expose: named lane identity without a lane-local resolver family
+
+- contributor-owned lanes
+  - the proposed shape handles them cleanly through `BehaviorProfile = Contributor-owned lane`
+  - no extra “contributor registry key” field is needed in taxonomy metadata because contributor ownership is still runtime-owned elsewhere
+
+- locked lanes
+  - the proposed shape handles them cleanly through `BehaviorProfile = Locked lane-local lane`
+  - no extra unlock field should be added in the first taxonomy layer, because unlock semantics already live elsewhere and should not be duplicated
+
+Net result
+
+- the awkward cases test the profile vocabulary more than they test the metadata container shape
+- the container shape itself is still minimal and sufficient
+
+
+Read-only consumer opportunities
+
+- safest first readers later:
+  - intent picker grouping / ordering support in the UI
+  - `IntentMode` summary or lane summary presentation
+  - documentation/debug surfaces that need to say what family a lane belongs to
+  - non-routing panel organization helpers
+- why these are safest:
+  - they can read category/profile metadata without changing builder routing, resolver precedence, or persistence behavior
+  - they are user-facing organization concerns, which is exactly where `Category` provides value first
+
+
+Unsafe first consumers
+
+- `PromptForge.Core/Services/SliderLanguageCatalog.cs`
+  - especially `ResolvePhrase(...)`, `ResolvePromptPhraseOrFallback(...)`, and fallback ownership
+- `PromptForge.Core/Services/PromptBuilderService.cs`
+  - especially `Build(...)` and the standard-vs-experimental decision boundary
+- `PromptForge.App/ViewModels/MainWindowViewModel.cs`
+  - especially the stabilized intent-change, regeneration, apply/reset, and access-gating shells
+- `StandardLaneStateAdapter`
+  - taxonomy metadata should not be introduced first into state hydration or config replay paths
+- why these are unsafe first:
+  - they are precedence-owning or timing-sensitive surfaces
+  - introducing taxonomy there first would blur classification with runtime authority too early
+
+
+Assessment
+
+- Yes, the metadata shape is clean enough to justify a later minimal implementation phase.
+- The strongest reason is that the container can stay very small:
+  - one lane key
+  - one category
+  - one behavior profile
+- The awkward cases do not force a larger structure yet.
+- The real caution is not the shape itself; it is making sure the first consumer stays read-only and non-routing.
+
+
+Recommendation
+
+- `Proceed to Stage 3 later`
+- The adjacent registry-side taxonomy map is small, repo-specific, and separated cleanly enough from current behavior-driving metadata to support a later read-only consumer inventory without reopening the stabilized central files.

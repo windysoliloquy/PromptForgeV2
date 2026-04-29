@@ -1,0 +1,23 @@
+<UserControl x:Class="PromptForge.App.Views.LaneReplacements.Shared.TattooArtCompactPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="False">
+    <UserControl.Resources>
+        <Style x:Key="TattooArtCompactPanelShellStyle" TargetType="Border" BasedOn="{StaticResource SectionCardStyle}">
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Background" Value="{DynamicResource SubtleSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}" />
+        </Style>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource TattooArtCompactPanelShellStyle}">
+        <StackPanel>
+            <TextBlock Text="{Binding Title}" Style="{StaticResource SectionTitleTextStyle}" />
+            <TextBlock Margin="0,6,0,0"
+                       Text="{Binding Description}"
+                       Style="{StaticResource BodyMutedTextStyle}"
+                       TextWrapping="Wrap" />
+        </StackPanel>
+    </Border>
+</UserControl>

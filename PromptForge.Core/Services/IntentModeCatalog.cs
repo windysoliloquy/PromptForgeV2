@@ -23,6 +23,7 @@ public static class IntentModeCatalog
     public const string FantasyIllustrationName = "Fantasy Illustration";
     public const string EditorialIllustrationName = "Editorial Illustration";
     public const string GraphicDesignName = "Graphic Design";
+    public const string InfographicDataVisualizationName = "Infographic / Data Visualization";
     public const string TattooArtName = "Tattoo Art";
 
     private static readonly IReadOnlyDictionary<string, IntentModeDefinition> Definitions =
@@ -227,14 +228,14 @@ public static class IntentModeCatalog
                 Summary: "pixel art presentation with palette discipline, sprite-readable structure, and crisp game-oriented clarity"),
             [FantasyIllustrationName] = new(
                 FantasyIllustrationName,
-                Whimsy: 24,
-                Tension: 38,
-                Awe: 54,
+                Whimsy: 30,
+                Tension: 33,
+                Awe: 68,
                 Chaos: 34,
-                MotionEnergy: 41,
-                AtmosphericDepth: 60,
-                NarrativeDensity: 57,
-                Symbolism: 49,
+                MotionEnergy: 50,
+                AtmosphericDepth: 67,
+                NarrativeDensity: 64,
+                Symbolism: 63,
                 Saturation: 48,
                 Contrast: 52,
                 Lighting: "Soft daylight",
@@ -300,26 +301,33 @@ public static class IntentModeCatalog
 
     public static IReadOnlyList<string> Names { get; } = new[]
     {
-        "Custom",
         AnimeName,
-        WatercolorName,
+        ArchitectureArchvizName,
         ChildrensBookName,
-        ComicBookName,
         CinematicName,
+        ComicBookName,
+        ConceptArtName,
+        EditorialIllustrationName,
+        FantasyIllustrationName,
+        FoodPhotographyName,
+        GraphicDesignName,
+        InfographicDataVisualizationName,
+        LifestyleAdvertisingPhotographyName,
         PhotographyName,
+        PixelArtName,
         ProductPhotographyName,
+        TattooArtName,
+        ThreeDRenderName,
+        VintageBendName,
+        WatercolorName,
+    };
+
+    public static IReadOnlyList<string> PhotographyFamilyNames { get; } = new[]
+    {
+        PhotographyName,
         FoodPhotographyName,
         LifestyleAdvertisingPhotographyName,
-        ArchitectureArchvizName,
-        ThreeDRenderName,
-        ConceptArtName,
-        PixelArtName,
-        FantasyIllustrationName,
-        EditorialIllustrationName,
-        GraphicDesignName,
-        TattooArtName,
-        VintageBendName,
-        ExperimentalName,
+        ProductPhotographyName,
     };
 
     public static bool IsExperimental(string? intentMode)
@@ -411,6 +419,11 @@ public static class IntentModeCatalog
     public static bool IsGraphicDesign(string? intentMode)
     {
         return string.Equals(intentMode, GraphicDesignName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsInfographicDataVisualization(string? intentMode)
+    {
+        return string.Equals(intentMode, InfographicDataVisualizationName, StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsTattooArt(string? intentMode)

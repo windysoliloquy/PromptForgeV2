@@ -1,0 +1,26 @@
+{
+  "asset_family": "hoverdeck_launcher_stub_obsidian",
+  "source_image": "/mnt/data/imagegen.png",
+  "states": {
+    "n": "normal",
+    "h": "hover",
+    "p": "pressed",
+    "a": "active"
+  },
+  "recommended_wpf_destination": "PromptForge.App/Assets/HoverDeck/Launcher/",
+  "production_folders": [
+    "full_160x64",
+    "full_128x52",
+    "full_112x44",
+    "full_96x38",
+    "full_72x28"
+  ],
+  "note": "Single-piece right-edge launcher stub assets. Use one production size that best matches the existing SteerStub/ActionStub layout; do not reference sales-site assets from WPF runtime XAML.",
+  "naming": "hd_launcher_stub_obsidian_{state}.png",
+  "state_order": [
+    "n",
+    "h",
+    "p",
+    "a"
+  ]
+}

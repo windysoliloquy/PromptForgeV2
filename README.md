@@ -33,13 +33,13 @@ Prompt Forge supports an enormous built-in prompt space, with countless meaningf
 
 ## Access Options
 
-### Prompt Forge Full — $19.99
+### Prompt Forge Full - $19.99
 
 Includes full Prompt Forge access through the unlock-file system.
 
 Purchasers may also submit feature suggestions, and purchaser suggestions receive higher-priority consideration.
 
-### Premium Group Access — $49.99
+### Premium Group Access - $49.99
 
 For ChatGPT Plus or Pro web users, this tier includes one year of group chat access with experienced image prompters, AI enthusiasts, and developers.
 

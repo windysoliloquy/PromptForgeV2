@@ -1,0 +1,139 @@
+Current lane-work state
+
+- Ongoing lane work now lives mostly in lane-local content surfaces, not in structural extraction work.
+- The most important current lane surfaces for content work are:
+  - `PromptForge.Core/Services/SliderLanguageCatalog.[Lane].cs`
+    - lane-local slider phrasing
+    - lane-local guide text
+    - lane-local descriptor language
+  - `PromptForge.Core/Services/Lanes/*.cs`
+    - contributor-owned lane behavior for the contributor lanes
+  - `PromptForge.Core/Services/PromptBuilderService.cs` and contained builder partials
+    - only where a lane needs one narrow prompt-emission hook
+- Normal implementation surfaces for lane work now are:
+  - lane-local catalog partials first
+  - contributor files only when the lane is contributor-owned
+  - builder surfaces only when a pairing must replace or intercept default shared slider emission
+
+
+What the anime tester/pattern proved
+
+- The anime pass validated a small, behavior-contained pattern:
+  - lane-local pairing phrase logic can live in its own file:
+    - `PromptForge.Core/Services/SliderLanguageCatalog.AnimePairs.cs`
+  - the lane can keep its ordinary lane-local phrasing in:
+    - `PromptForge.Core/Services/SliderLanguageCatalog.Anime.cs`
+  - one narrow builder hook can emit the pairing only under explicit guards:
+    - anime intent
+    - `SemanticPairInteractions`
+    - stylization and realism both still included
+- It also proved that pairing work can be introduced without touching:
+  - resolver precedence
+  - fallback behavior
+  - lane registry structure
+  - central routing in `SliderLanguageCatalog.cs`
+- Reusable parts of the pattern:
+  - lane-local `TryResolve...Pair(...)` helper
+  - band-index-based phrase table
+  - explicit builder guard that falls back to ordinary slider emission when no pair is used
+
+
+Safest repeatable workflow
+
+1. Choose a lane that already has stable lane-local slider language and does not require routing changes.
+2. Identify the exact slider pair to naturalize.
+3. Check the lane’s current phrasing surfaces in `SliderLanguageCatalog.[Lane].cs` to confirm the pair is genuinely lane-local wording work.
+4. Add the pair logic in a lane-local partial such as `SliderLanguageCatalog.[Lane]Pairs.cs`.
+5. Keep the pair helper narrow:
+   - input: current `PromptConfiguration`
+   - output: one phrase or no phrase
+   - no fallback ownership
+   - no dispatch ownership
+6. Add the smallest builder emission hook only where the two independent sliders are currently emitted.
+7. Guard the paired emission explicitly:
+   - correct lane only
+   - pairing feature toggle or existing lane guard only
+   - both underlying sliders still eligible for prompt emission
+8. Preserve fallback behavior:
+   - if the pair does not resolve, keep the current two independent slider emissions
+9. Verify by code review that:
+   - no central routing changed
+   - no resolver precedence changed
+   - no fallback behavior changed
+   - only the target lane’s emitted wording changed under the intended guard
+
+
+Where pairings should live
+
+- safest home for pair phrase logic:
+  - lane-local catalog partials beside the lane’s existing wording work
+  - pattern example:
+    - `PromptForge.Core/Services/SliderLanguageCatalog.AnimePairs.cs`
+- safest home for the ordinary lane context around that logic:
+  - the lane’s existing catalog partial such as:
+    - `SliderLanguageCatalog.Anime.cs`
+    - `SliderLanguageCatalog.Watercolor.cs`
+    - `SliderLanguageCatalog.ChildrensBook.cs`
+    - `SliderLanguageCatalog.Photography.cs`
+- safest builder surface:
+  - the narrowest existing style-section emission point where the independent sliders already emit
+  - current reference pattern:
+    - anime pairing is emitted inside `PromptBuilderService.cs` in the style-section branch that normally emits stylization and realism
+- what should stay out of scope:
+  - `PromptForge.Core/Services/SliderLanguageCatalog.cs` shared routing / fallback ownership
+  - broad builder routing decisions
+  - lane registry or taxonomy metadata
+
+
+What must stay untouched
+
+- `PromptForge.App/ViewModels/MainWindowViewModel.cs`
+  - stabilized UI orchestration core
+- `PromptForge.Core/Services/PromptBuilderService.cs`
+  - except for the smallest necessary lane-specific emission hook
+- `PromptForge.Core/Services/SliderLanguageCatalog.cs`
+  - shared dispatch, fallback, and final shared selection ownership
+- current resolver precedence
+- current fallback behavior
+- current save/load/apply/reset behavior
+- current lock/unlock behavior
+- lane contributor ownership boundaries unless the target lane is already contributor-owned and the pairing truly belongs there
+
+
+Best next candidate lanes
+
+1. `Watercolor`
+- good candidate because it already has a stable lane-local resolver file and a strong authored visual language
+- stylization/realism naturalization looks likely to be lane-local wording work rather than routing work
+- lower risk than contributor-owned lanes
+
+2. `Children's Book`
+- good candidate because it already has lane-local phrasing and a cohesive tonal profile
+- pairing work would likely stay in lane-local wording without needing contributor surfaces
+- likely to benefit from softer naturalized combinations rather than two blunt independent slider phrases
+
+3. `Photography`
+- good candidate because it is important, mature, and already has dedicated lane-local phrasing
+- useful as a higher-value reference lane after one more illustration-style lane proves the workflow
+- ranks third because photography wording carries stronger downstream sensitivity and is closer to commerce-family surfaces
+
+
+Risks and red flags
+
+- editing `SliderLanguageCatalog.cs` shared dispatch or fallback logic for a lane-local wording task
+- editing `PromptBuilderService.cs` beyond one narrow pair-emission hook
+- introducing pairing logic into `MainWindowViewModel`
+- changing resolver precedence to “make the pairing work”
+- changing fallback wording or fallback order to “make the pairing read better”
+- treating contributor-owned lanes as automatic next targets when a simpler lane-local lane would prove the workflow more safely
+- fake progress:
+  - renaming or relocating code without actually improving lane-local pairing behavior
+  - widening into taxonomy or structural cleanup during a content pass
+
+
+Recommendation
+
+- next practical move: run one more lane-local pairing pass on `Watercolor`, using the anime pattern exactly:
+  - lane-local `TryResolve...Pair(...)` helper
+  - smallest builder emission hook
+  - no shared routing or fallback changes

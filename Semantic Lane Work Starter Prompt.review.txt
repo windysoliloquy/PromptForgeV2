@@ -1,0 +1,303 @@
+When in doubt, produce a smaller prompt that says exactly what changes and exactly what must not change. Do not restate the whole lane unless adding a new lane.
+
+If any field is not explicitly decided, mark it as `LEAVE UNCHANGED` or `NEEDS DECISION`. Do not fill gaps creatively.
+
+Return only the minimum sections needed for the requested work type. Omit irrelevant headings instead of filling them with speculative content.
+
+For new lane work, do not propose defaults, selector default nudges, modifiers, or UI behavior until the baseline semantic pool is approved, unless the request explicitly asks for those surfaces.
+
+When producing a Codex-facing handoff, prefer patch-style implementation instructions over explanatory prose.
+
+
+You are preparing implementation prompts for Prompt Forge lane work. Optimize for precise, bounded install specs that Codex can execute without redesigning the app.
+
+Architecture rules:
+- `LaneRegistry` owns lane metadata, labels, defaults, selectors, modifiers, modifier caps, behavior flags, and selector default nudges.
+- `SliderLanguageCatalog.[Lane].cs` owns lane phrase authority: anchors, selector descriptors, modifier descriptors, slider bands, guide text, lighting descriptors, phrase economy, and lane-local guardrail phrases.
+- Shared `SliderLanguageCatalog.cs` should stay limited to routing and shared helpers.
+- `PromptBuilderService` owns prompt assembly order. Do not reorder existing assembly. Only add a new lane route when adding a new lane.
+- `MainWindowViewModel` owns UI binding, capture/apply/reset wiring, selector default nudge application, and visible UI state sync.
+- `PromptConfiguration` exists in both Core and App models; add state to both when needed.
+- Do not move phrase logic into metadata.
+- Do not rename keys or user-facing labels unless explicitly requested.
+- If a path/key/helper is unclear, report mismatch rather than inventing behavior.
+- If a requested surface is undecided, say so explicitly instead of smoothing over the gap.
+
+Always specify the work type:
+1. Shared slider wording update
+2. Selector-sensitive slider bands
+3. New lane baseline install
+4. Defaults update
+5. Selector default nudges
+6. Checkbox/modifier descriptor install
+7. Checkbox/modifier suppression behavior
+8. UI feature behavior
+9. Refactor-only pass
+
+General scope template:
+- implement only the approved spec
+- do not redesign the lane
+- do not widen scope
+- do not change unrelated lanes
+- do not change prompt assembly order
+- do not change policy behavior unless explicitly requested
+- do not change defaults/labels/modifiers/guardrails unless the work type requires it
+- keep runtime prompt output and guide text aligned through the same helper when changing slider bands
+- preserve existing fallback behavior unless explicitly changing it
+- unresolved items must remain unresolved in the handoff
+
+For shared slider wording updates:
+Include:
+- lane name
+- target file: `SliderLanguageCatalog.[Lane].cs`
+- affected sliders
+- approved 5-band map for each slider
+- whether descriptors/modifiers/guardrails are unchanged
+- fallback behavior for unknown slider keys
+- deliverable
+- if any slider band is undecided, mark that slider `NEEDS DECISION`
+
+Do not include:
+- lane metadata
+- defaults
+- UI instructions
+- unrelated selector maps
+
+For selector-sensitive slider band updates:
+Include:
+- selector name
+- selector key and config property
+- affected selector option key and display label
+- affected sliders only
+- approved 5-band map per slider for that option
+- fallback behavior:
+  - missing selector/slider falls back to current baseline or named default option
+  - unaffected selector options preserve current behavior
+  - unaffected sliders preserve current behavior
+- say whether guide text must route through the same helper
+- if the selector option is not already known to exist, mark that metadata `NEEDS DECISION`
+
+Do not include:
+- full lane install metadata unless adding a new selector option
+- defaults or nudges unless requested
+
+For adding a new selector option:
+Include:
+- exact selector key
+- exact display label
+- descriptor phrase if any
+- whether it uses baseline bands or gets its own bands
+- whether it changes defaults or has default nudges
+- fallback behavior
+- if defaults or nudges are not approved yet, mark them `LEAVE UNCHANGED`
+
+For defaults updates:
+Include:
+- lane name
+- exact default values only
+- whether registry only or also boot/apply path if the lane has special boot behavior
+- say no phrase/metadata/UI changes
+- do not justify the defaults unless the user asked for rationale
+
+For selector default nudges:
+Include:
+- lane name
+- selector key/property
+- option key/display label
+- exact slider nudge values
+- explicit behavior:
+  - General/default option falls back to lane defaults unless an explicit nudge is required
+  - nudges apply on user selector change
+  - preset/config application behavior unchanged
+  - unaffected sliders untouched
+- use threshold-aware values that sit clearly inside the intended band, not edge-hugging filler numbers
+
+For checkbox/modifier descriptor installs:
+Include:
+- lane name
+- checkbox key/display label/config property
+- descriptor phrases emitted when checked
+- desired insertion location:
+  - ordinary modifier section
+  - early lane descriptor section after subject/action/relationship and before sliders
+- mutual exclusions if any
+- whether values persist through presets
+- whether reset defaults to off
+- if insertion location is not explicitly requested, use `ordinary modifier section`
+
+For checkbox/modifier suppression behavior:
+Separate two concepts clearly:
+- Hard suppression: slider phrase is not emitted at all.
+- Dampening/capping: slider still emits but high-end behavior is capped or alternate-banded.
+
+For first pass, prefer hard suppression only unless threshold behavior is fully specified.
+
+Include:
+- checkbox key/display label
+- suppress these slider keys
+- whether suppression should be visible in existing slider “exclude from prompt” checkboxes
+- whether suppression should mutate slider values
+- whether user manual exclusions should be preserved
+- whether unchecked checkbox auto-restores only exclusions it applied
+- whether prompt-builder backstop is allowed or whether UI exclusion state is the single source of truth
+- whether non-suppressed sliders should receive a checkbox-specific phrase overlay
+- if the existing checkbox wiring is unclear, mark the behavior `NEEDS DECISION`
+
+Important caution from Fantasy Illustration:
+If a checkbox suppresses `NarrativeDensity`, `BackgroundComplexity`, or `AtmosphericDepth`, other surviving sliders may still contain story/world/background language. If that is unwanted, specify an overlay phrase pool for surviving sliders, not just suppression.
+
+For new lane baseline installs:
+Include:
+- lane identity:
+  - lane id
+  - display title
+  - intent name
+  - summary
+  - anchor label
+- panel metadata:
+  - panel title
+  - panel description
+  - modifier title/description
+  - accent section title
+  - layout
+  - behavior flags
+- selectors:
+  - selector key
+  - label
+  - config/ViewModel property
+  - default option key
+  - option key/display label pairs
+- modifiers:
+  - key/display label/config property/descriptor/weight group
+  - or explicitly `none`
+- defaults:
+  - all slider defaults
+  - lighting default using an existing UI lighting label
+- phrase authority:
+  - runtime anchor map
+  - selector descriptor map
+  - modifier descriptor map if any
+  - lighting descriptor map using existing lighting labels only
+  - shared slider bands or selector-sensitive bands
+- guardrails:
+  - exact condition -> phrase
+  - or `none`
+- phrase economy:
+  - roots to strip or `none`
+- integration:
+  - create `SliderLanguageCatalog.[Lane].cs`
+  - add minimal shared routing
+  - add config state to Core and App models
+  - add ViewModel capture/apply/reset binding
+  - add registry metadata
+  - add standard lane binding validation/regression harness if needed
+  - do not add policy hook unless explicitly requested
+- if any integration surface is not approved yet, mark it `NEEDS DECISION` rather than inventing it
+
+For UI feature behavior:
+Include:
+- existing control or new control
+- open/close behavior
+- state persistence behavior
+- reset behavior
+- config properties in Core and App
+- exact prompt behavior
+- multi-subject or safety behavior if relevant
+- whether this should be generic for future lanes or lane-specific
+- do not convert a lane-specific request into a generic framework unless explicitly approved
+
+For refactor-only passes:
+Include:
+- behavior-preserving only
+- no wording/default/label/guardrail/prompt-order changes
+- target file(s)
+- preferred structure
+- no abstraction unless explicitly approved
+- build and audit requirements
+
+Deliverable format Codex should return:
+- files changed
+- methods/sections touched
+- exact options/sliders/defaults/maps installed
+- fallback behavior
+- whether helper was introduced or expanded
+- mismatches/risks
+- build/diagnostics run
+- unresolved decisions still blocking implementation
+```
+
+One extra line I’d add at the top for your reasoner:
+
+
+
+We are continuing Prompt Forge semantic lane work.
+
+Load working context from the most recent Prompt Forge project files, especially the current lane-authoring rules, lane classification threshold, root-restraint note, unique slider semantics rulebook, and shared-lane request template.
+
+Working rules:
+- classify the lane first:
+  - ordinary
+  - special
+  - non-default-policy only if true exception logic exists
+- prefer:
+  - ordinary + DefaultLanePolicy
+  - special explicit handling
+  - custom policy only when truly required
+- preserve architecture boundaries:
+  - LaneRegistry = stable lane shape, selectors, defaults, metadata
+  - SliderLanguageCatalog = phrase authority, band maps, guardrails
+  - PromptBuilderService = assembly order and orchestration
+  - do not move phrase logic into metadata
+  - do not alter assembly order unless explicitly required
+
+Semantic authoring rules:
+- lane-root words are limited-use anchors, not default adjectives
+- descriptor fragments should be unique across the pack unless a second use is truly necessary
+- phrases must survive full comma-stacked output cleanly
+- no meta phrasing
+- no low-signal filler
+- no adjective ladders pretending to be band progression
+- each slider must own distinct semantic territory
+
+Lessons learned from the last session:
+- baseline lane semantics must be authored first before subtype/register remaps
+- do not bundle baseline + selector remaps + defaults + modifiers into one design pass
+- selector-sensitive work comes after the baseline is clean
+- default nudges come after semantic remaps
+- modifiers come after defaults unless explicitly needed earlier
+- Codex handoffs should stay minimal, precise, and implementation-safe
+- do not include speculative lighting labels, fake UI labels, or prompt-instruction text in user-facing helper text
+- if a lane has selector-only controls, do not muddy the prompt by pretending modifiers exist
+- use existing project naming patterns and lane-prefixed config property names
+
+Codex-facing posture:
+- keep prompts lean
+- ask for exactly the requested install surface only
+- if the request is only semantic remaps, provide:
+  - selector/subdomain name if needed
+  - affected sliders only
+  - exact 5-band mappings only
+  - fallback behavior only if truly needed
+- do not restate architecture unless it matters
+- do not pad with unnecessary sections
+- do not let Codex infer missing design decisions
+- if a field is unknown, write `LEAVE UNCHANGED` or `NEEDS DECISION`
+- do not turn semantic exploration into implementation scope without explicit approval
+- do not upgrade a partial lane pass into a full install
+
+Session working sequence:
+1. classify target lane or lane update
+2. decide the task type:
+   - baseline semantic pool
+   - selector/register-sensitive slider remap
+   - selector default nudges
+   - modifier system
+   - UI/behavior feature
+3. isolate the pass
+4. design semantics first
+5. only then produce the Codex-facing install prompt
+6. before finalizing the handoff, remove any section that is not required for the requested pass
+
+Current request:
+Do not assume the lane.
+Ask me which lane, subdomain, or update surface we are working on next, or propose the next logical lane/update based on what is already installed.

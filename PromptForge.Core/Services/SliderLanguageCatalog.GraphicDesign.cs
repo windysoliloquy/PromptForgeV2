@@ -224,7 +224,7 @@ public static partial class SliderLanguageCatalog
             FocusDepth => ["broad compositional clarity", "mild focal preference", "controlled hierarchy focus", "strong focal isolation", "razor-thin focal emphasis"],
             ImageCleanliness => ["raw working finish", "clean design finish", "polished presentation finish", "studio-clean graphic finish", "immaculate production finish"],
             DetailDensity => ["sparse information load", "selective supporting detail", "balanced information density", "rich layered detail", "dense information packing"],
-            Whimsy => ["serious tone", "subtle playfulness", "playful design tone", "strong whimsical energy", "bold graphic play"],
+            Whimsy => ["serious tone", "subtle playfulness", "playful design tone", "strong playful energy", "bold graphic play"],
             Tension => ["low visual tension", "light design tension", "noticeable compositional tension", "strong message pressure", "intense visual tension"],
             Awe => ["grounded scale", "slight wonder", "designed sense of wonder", "strong visual grandeur", "overwhelming graphic presence"],
             Temperature => ["cool neutral cast", "tempered cool-warm balance", "balanced warmth", "heated warm cast", "hot promotional warmth"],

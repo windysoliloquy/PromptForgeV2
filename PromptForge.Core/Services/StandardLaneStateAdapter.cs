@@ -10,6 +10,28 @@ public static class StandardLaneStateAdapter
         "comic-book",
         "vintage-bend",
     };
+    private static readonly IReadOnlyList<LaneDefinition> OrdinaryLaneDefinitions =
+        LaneRegistry.All
+            .Where(static lane => !SpecialLaneIds.Contains(lane.Id))
+            .ToArray();
+    private static readonly IReadOnlyDictionary<string, LaneDefinition> OrdinaryLaneDefinitionsById =
+        OrdinaryLaneDefinitions.ToDictionary(static lane => lane.Id, StringComparer.OrdinalIgnoreCase);
+    private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, LaneSubtypeSelectorDefinition>> OrdinaryLaneSelectorDefinitionsByLaneId =
+        OrdinaryLaneDefinitions.ToDictionary(
+            static lane => lane.Id,
+            static lane => (IReadOnlyDictionary<string, LaneSubtypeSelectorDefinition>)lane.SubtypeSelectors.ToDictionary(
+                static selector => selector.Key,
+                StringComparer.OrdinalIgnoreCase),
+            StringComparer.OrdinalIgnoreCase);
+    private static readonly IReadOnlyDictionary<string, PropertyInfo> PromptConfigurationProperties =
+        typeof(PromptConfiguration)
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .ToDictionary(static property => property.Name, StringComparer.Ordinal);
+
+    static StandardLaneStateAdapter()
+    {
+        ValidateOrdinaryLanePropertyBindings();
+    }
 
     public static StandardLaneStateCollection CreateDefaultCollection()
     {
@@ -102,10 +124,11 @@ public static class StandardLaneStateAdapter
 
             var targetLane = target.GetOrAddLane(lane.LaneId);
 
-            var definition = LaneRegistry.All.FirstOrDefault(item => string.Equals(item.Id, lane.LaneId, StringComparison.OrdinalIgnoreCase));
+            OrdinaryLaneSelectorDefinitionsByLaneId.TryGetValue(lane.LaneId, out var selectorDefinitions);
             foreach (var selector in lane.Selectors)
             {
-                var selectorDefinition = definition?.SubtypeSelectors.FirstOrDefault(item => string.Equals(item.Key, selector.Key, StringComparison.OrdinalIgnoreCase));
+                LaneSubtypeSelectorDefinition? selectorDefinition = null;
+                selectorDefinitions?.TryGetValue(selector.Key, out selectorDefinition);
                 targetLane.SetSelector(selector.Key, selectorDefinition is null ? selector.Value : NormalizeSelectorValue(selectorDefinition, selector.Value));
             }
 
@@ -118,9 +141,7 @@ public static class StandardLaneStateAdapter
 
     private static IReadOnlyList<LaneDefinition> GetOrdinaryLaneDefinitions()
     {
-        return LaneRegistry.All
-            .Where(lane => !SpecialLaneIds.Contains(lane.Id))
-            .ToArray();
+        return OrdinaryLaneDefinitions;
     }
 
     private static StandardLaneState CreateDefaultLaneState(LaneDefinition lane)
@@ -166,29 +187,59 @@ public static class StandardLaneStateAdapter
 
     private static string GetStringProperty(PromptConfiguration configuration, string propertyName)
     {
-        var property = typeof(PromptConfiguration).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public)
-            ?? throw new InvalidOperationException($"Prompt configuration property '{propertyName}' was not found.");
+        var property = GetConfigurationProperty(propertyName);
         return property.GetValue(configuration) as string ?? string.Empty;
     }
 
     private static bool GetBoolProperty(PromptConfiguration configuration, string propertyName)
     {
-        var property = typeof(PromptConfiguration).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public)
-            ?? throw new InvalidOperationException($"Prompt configuration property '{propertyName}' was not found.");
+        var property = GetConfigurationProperty(propertyName);
         return property.GetValue(configuration) is bool value && value;
     }
 
     private static void SetStringProperty(PromptConfiguration configuration, string propertyName, string value)
     {
-        var property = typeof(PromptConfiguration).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public)
-            ?? throw new InvalidOperationException($"Prompt configuration property '{propertyName}' was not found.");
+        var property = GetConfigurationProperty(propertyName);
         property.SetValue(configuration, value);
     }
 
     private static void SetBoolProperty(PromptConfiguration configuration, string propertyName, bool value)
     {
-        var property = typeof(PromptConfiguration).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public)
-            ?? throw new InvalidOperationException($"Prompt configuration property '{propertyName}' was not found.");
+        var property = GetConfigurationProperty(propertyName);
         property.SetValue(configuration, value);
+    }
+
+    private static PropertyInfo GetConfigurationProperty(string propertyName)
+    {
+        return PromptConfigurationProperties.TryGetValue(propertyName, out var property)
+            ? property
+            : throw new InvalidOperationException($"Prompt configuration property '{propertyName}' was not found.");
+    }
+
+    private static void ValidateOrdinaryLanePropertyBindings()
+    {
+        foreach (var lane in OrdinaryLaneDefinitions)
+        {
+            foreach (var selector in lane.SubtypeSelectors)
+            {
+                EnsurePromptConfigurationPropertyExists(lane.Id, selector.SelectedValuePropertyName, "selector");
+            }
+
+            foreach (var modifier in lane.Modifiers)
+            {
+                EnsurePromptConfigurationPropertyExists(lane.Id, modifier.StatePropertyName, "modifier");
+            }
+        }
+    }
+
+    private static void EnsurePromptConfigurationPropertyExists(string laneId, string propertyName, string bindingKind)
+    {
+        if (PromptConfigurationProperties.ContainsKey(propertyName))
+        {
+            return;
+        }
+
+        throw new InvalidOperationException(
+            $"Standard lane '{laneId}' references missing PromptConfiguration {bindingKind} property '{propertyName}'.");
     }
 }

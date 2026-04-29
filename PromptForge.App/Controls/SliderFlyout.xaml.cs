@@ -7,11 +7,12 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Animation;
+using System.ComponentModel;
 using PromptForge.App.Services;
 
 namespace PromptForge.App.Controls;
 
-public partial class SliderFlyout : UserControl
+public partial class SliderFlyout : UserControl, INotifyPropertyChanged
 {
     private bool _suppressExcludeCheckboxEvents;
 
@@ -38,7 +39,7 @@ public partial class SliderFlyout : UserControl
         nameof(GuideText), typeof(string), typeof(SliderFlyout), new PropertyMetadata(string.Empty));
 
     public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(
-        nameof(Value), typeof(int), typeof(SliderFlyout), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+        nameof(Value), typeof(int), typeof(SliderFlyout), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged));
 
     public static readonly DependencyProperty MinimumProperty = DependencyProperty.Register(
         nameof(Minimum), typeof(double), typeof(SliderFlyout), new PropertyMetadata(0d));
@@ -54,6 +55,9 @@ public partial class SliderFlyout : UserControl
 
     public static readonly DependencyProperty IsExcludedFromPromptProperty = DependencyProperty.Register(
         nameof(IsExcludedFromPrompt), typeof(bool), typeof(SliderFlyout), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnIsExcludedFromPromptChanged));
+
+    public static readonly DependencyProperty UseCompactChipTriggerProperty = DependencyProperty.Register(
+        nameof(UseCompactChipTrigger), typeof(bool), typeof(SliderFlyout), new PropertyMetadata(false));
 
     public string Label
     {
@@ -114,6 +118,16 @@ public partial class SliderFlyout : UserControl
         get => (bool)GetValue(IsExcludedFromPromptProperty);
         set => SetValue(IsExcludedFromPromptProperty, value);
     }
+
+    public bool UseCompactChipTrigger
+    {
+        get => (bool)GetValue(UseCompactChipTriggerProperty);
+        set => SetValue(UseCompactChipTriggerProperty, value);
+    }
+
+    public string ButtonValueText => GetButtonValueText(Value);
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public void CloseFlyout()
     {
@@ -541,6 +555,16 @@ public partial class SliderFlyout : UserControl
         return TryFindResource(key) is double value ? value : 1d;
     }
 
+    private static void OnValueChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+    {
+        if (dependencyObject is not SliderFlyout flyout)
+        {
+            return;
+        }
+
+        flyout.OnPropertyChanged(nameof(ButtonValueText));
+    }
+
     private static void OnIsExcludedFromPromptChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
     {
         if (dependencyObject is not SliderFlyout flyout)
@@ -550,5 +574,22 @@ public partial class SliderFlyout : UserControl
 
         UiEventLog.Write(
             $"slider-flyout exclude-changed label='{flyout.Label}' old={e.OldValue} new={e.NewValue} value={flyout.Value} popupOpen={flyout.FlyoutPopup.IsOpen} buttonChecked={flyout.FlyoutButton.IsChecked}");
+    }
+
+    private static string GetButtonValueText(int value)
+    {
+        return value switch
+        {
+            <= 19 => "Low",
+            <= 39 => "Slightly Low",
+            <= 59 => "Medium",
+            <= 79 => "Slightly High",
+            _ => "High"
+        };
+    }
+
+    private void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

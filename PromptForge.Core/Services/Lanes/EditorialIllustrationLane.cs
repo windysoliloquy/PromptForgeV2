@@ -5,6 +5,12 @@ namespace PromptForge.App.Services.Lanes;
 public sealed class EditorialIllustrationLane : ILanePromptContributor, ILanePresentationOverlayProvider, ILaneSliderSuppressionProvider
 {
     private static readonly IReadOnlySet<string> NoSuppressedSliders = new HashSet<string>(StringComparer.Ordinal);
+    private static readonly IReadOnlySet<string> DefaultSuppressedSliders = new HashSet<string>(StringComparer.Ordinal)
+    {
+        SliderLanguageCatalog.Stylization,
+        SliderLanguageCatalog.Chaos,
+        SliderLanguageCatalog.BackgroundComplexity,
+    };
 
     public static EditorialIllustrationLane Instance { get; } = new();
 
@@ -35,21 +41,31 @@ public sealed class EditorialIllustrationLane : ILanePromptContributor, ILanePre
 
     public IReadOnlySet<string> GetSuppressedSliders(PromptConfiguration configuration)
     {
-        if (IntentModeCatalog.IsEditorialIllustration(configuration.IntentMode) &&
-            configuration.EditorialIllustrationBlackAndWhiteMonochrome)
+        if (!IntentModeCatalog.IsEditorialIllustration(configuration.IntentMode))
+        {
+            return NoSuppressedSliders;
+        }
+
+        if (configuration.EditorialIllustrationBlackAndWhiteMonochrome)
         {
             return new HashSet<string>(StringComparer.Ordinal)
             {
+                SliderLanguageCatalog.Stylization,
+                SliderLanguageCatalog.Chaos,
+                SliderLanguageCatalog.BackgroundComplexity,
                 SliderLanguageCatalog.Saturation,
                 SliderLanguageCatalog.Temperature,
             };
         }
 
-        return NoSuppressedSliders;
+        return DefaultSuppressedSliders;
     }
 
     public IEnumerable<string> GetSuppressibleSliderKeys()
     {
+        yield return SliderLanguageCatalog.Stylization;
+        yield return SliderLanguageCatalog.Chaos;
+        yield return SliderLanguageCatalog.BackgroundComplexity;
         yield return SliderLanguageCatalog.Saturation;
         yield return SliderLanguageCatalog.Temperature;
     }

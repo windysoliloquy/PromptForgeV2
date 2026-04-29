@@ -1,0 +1,132 @@
+Why a lane taxonomy change is being considered
+
+- The repo already has nineteen-plus lane leaves, and central ownership files still react to many of them one by one through `IntentModeCatalog.Is...(...)` checks.
+- That makes `IntentMode` carry two jobs at once:
+  - user-facing lane identity
+  - engine-facing routing/defaulting behavior
+- The pressure is no longer about decomposition inside the stabilized central files. It is about future lane growth continuing to add raw leaf switching pressure there.
+- A taxonomy change is being considered so future growth can add metadata first, while preserving the current central ownership boundaries and current behavior.
+
+
+Current risk if lane count keeps growing under the existing pattern
+
+- `PromptForge.App/ViewModels/MainWindowViewModel.cs`
+  - lane identity pressure shows up in `IntentModes`, unlock-gating maps, `BuildIntentModeSummary()`, lane-specific defaults, and intent-driven UI visibility branches
+- `PromptForge.Core/Services/PromptBuilderService.cs`
+  - lane identity pressure shows up in `Build(...)`, `BuildStandardPrompt(...)`, and the boolean lane route flags derived from `IntentModeCatalog.Is...(...)`
+- `PromptForge.Core/Services/SliderLanguageCatalog.cs`
+  - lane identity pressure shows up in `ResolvePhrase(...)` route selection from `IntentMode` to lane-local resolver paths
+- `PromptForge.Core/Services/LaneRegistry.cs`
+  - this is already the closest thing to a safer metadata home, but it still maps back to raw intent names today
+- If lane count keeps rising under the current pattern, each new lane is likely to require more central leaf-specific branching even when its real behavior matches an existing family.
+
+
+Proposed target model
+
+- Safest layered model for this repo:
+  - `LaneCategory`
+    - user-facing grouping for picker organization, summaries, and product framing
+    - examples the repo suggests: illustration, photography, design, experimental
+    - must not control resolver precedence, prompt wording, or apply/reset semantics
+  - `LaneBehaviorProfile`
+    - engine-facing classification for routing/defaulting/reporting behavior
+    - should be metadata on `LaneDefinition` or adjacent lane metadata, not a new service layer
+    - would describe shared behavior families such as standard shared lane, contributor lane, photography-family lane, locked lane, or experimental lane
+    - must not replace exact lane leaf authority for lane-local wording
+  - `LaneId`
+    - exact lane leaf identity
+    - should remain the authoritative leaf key already represented by `LaneDefinition.Id`
+    - `IntentMode` can remain the persisted / UI-facing selector until a later migration proves otherwise
+- Repo-specific naming note:
+  - the workspace already uses `LaneDefinition`, `BehaviorFlags`, `PolicyKey`, `IntentNames`, and `Id`
+  - because of that, `LaneCategory`, `LaneBehaviorProfile`, and `LaneId` fit the current codebase more naturally than trying to build a new top-level taxonomy around `IntentMode` alone
+
+
+How this model would reduce pressure without reopening current stabilized cores
+
+- Future lanes could attach category and behavior-profile metadata in the registry layer first, instead of forcing every central file to learn a brand-new leaf branch immediately.
+- `MainWindowViewModel.cs` could continue to own intent-driven orchestration, but more UI grouping and default collection work could key off category/profile metadata rather than expanding raw lane-by-lane lists.
+- `PromptBuilderService.cs` could continue to own top-level routing, but future lanes could reuse an existing behavior profile instead of adding another unique central decision path unless truly needed.
+- `SliderLanguageCatalog.cs` could continue to own resolver precedence, but future lanes could arrive with metadata that says whether they follow the standard shared path or a lane-local resolver family before any new branch is justified.
+- The pressure reduction comes from shifting future lane classification into metadata, not from moving current ownership out of the stabilized core files.
+
+
+Migration strategy
+
+Stage 1: terminology and metadata plan only
+- define the proposed category/profile/leaf vocabulary against current `LaneRegistry` concepts
+- map every existing lane to:
+  - one user-facing category
+  - one behavior profile
+  - its existing `LaneDefinition.Id`
+- stop point:
+  - if that mapping cannot be written cleanly without changing behavior, pause here and do not proceed
+
+Stage 2: registry-side metadata expansion plan
+- plan how category/profile fields would live alongside existing `LaneDefinition` metadata, `BehaviorFlags`, `PolicyKey`, and `IntentNames`
+- do not change central consumers yet
+- stop point:
+  - if the metadata shape starts forcing central-file rewrites, pause here
+
+Stage 3: read-only consumer inventory
+- identify where central files currently react to exact lane leaves and sort those call sites by:
+  - user-facing grouping concern
+  - behavior-profile concern
+  - true leaf-only concern
+- stop point:
+  - if most sites still prove to be true leaf-only concerns, the migration should pause rather than claim false leverage
+
+Stage 4: smallest metadata-first implementation later
+- only after the inventory is stable, introduce the smallest metadata read path in one non-routing surface first
+- do not begin with `ResolvePhrase(...)`, `Build(...)`, or the `IntentMode` setter shells
+- stop point:
+  - if the first metadata consumer causes routing, precedence, or persistence drift, stop the migration
+
+
+What must stay unchanged during the migration
+
+- current routing behavior
+- current resolver precedence
+- current fallback behavior
+- current prompt wording behavior
+- current save/load/apply/reset semantics
+- current central ownership boundaries in:
+  - `PromptForge.App/ViewModels/MainWindowViewModel.cs`
+  - `PromptForge.Core/Services/PromptBuilderService.cs`
+  - `PromptForge.Core/Services/SliderLanguageCatalog.cs`
+- current lane-local wording and resolver authority in `SliderLanguageCatalog.[Lane].cs`
+
+
+What the first safe implementation phase would probably look like later
+
+- smallest likely future implementation surface:
+  - add category/profile metadata to `LaneRegistry` / `LaneDefinition`-adjacent metadata only
+  - add one read-only classification lookup path
+  - use it in one non-routing, non-precedence surface first
+- best early candidate shape:
+  - replace a user-facing organization concern such as intent grouping, summaries, or menu/picker presentation before touching builder or resolver routing
+- not a safe first phase:
+  - rewriting central `IntentModeCatalog.Is...(...)` chains up front
+  - renaming `IntentMode` without changing where behavior pressure lives
+  - introducing a new runtime service stack before the metadata map proves useful
+
+
+Risks and red flags
+
+- fake progress: renaming `IntentMode` to `LaneId` while central files still branch lane by lane in the same places
+- fake progress: adding category labels that are only cosmetic and do not reduce future metadata pressure
+- fake progress: creating a `BehaviorProfile` type that merely mirrors existing switches without changing how future lanes get classified
+- unsafe move: touching `Build(...)`, `ResolvePhrase(...)`, or `MainWindowViewModel` orchestration before the registry-side classification map is proven
+- unsafe move: letting category metadata decide wording, fallback precedence, or save/load behavior
+- unsafe move: treating broad labels like "Artistic vs Commercial" as sufficient when the repo clearly has finer behavior differences such as contributor lanes, locked lanes, shared-standard lanes, and photography-family lanes
+
+
+Recommendation
+
+- Yes, this taxonomy direction is worth pursuing, but only as a metadata-first migration anchored in `LaneRegistry` and existing lane definitions.
+- It is worth pursuing under these constraints:
+  - keep `IntentMode` behavior stable during the early phases
+  - treat `LaneDefinition.Id` as the exact leaf identity
+  - add category/profile classification before any central routing rewrite
+  - do not claim success unless future lane additions can reuse metadata without automatically forcing new raw central branch pressure
+- If those constraints cannot be maintained, the migration should pause rather than partially rename concepts while leaving the real scaling pressure unchanged.

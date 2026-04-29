@@ -1,0 +1,278 @@
+<UserControl x:Class="PromptForge.App.Views.CompactWorkstation.HoverDeckCompactConsoleCard"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:PromptForge.App.Views.CompactWorkstation"
+             Focusable="False">
+    <UserControl.Resources>
+        <BitmapImage x:Key="HoverDeckHelperTargetNormalImage"
+                     UriSource="/Assets/HoverDeck/Targets/hd_helper_target_gold_24_n.png" />
+        <BitmapImage x:Key="HoverDeckHelperTargetHoverImage"
+                     UriSource="/Assets/HoverDeck/Targets/hd_helper_target_gold_24_h.png" />
+        <BitmapImage x:Key="HoverDeckHelperTargetPressedImage"
+                     UriSource="/Assets/HoverDeck/Targets/hd_helper_target_gold_24_p.png" />
+        <BitmapImage x:Key="HoverDeckHelperTargetDisabledImage"
+                     UriSource="/Assets/HoverDeck/Targets/hd_helper_target_gold_24_d.png" />
+
+        <Style x:Key="HoverDeckHelperTargetToggleStyle" TargetType="ToggleButton">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid Width="{TemplateBinding Width}"
+                              Height="{TemplateBinding Height}"
+                              Background="Transparent"
+                              SnapsToDevicePixels="True">
+                            <Image x:Name="HelperTargetImage"
+                                   Width="24"
+                                   Height="24"
+                                   Source="{StaticResource HoverDeckHelperTargetNormalImage}"
+                                   Stretch="None"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   SnapsToDevicePixels="True" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="HelperTargetImage"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckHelperTargetDisabledImage}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="HelperTargetImage"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckHelperTargetPressedImage}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="HelperTargetImage"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckHelperTargetPressedImage}" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="IsPressed" Value="False" />
+                                    <Condition Property="IsChecked" Value="False" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="HelperTargetImage"
+                                        Property="Source"
+                                        Value="{StaticResource HoverDeckHelperTargetHoverImage}" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HoverDeckConsoleHeaderCardStyle"
+               TargetType="Border"
+               BasedOn="{StaticResource AppHeaderBorderStyle}">
+            <Setter Property="Background" Value="{DynamicResource HoverDeckInnerShellGradientBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource HoverDeckCardBorderBrush}" />
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <StackPanel Margin="0">
+            <Border Style="{StaticResource HoverDeckConsoleHeaderCardStyle}"
+                    Padding="16,18,16,16"
+                    Margin="0,0,0,4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Background="{DynamicResource AccentBrush}"
+                            CornerRadius="2"
+                            Margin="0,2,0,2" />
+                        <Grid Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="New to Prompt Forge? Start here ---&gt;"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource OnboardingAccentTextStyle}"
+                                           TextWrapping="Wrap" />
+                                <Grid Margin="8,0,0,0">
+                                    <ToggleButton x:Name="HoverDeckLaneHelpInfoToggle"
+                                                  Style="{StaticResource HoverDeckHelperTargetToggleStyle}"
+                                                  AutomationProperties.Name="HoverDeck help and information toggle" />
+
+                                    <Popup Placement="Bottom"
+                                           PlacementTarget="{Binding ElementName=HoverDeckLaneHelpInfoToggle}"
+                                           HorizontalOffset="-300"
+                                           VerticalOffset="8"
+                                           AllowsTransparency="True"
+                                           PopupAnimation="Fade"
+                                           StaysOpen="False"
+                                           IsOpen="{Binding IsChecked, ElementName=HoverDeckLaneHelpInfoToggle, Mode=TwoWay}">
+                                        <Border Width="500"
+                                                MaxHeight="720"
+                                                Padding="14"
+                                                Style="{StaticResource CardBorderStyle}"
+                                                Background="{DynamicResource PopupSurfaceBrush}"
+                                                BorderBrush="{DynamicResource PopupBorderBrush}">
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                          HorizontalScrollBarVisibility="Disabled">
+                                                <StackPanel>
+                                                    <TextBlock Text="Getting Started with Prompt Forge"
+                                                               Style="{StaticResource SectionTitleTextStyle}" />
+                                                    <TextBlock Margin="0,8,0,0"
+                                                               Text="Prompt Forge has a lot of moving parts. Live group sessions are the main way tutorials, walkthroughs, and hands-on support are delivered, especially since lane behavior can vary across different image models and platforms."
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+
+                                                    <TextBlock Margin="0,12,0,0"
+                                                               Text="Best for"
+                                                               Style="{StaticResource FieldLabelTextStyle}" />
+                                                    <TextBlock Margin="0,4,0,0"
+                                                               Text="&#8226; New users who want a proper walkthrough"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Text="&#8226; Users comparing results across different image models"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Text="&#8226; People who want help refining prompts and workflow"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+
+                                                    <TextBlock Margin="0,12,0,0"
+                                                               Text="What sessions can help with"
+                                                               Style="{StaticResource FieldLabelTextStyle}" />
+                                                    <TextBlock Margin="0,4,0,0"
+                                                               Text="&#8226; Guided tutorials and app walkthroughs"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Text="&#8226; Lane-specific usage help"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Text="&#8226; Prompt troubleshooting and refinement"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Text="&#8226; Image feedback and critique"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Text="&#8226; Broader AI workflow questions when relevant"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+
+                                                    <TextBlock Margin="0,12,0,0"
+                                                               Text="Access"
+                                                               Style="{StaticResource FieldLabelTextStyle}" />
+                                                    <TextBlock Margin="0,4,0,0"
+                                                               Text="A ChatGPT account is recommended, but users working with other image models are also welcome."
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+
+                                                    <TextBlock Margin="0,12,0,0"
+                                                               Text="Getting set up"
+                                                               Style="{StaticResource FieldLabelTextStyle}" />
+                                                    <TextBlock Margin="0,4,0,0"
+                                                               Text="Email WindySoliloquy@gmail.com to request access. Include your Prompt Forge version and the image model or platform you want help with. Setup is handled manually."
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <Button Content="Copy email to clipboard"
+                                                            Command="{Binding CopyLaneHelpEmailCommand}"
+                                                            Style="{StaticResource SecondaryButtonStyle}"
+                                                            HorizontalAlignment="Left"
+                                                            Margin="0,10,0,0" />
+
+                                                    <TextBlock Margin="0,12,0,0"
+                                                               Text="Group session pricing"
+                                                               Style="{StaticResource FieldLabelTextStyle}" />
+                                                    <TextBlock Margin="0,4,0,0"
+                                                               Text="Monthly: $6.99"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Text="Quarterly: $17.99"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Text="Yearly: $49.99"
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+
+                                                    <TextBlock Margin="0,12,0,0"
+                                                               Text="Included unlock bonuses"
+                                                               Style="{StaticResource FieldLabelTextStyle}" />
+                                                    <TextBlock Margin="0,4,0,0"
+                                                               Text="Some support purchases also include permanent lane unlock bonuses for the buyer's app. These unlocks do not expire, and buyers do not have to attend group sessions to receive them."
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+
+                                                    <TextBlock Margin="0,12,0,0"
+                                                               Text="Conduct"
+                                                               Style="{StaticResource FieldLabelTextStyle}" />
+                                                    <TextBlock Margin="0,4,0,0"
+                                                               Text="Group sessions are moderated to remain useful and respectful. Aggressive, disruptive, or abusive behavior can result in removal from group access without a refund."
+                                                               Style="{StaticResource BodyMutedTextStyle}"
+                                                               TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </ScrollViewer>
+                                        </Border>
+                                    </Popup>
+                                </Grid>
+                            </StackPanel>
+                            <TextBlock Text="Windy Soliloquy's"
+                                       Style="{StaticResource BodyMutedTextStyle}" />
+                            <TextBlock Text="Prompt Forge"
+                                       Style="{StaticResource PageTitleTextStyle}"
+                                       Cursor="Hand"
+                                       MouseLeftButtonUp="OnBrandPromptForgeClick" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="A Visual Structured Prompt Synthesizer"
+                                       Style="{StaticResource BodyMutedTextStyle}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Margin="12,0,0,0"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top">
+                            <Button Content="{Binding VersionButtonText}"
+                                    Click="OnVersionInfoClick"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    HorizontalAlignment="Right"
+                                    MinHeight="30"
+                                    MinWidth="0"
+                                    Padding="14,6" />
+                            <DockPanel LastChildFill="False"
+                                       Margin="0,8,0,0"
+                                       HorizontalAlignment="Right">
+                                <ComboBox ItemsSource="{Binding Themes}"
+                                          SelectedItem="{Binding SelectedThemeName}"
+                                          Style="{StaticResource ThemeComboBoxStyle}"
+                                          Width="136" />
+                            </DockPanel>
+                            <CheckBox x:Name="HoverDeckExperimentalCompressionToggle"
+                                      Width="18"
+                                      Height="18"
+                                      Margin="0,8,0,0"
+                                      HorizontalAlignment="Right"
+                                      AutomationProperties.Name="Experimental HoverDeck compression"
+                                      IsChecked="{Binding IsHoverDeckExperimentalCompressionEnabled, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Style="{StaticResource AppCheckBoxStyle}"
+                                      ToolTip="Enable experimental HoverDeck compression wrapper."
+                                      Visibility="Collapsed" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <local:HoverDeckExperimentalCompressedBody x:Name="HoverDeckExperimentalCompressionGate"
+                                                       Visibility="{Binding IsHoverDeckExperimentalCompressionEnabled, ElementName=Root, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        </StackPanel>
+
+        <local:CompactShelfShellStudy IsHoverDeckLauncherEnabled="True" />
+    </Grid>
+</UserControl>

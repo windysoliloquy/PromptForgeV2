@@ -12,4 +12,5 @@ public sealed class UnlockState
     public string EntitlementProfile { get; set; } = string.Empty;
     public List<string> AllowedLanes { get; set; } = [];
     public string ValidationToken { get; set; } = string.Empty;
+    public List<PromptForgeLicense> SignedLicenses { get; set; } = [];
 }

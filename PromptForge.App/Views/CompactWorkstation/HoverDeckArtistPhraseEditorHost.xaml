@@ -1,0 +1,168 @@
+<UserControl x:Class="PromptForge.App.Views.CompactWorkstation.HoverDeckArtistPhraseEditorHost"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             Focusable="False">
+    <Grid x:Name="HostRoot">
+        <Grid Background="#78081216"
+              Visibility="{Binding IsArtistPhraseEditorOpen, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <Popup x:Name="HoverDeckArtistPhraseEditorPopup"
+               Placement="Relative"
+               PlacementTarget="{Binding ElementName=HostRoot}"
+               AllowsTransparency="True"
+               PopupAnimation="Fade"
+               StaysOpen="True"
+               IsOpen="{Binding IsArtistPhraseEditorOpen, Mode=OneWay}"
+               Opened="OnArtistPhraseEditorPopupOpened"
+               Closed="OnArtistPhraseEditorPopupClosed">
+            <Border x:Name="ArtistPhraseEditorPopupCard"
+                    Width="520"
+                    MaxWidth="520"
+                    Padding="18"
+                    Style="{StaticResource CardBorderStyle}"
+                    SnapsToDevicePixels="True">
+                <StackPanel>
+                    <Border x:Name="ArtistPhraseEditorDragHandle"
+                            Background="{DynamicResource SubtleSurfaceBrush}"
+                            BorderBrush="{DynamicResource SemanticChipBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="12,10"
+                            Margin="0,0,0,14"
+                            Cursor="SizeAll"
+                            MouseLeftButtonDown="OnArtistPhraseEditorDragHandleMouseLeftButtonDown"
+                            MouseMove="OnArtistPhraseEditorDragHandleMouseMove"
+                            MouseLeftButtonUp="OnArtistPhraseEditorDragHandleMouseLeftButtonUp">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{Binding ArtistPhraseEditorTitle}" Style="{StaticResource SectionTitleTextStyle}" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Text="Drag this header to move the editor. Save applies only to this artist slot."
+                                           Style="{StaticResource BodyMutedTextStyle}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Text="Drag"
+                                       Style="{StaticResource ChipLabelTextStyle}" />
+                        </Grid>
+                    </Border>
+
+                    <TextBlock Text="Prefix" Style="{StaticResource FieldLabelTextStyle}" />
+                    <TextBox Text="{Binding ArtistPhraseEditorPrefix, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource AppTextBoxStyle}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MinHeight="72" />
+
+                    <TextBlock Text="Artist" Style="{StaticResource FieldLabelTextStyle}" />
+                    <Border Style="{StaticResource InfoChipBorderStyle}" Padding="12" Margin="0,0,0,4">
+                        <TextBlock Text="{Binding ArtistPhraseEditorArtistName}"
+                                   Style="{StaticResource ChipValueTextStyle}"
+                                   TextWrapping="Wrap" />
+                    </Border>
+
+                    <TextBlock Text="Suffix" Style="{StaticResource FieldLabelTextStyle}" />
+                    <TextBox Text="{Binding ArtistPhraseEditorSuffix, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource AppTextBoxStyle}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MinHeight="72" />
+
+                    <TextBlock Text="Preview" Style="{StaticResource FieldLabelTextStyle}" />
+                    <Border Style="{StaticResource InfoChipBorderStyle}" Padding="12">
+                        <TextBlock Text="{Binding ArtistPhraseEditorPreview}"
+                                   Style="{StaticResource BodyMutedTextStyle}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   TextWrapping="Wrap" />
+                    </Border>
+
+                    <TextBlock Margin="0,10,0,0"
+                               Text="Generated reference"
+                               Style="{StaticResource FieldLabelTextStyle}" />
+                    <TextBlock Text="{Binding ArtistPhraseEditorGeneratedPhrase}"
+                               Style="{StaticResource BodyMutedTextStyle}"
+                               TextWrapping="Wrap" />
+
+                    <ItemsControl ItemsSource="{Binding ArtistPhraseQuickInsertGroups}" Margin="0,14,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding Title}" Style="{StaticResource OnboardingAccentTextStyle}" />
+                                    <ItemsControl ItemsSource="{Binding Inserts}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Content="{Binding Label}"
+                                                        Command="{Binding DataContext.InsertArtistPhraseQuickInsertCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        Margin="0,0,8,8"
+                                                        Padding="10,6"
+                                                        ToolTip="{Binding Fragment}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Margin="0,8,0,0"
+                               Text="You must select at least one modification for both artists and SAVE them to add to the prompt."
+                               Style="{StaticResource BodyMutedTextStyle}"
+                               TextWrapping="Wrap" />
+
+                    <UniformGrid Columns="3" Margin="0,10,0,0">
+                        <Button Content="Save"
+                                Command="{Binding SaveArtistPhraseEditorCommand}"
+                                Style="{StaticResource EmphasisSecondaryButtonStyle}"
+                                Foreground="#FF050505">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="-1,0.5"
+                                                     EndPoint="0,0.5">
+                                    <GradientStop Color="#FFE2B95F" Offset="0" />
+                                    <GradientStop Color="#FFFFF6D8" Offset="0.32" />
+                                    <GradientStop Color="#FFFFFFFF" Offset="0.48" />
+                                    <GradientStop Color="#FFFFE8A6" Offset="0.64" />
+                                    <GradientStop Color="#FFE2B95F" Offset="1" />
+                                </LinearGradientBrush>
+                            </Button.Background>
+                            <Button.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <PointAnimation Storyboard.TargetProperty="Background.StartPoint"
+                                                            From="-1,0.5"
+                                                            To="1,0.5"
+                                                            Duration="0:0:3.8" />
+                                            <PointAnimation Storyboard.TargetProperty="Background.EndPoint"
+                                                            From="0,0.5"
+                                                            To="2,0.5"
+                                                            Duration="0:0:3.8" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Button.Triggers>
+                        </Button>
+                        <Button Content="Reset to Generated"
+                                Command="{Binding ResetArtistPhraseEditorCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Content="Cancel"
+                                Command="{Binding CancelArtistPhraseEditorCommand}"
+                                Style="{StaticResource TertiaryButtonStyle}" />
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>

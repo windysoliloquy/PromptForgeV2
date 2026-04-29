@@ -1,0 +1,38 @@
+{
+  "asset_family": "hoverdeck hide/collapse gate",
+  "production_folder": "full_72x28",
+  "files": [
+    "hd_hide_gate_obsidian_n.png",
+    "hd_hide_gate_obsidian_h.png",
+    "hd_hide_gate_obsidian_p.png",
+    "hd_hide_gate_obsidian_d.png"
+  ],
+  "states": [
+    {
+      "state": "normal",
+      "file": "hd_hide_gate_obsidian_n.png",
+      "high_res_file": "hd_hide_gate_obsidian_n_hi.png",
+      "target_size": "72x28"
+    },
+    {
+      "state": "hover",
+      "file": "hd_hide_gate_obsidian_h.png",
+      "high_res_file": "hd_hide_gate_obsidian_h_hi.png",
+      "target_size": "72x28"
+    },
+    {
+      "state": "pressed",
+      "file": "hd_hide_gate_obsidian_p.png",
+      "high_res_file": "hd_hide_gate_obsidian_p_hi.png",
+      "target_size": "72x28"
+    },
+    {
+      "state": "disabled",
+      "file": "hd_hide_gate_obsidian_d.png",
+      "high_res_file": "hd_hide_gate_obsidian_d_hi.png",
+      "target_size": "72x28"
+    }
+  ],
+  "source": "sci_fi_gaming_ui_button_set.png",
+  "notes": "Use full_72x28 for WPF Image state swapping. Small single-piece button assets, not 3-part slices."
+}

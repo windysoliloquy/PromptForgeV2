@@ -135,7 +135,7 @@ public static partial class SliderLanguageCatalog
             FocusDepth => ["broad focus", "light focus falloff", "balanced focus depth", "selective focus", "sharp subject-isolating focus"],
             DetailDensity => ["sparse detail", "light detail", "balanced detail", "rich detail", "dense detail"],
             Chaos => ["controlled composition", "restless tension", "active energy", "dynamic looseness", "orchestrated chaos"],
-            Whimsy => ["serious tone", "subtle whimsy", "playful charm", "strong whimsical energy", "bold storybook whimsy"],
+            Whimsy => ["serious tone", "subtle levity", "playful charm", "strong playful energy", "bold storybook play"],
             Tension => ["low tension", "light dramatic tension", "noticeable tension", "strong dramatic tension", "intense drama"],
             Awe => ["grounded scale", "slight wonder", "atmosphere of reverence", "strong awe", "overwhelming grandeur"],
             Temperature => ["cool balance", "slightly cool wash", "neutral temperature", "warm glow", "heated warmth"],

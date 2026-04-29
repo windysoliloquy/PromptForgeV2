@@ -4,6 +4,15 @@ namespace PromptForge.App.Services.Lanes;
 
 public sealed class GraphicDesignLane : ILanePromptContributor, ILaneSliderSuppressionProvider
 {
+    private static readonly IReadOnlySet<string> NoSuppressedSliders = new HashSet<string>(StringComparer.Ordinal);
+    private static readonly IReadOnlySet<string> DefaultSuppressedSliders = new HashSet<string>(StringComparer.Ordinal)
+    {
+        SliderLanguageCatalog.SurfaceAge,
+        SliderLanguageCatalog.CameraAngle,
+        SliderLanguageCatalog.Temperature,
+        SliderLanguageCatalog.AtmosphericDepth,
+    };
+
     public static GraphicDesignLane Instance { get; } = new();
 
     public string IntentName => IntentModeCatalog.GraphicDesignName;
@@ -22,9 +31,13 @@ public sealed class GraphicDesignLane : ILanePromptContributor, ILaneSliderSuppr
 
     public IReadOnlySet<string> GetSuppressedSliders(PromptConfiguration configuration)
     {
-        var suppressions = new HashSet<string>(StringComparer.Ordinal);
-        if (!IntentModeCatalog.IsGraphicDesign(configuration.IntentMode) ||
-            !configuration.GraphicDesignMinimalLayout)
+        if (!IntentModeCatalog.IsGraphicDesign(configuration.IntentMode))
+        {
+            return NoSuppressedSliders;
+        }
+
+        var suppressions = new HashSet<string>(DefaultSuppressedSliders, StringComparer.Ordinal);
+        if (!configuration.GraphicDesignMinimalLayout)
         {
             return suppressions;
         }
@@ -40,6 +53,10 @@ public sealed class GraphicDesignLane : ILanePromptContributor, ILaneSliderSuppr
 
     public IEnumerable<string> GetSuppressibleSliderKeys()
     {
+        yield return SliderLanguageCatalog.SurfaceAge;
+        yield return SliderLanguageCatalog.CameraAngle;
+        yield return SliderLanguageCatalog.Temperature;
+        yield return SliderLanguageCatalog.AtmosphericDepth;
         yield return SliderLanguageCatalog.BackgroundComplexity;
         yield return SliderLanguageCatalog.DetailDensity;
         yield return SliderLanguageCatalog.NarrativeDensity;

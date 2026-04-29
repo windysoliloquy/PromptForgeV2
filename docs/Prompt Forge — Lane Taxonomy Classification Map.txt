@@ -1,0 +1,117 @@
+Purpose
+
+- This document is Stage 1 from `docs/Prompt Forge — Lane Taxonomy Migration Plan.txt`.
+- The goal is to test whether a metadata-first taxonomy is clean enough to be useful before any later registry-side metadata phase is considered.
+- This is a classification map only. It does not propose code edits, routing changes, or renamed runtime concepts.
+
+
+Proposed category set
+
+- `Illustration`
+  - lanes whose user-facing identity is primarily illustrative, authored, or graphic-image oriented
+- `Photography`
+  - lanes whose user-facing identity is photographic, advertising-photography, documentary, or archviz capture language
+- `Design`
+  - lanes whose user-facing identity is layout, communication, infographic, or graphic-system oriented
+- `Digital Render`
+  - lanes whose user-facing identity is CGI, concept-design rendering, pixel construction, or film-still style rendering
+
+Why this set
+- It is the smallest honest user-facing grouping that fits the current lane list without forcing clearly different families into one vague bucket.
+- Two buckets alone would be too coarse for the current repo shape.
+
+
+Proposed behavior profile set
+
+- `Shared-standard lane`
+  - uses the shared `ResolveStandardPhrase(...)` path rather than a lane-local slider phrase resolver
+  - does not currently rely on `LanePromptContributorRegistry`
+- `Lane-local resolver lane`
+  - has its own lane-local resolver path in `SliderLanguageCatalog.cs`
+  - does not currently route through `LanePromptContributorRegistry`
+- `Contributor-owned lane`
+  - has its own lane contributor in `PromptForge.Core/Services/Lanes/LanePromptContributorRegistry.cs`
+  - carries a stronger lane-owned build path than ordinary lane-local resolver lanes
+- `Locked lane-local lane`
+  - still uses lane-local resolver / descriptor behavior, but also adds access-gating pressure in `MainWindowViewModel.cs`
+  - this is the smallest honest profile for lanes that central files must currently treat as unlock-sensitive
+
+Why this set
+- It matches current repo behavior more closely than broad labels like "artistic" versus "commercial."
+- It keeps the profile set small while still reflecting the real routing and access differences now visible in `SliderLanguageCatalog.cs`, `PromptBuilderService.cs`, `LanePromptContributorRegistry.cs`, and `MainWindowViewModel.cs`.
+
+
+Lane classification table
+
+- `Vintage Bend` | leaf identity: `vintage-bend` | category: `Photography` | behavior profile: `Locked lane-local lane`
+  - has a lane-local resolver path, special policy key, and unlock/access handling in `MainWindowViewModel.cs`
+- `Anime` | leaf identity: `anime` | category: `Illustration` | behavior profile: `Lane-local resolver lane`
+  - has its own resolver and descriptors, but is not contributor-owned and is not access-gated
+- `Children's Book` | leaf identity: `childrens-book` | category: `Illustration` | behavior profile: `Lane-local resolver lane`
+  - has its own resolver/descriptors and standard lane metadata, but no contributor registry ownership
+- `Comic Book` | leaf identity: `comic-book` | category: `Illustration` | behavior profile: `Contributor-owned lane`
+  - has a lane contributor and policy hook, which makes it stronger than an ordinary lane-local resolver lane
+- `Cinematic` | leaf identity: `cinematic` | category: `Digital Render` | behavior profile: `Shared-standard lane`
+  - it is a named lane in `LaneRegistry`, but slider phrase routing still falls through to `ResolveStandardPhrase(...)`
+- `Photography` | leaf identity: `photography` | category: `Photography` | behavior profile: `Lane-local resolver lane`
+  - has its own resolver/descriptors and subtype defaults, but no contributor or lock handling
+- `Product Photography` | leaf identity: `product-photography` | category: `Photography` | behavior profile: `Locked lane-local lane`
+  - has its own resolver/descriptors and explicit unlock-gating pressure in `MainWindowViewModel.cs`
+- `Food Photography` | leaf identity: `food-photography` | category: `Photography` | behavior profile: `Locked lane-local lane`
+  - has its own resolver/descriptors and explicit unlock-gating pressure in `MainWindowViewModel.cs`
+- `Lifestyle Advertising Photography` | leaf identity: `lifestyle-advertising-photography` | category: `Photography` | behavior profile: `Locked lane-local lane`
+  - has its own resolver/descriptors and explicit unlock-gating pressure in `MainWindowViewModel.cs`
+- `Architecture / Archviz` | leaf identity: `architecture-archviz` | category: `Photography` | behavior profile: `Lane-local resolver lane`
+  - has its own resolver/descriptors and photography-adjacent lane defaults, but no unlock path
+- `3D Render` | leaf identity: `3d-render` | category: `Digital Render` | behavior profile: `Lane-local resolver lane`
+  - has its own resolver/descriptors and distinct lane metadata, but no contributor registry ownership
+- `Concept Art` | leaf identity: `concept-art` | category: `Digital Render` | behavior profile: `Lane-local resolver lane`
+  - has its own resolver/descriptors and lane metadata, but no contributor registry ownership
+- `Pixel Art` | leaf identity: `pixel-art` | category: `Digital Render` | behavior profile: `Lane-local resolver lane`
+  - has its own resolver/descriptors and lane metadata, but no contributor registry ownership
+- `Fantasy Illustration` | leaf identity: `fantasy-illustration` | category: `Illustration` | behavior profile: `Contributor-owned lane`
+  - is explicitly contributor-owned and has lane-specific build/suppression behavior
+- `Editorial Illustration` | leaf identity: `editorial-illustration` | category: `Illustration` | behavior profile: `Contributor-owned lane`
+  - is explicitly contributor-owned and has lane-local overlay behavior
+- `Graphic Design` | leaf identity: `graphic-design` | category: `Design` | behavior profile: `Contributor-owned lane`
+  - is contributor-owned rather than merely lane-local, and the app treats it as a distinct lane family
+- `Infographic / Data Visualization` | leaf identity: `infographic-data-visualization` | category: `Design` | behavior profile: `Lane-local resolver lane`
+  - has its own resolver/descriptors and design-oriented subtype logic, but no contributor registry ownership
+- `Tattoo Art` | leaf identity: `tattoo-art` | category: `Illustration` | behavior profile: `Contributor-owned lane`
+  - is explicitly contributor-owned and has lane-specific behavior beyond standard lane metadata
+- `Watercolor` | leaf identity: `watercolor` | category: `Illustration` | behavior profile: `Lane-local resolver lane`
+  - has its own resolver/descriptors and lane metadata, but no contributor registry ownership
+
+
+Mismatches or awkward fits
+
+- `Vintage Bend` is the least neat fit.
+  - user-facing, it fits best under `Photography`
+  - engine-facing, it is not just another photography-family lane because it also carries a policy hook and a stronger custom language-pack identity
+  - this suggests the taxonomy is usable, but the locked profile may later need a subtype distinction if `Vintage Bend` keeps diverging from the other locked lanes
+- `Cinematic` is also slightly awkward.
+  - user-facing, it clearly reads like its own named lane
+  - engine-facing, it currently behaves more like a shared-standard lane than a lane-local resolver lane
+  - this suggests the proposed profile set is doing useful work, because the leaf identity and the engine behavior are clearly not the same thing
+- `Infographic / Data Visualization` sits between `Design` and a more specialized information-design bucket.
+  - today it still fits honestly inside `Design`
+  - this does not yet justify a fifth category
+- `Experimental` and `Custom` are intentionally not in the table.
+  - they are current intent states, but they are not current `LaneRegistry` lane leaves
+  - this suggests the taxonomy should stay anchored to lane leaves first and not collapse all intent states into one classification layer too early
+
+
+Assessment
+
+- Yes, this classification map looks clean enough to justify a later metadata phase.
+- The fit is not perfectly neat, but it is honest:
+  - the category layer is readable
+  - the behavior-profile layer exposes real routing differences
+  - the leaf identity layer stays anchored to existing `LaneDefinition.Id`
+- The map would be much less convincing if every lane had to be treated as unique, but the current repo does show repeatable behavior families.
+
+
+Recommendation
+
+- `Proceed to Stage 2 later`
+- The map is clean enough to support a registry-side metadata planning phase later, especially because it already reveals meaningful repeated behavior families without requiring any current central-file rewrite.

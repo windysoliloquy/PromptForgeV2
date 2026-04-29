@@ -38,6 +38,9 @@ public sealed class PromptConfiguration
     public bool AnimeCinematicLighting { get; set; }
     public bool AnimeStylizedHair { get; set; }
     public bool AnimeAtmosphericEffects { get; set; }
+    public bool AnimeCharacterLedStaging { get; set; }
+    public bool AnimeClearSilhouetteRead { get; set; }
+    public bool AnimeEmotionFirstExpression { get; set; }
     public string ChildrensBookStyle { get; set; } = "general-childrens-book";
     public bool ChildrensBookSoftColorPalette { get; set; }
     public bool ChildrensBookTexturedPaper { get; set; }
@@ -111,6 +114,13 @@ public sealed class PromptConfiguration
     public string GraphicDesignType { get; set; } = "general";
     public bool GraphicDesignMinimalLayout { get; set; }
     public bool GraphicDesignBoldHierarchy { get; set; }
+    public string InfographicDataVisualizationSubdomain { get; set; } = "infographic";
+    public bool InfographicModeLeanExplainer { get; set; } = true;
+    public bool InfographicModePublicPoster { get; set; }
+    public bool InfographicModeReferenceSheet { get; set; }
+    public bool DataVizModeChartPurity { get; set; } = true;
+    public bool DataVizModeDashboard { get; set; }
+    public bool DataVizModeReportGraphic { get; set; }
     public string PhotographyType { get; set; } = "portrait";
     public string PhotographyEra { get; set; } = "contemporary";
     public bool PhotographyCandidCapture { get; set; }
@@ -186,6 +196,7 @@ public sealed class PromptConfiguration
     public bool CompressPromptSemantics { get; set; } = true;
     public bool ReduceRepeatedLaneWords { get; set; } = true;
     public bool TrimRepeatedLongWords { get; set; }
+    public bool SemanticPairInteractions { get; set; } = true;
     public bool AvoidClutter { get; set; } = true;
     public bool AvoidMuddyLighting { get; set; } = true;
     public bool AvoidDistortedAnatomy { get; set; } = true;
@@ -238,6 +249,9 @@ public sealed class PromptConfiguration
         AnimeCinematicLighting = AnimeCinematicLighting,
         AnimeStylizedHair = AnimeStylizedHair,
         AnimeAtmosphericEffects = AnimeAtmosphericEffects,
+        AnimeCharacterLedStaging = AnimeCharacterLedStaging,
+        AnimeClearSilhouetteRead = AnimeClearSilhouetteRead,
+        AnimeEmotionFirstExpression = AnimeEmotionFirstExpression,
         ChildrensBookStyle = ChildrensBookStyle,
         ChildrensBookSoftColorPalette = ChildrensBookSoftColorPalette,
         ChildrensBookTexturedPaper = ChildrensBookTexturedPaper,
@@ -311,6 +325,13 @@ public sealed class PromptConfiguration
         GraphicDesignType = GraphicDesignType,
         GraphicDesignMinimalLayout = GraphicDesignMinimalLayout,
         GraphicDesignBoldHierarchy = GraphicDesignBoldHierarchy,
+        InfographicDataVisualizationSubdomain = InfographicDataVisualizationSubdomain,
+        InfographicModeLeanExplainer = InfographicModeLeanExplainer,
+        InfographicModePublicPoster = InfographicModePublicPoster,
+        InfographicModeReferenceSheet = InfographicModeReferenceSheet,
+        DataVizModeChartPurity = DataVizModeChartPurity,
+        DataVizModeDashboard = DataVizModeDashboard,
+        DataVizModeReportGraphic = DataVizModeReportGraphic,
         VintageBendUrbanCivilian = VintageBendUrbanCivilian,
         PhotographyType = PhotographyType,
         PhotographyEra = PhotographyEra,
@@ -387,6 +408,7 @@ public sealed class PromptConfiguration
             CompressPromptSemantics = CompressPromptSemantics,
             ReduceRepeatedLaneWords = ReduceRepeatedLaneWords,
             TrimRepeatedLongWords = TrimRepeatedLongWords,
+            SemanticPairInteractions = SemanticPairInteractions,
             AvoidClutter = AvoidClutter,
             AvoidMuddyLighting = AvoidMuddyLighting,
             AvoidDistortedAnatomy = AvoidDistortedAnatomy,

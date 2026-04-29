@@ -14,6 +14,7 @@ public static class StandardLaneBindingValidator
         IntentModeCatalog.ProductPhotographyName,
         IntentModeCatalog.FoodPhotographyName,
         IntentModeCatalog.LifestyleAdvertisingPhotographyName,
+        IntentModeCatalog.InfographicDataVisualizationName,
         IntentModeCatalog.ArchitectureArchvizName,
         IntentModeCatalog.ThreeDRenderName,
         IntentModeCatalog.ConceptArtName,

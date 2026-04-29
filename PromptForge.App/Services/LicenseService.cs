@@ -30,6 +30,12 @@ public sealed class LicenseService : ILicenseService
 
     public bool IsUnlocked => _currentState.IsUnlocked;
     public UnlockState CurrentState => CloneState(_currentState);
+    public bool HasAllowedLane(string? intentMode)
+    {
+        return !string.IsNullOrWhiteSpace(intentMode)
+            && _currentState.AllowedLanes.Any(lane => string.Equals(lane, intentMode.Trim(), StringComparison.OrdinalIgnoreCase));
+    }
+
     public string PurchasePrice => "$19.99";
     public string PurchaseEmail => "windysoliloquy@gmail.com";
     public string GetActivationRequestCode() => PromptForgeMachineBindingService.GetCurrentMachineToken();
@@ -71,23 +77,8 @@ public sealed class LicenseService : ILicenseService
             };
         }
 
-        var unlockState = new UnlockState
-        {
-            IsUnlocked = true,
-            ProductName = license!.ProductName.Trim(),
-            PurchaserEmail = license.PurchaserEmail.Trim(),
-            LicenseId = license.LicenseId.Trim(),
-            IssuedUtc = license.IssuedUtc.ToUniversalTime(),
-            LicenseMode = PromptForgeLicenseCodec.GetNormalizedLicenseMode(license),
-            MachineToken = PromptForgeMachineBindingService.NormalizeMachineToken(license.MachineToken),
-            EntitlementProfile = license.EntitlementProfile.Trim(),
-            AllowedLanes = license.AllowedLanes
-                .Where(lane => !string.IsNullOrWhiteSpace(lane))
-                .Select(lane => lane.Trim())
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList(),
-            ValidationToken = license.ValidationToken.Trim(),
-        };
+        var incomingLicense = NormalizeLicense(license!);
+        var unlockState = MergeUnlockStates(_currentState, incomingLicense);
 
         try
         {
@@ -133,22 +124,9 @@ public sealed class LicenseService : ILicenseService
                 return CreateLockedState();
             }
 
-            var license = new PromptForgeLicense
-            {
-                ProductName = state.ProductName,
-                PurchaserEmail = state.PurchaserEmail,
-                LicenseId = state.LicenseId,
-                IssuedUtc = state.IssuedUtc,
-                LicenseMode = state.LicenseMode,
-                MachineToken = state.MachineToken,
-                EntitlementProfile = state.EntitlementProfile,
-                AllowedLanes = state.AllowedLanes,
-                ValidationToken = state.ValidationToken,
-            };
-
-            return PromptForgeLicenseCodec.TryValidate(license, out _)
-                && ValidateMachineBinding(license, out _)
-                ? state
+            var validLicenses = GetValidSignedLicenses(state);
+            return validLicenses.Count > 0
+                ? BuildUnlockStateFromLicenses(validLicenses)
                 : CreateLockedState();
         }
         catch
@@ -268,9 +246,149 @@ public sealed class LicenseService : ILicenseService
             LicenseMode = state.LicenseMode,
             MachineToken = state.MachineToken,
             EntitlementProfile = state.EntitlementProfile,
-            AllowedLanes = [.. state.AllowedLanes],
+            AllowedLanes = state.AllowedLanes is null ? [] : [.. state.AllowedLanes],
+            ValidationToken = state.ValidationToken,
+            SignedLicenses = (state.SignedLicenses ?? [])
+                .Select(CloneLicense)
+                .ToList(),
+        };
+    }
+
+    private static UnlockState MergeUnlockStates(UnlockState currentState, PromptForgeLicense incomingLicense)
+    {
+        var signedLicenses = GetValidSignedLicenses(currentState);
+        signedLicenses.Add(incomingLicense);
+
+        return BuildUnlockStateFromLicenses(DeduplicateSignedLicenses(signedLicenses));
+    }
+
+    private static UnlockState BuildUnlockStateFromLicenses(IReadOnlyList<PromptForgeLicense> signedLicenses)
+    {
+        var validLicenses = DeduplicateSignedLicenses(signedLicenses);
+        if (validLicenses.Count == 0)
+        {
+            return CreateLockedState();
+        }
+
+        var primaryLicense = validLicenses[0];
+        return new UnlockState
+        {
+            IsUnlocked = true,
+            ProductName = primaryLicense.ProductName,
+            PurchaserEmail = primaryLicense.PurchaserEmail,
+            LicenseId = primaryLicense.LicenseId,
+            IssuedUtc = primaryLicense.IssuedUtc,
+            LicenseMode = primaryLicense.LicenseMode,
+            MachineToken = primaryLicense.MachineToken,
+            EntitlementProfile = ResolveEntitlementProfile(validLicenses),
+            AllowedLanes = validLicenses
+                .SelectMany(license => license.AllowedLanes)
+                .Where(lane => !string.IsNullOrWhiteSpace(lane))
+                .Select(lane => lane.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(lane => lane, StringComparer.OrdinalIgnoreCase)
+                .ToList(),
+            ValidationToken = primaryLicense.ValidationToken,
+            SignedLicenses = validLicenses
+                .Select(CloneLicense)
+                .ToList(),
+        };
+    }
+
+    private static List<PromptForgeLicense> GetValidSignedLicenses(UnlockState state)
+    {
+        var signedLicenses = state.SignedLicenses ?? [];
+        var candidateLicenses = signedLicenses.Count > 0
+            ? signedLicenses
+            : [BuildLicenseFromLegacyState(state)];
+
+        return candidateLicenses
+            .Select(NormalizeLicense)
+            .Where(IsValidSignedLicense)
+            .ToList();
+    }
+
+    private static PromptForgeLicense BuildLicenseFromLegacyState(UnlockState state)
+    {
+        return new PromptForgeLicense
+        {
+            ProductName = state.ProductName,
+            PurchaserEmail = state.PurchaserEmail,
+            LicenseId = state.LicenseId,
+            IssuedUtc = state.IssuedUtc,
+            LicenseMode = state.LicenseMode,
+            MachineToken = state.MachineToken,
+            EntitlementProfile = state.EntitlementProfile,
+            AllowedLanes = state.AllowedLanes is null ? [] : [.. state.AllowedLanes],
             ValidationToken = state.ValidationToken,
         };
+    }
+
+    private static List<PromptForgeLicense> DeduplicateSignedLicenses(IEnumerable<PromptForgeLicense> licenses)
+    {
+        return licenses
+            .Select(NormalizeLicense)
+            .Where(IsValidSignedLicense)
+            .GroupBy(BuildSignedLicenseIdentity, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToList();
+    }
+
+    private static string BuildSignedLicenseIdentity(PromptForgeLicense license)
+    {
+        return !string.IsNullOrWhiteSpace(license.ValidationToken)
+            ? license.ValidationToken
+            : $"{license.LicenseId}|{license.IssuedUtc:O}|{license.PurchaserEmail}";
+    }
+
+    private static bool IsValidSignedLicense(PromptForgeLicense license)
+    {
+        return PromptForgeLicenseCodec.TryValidate(license, out _)
+            && ValidateMachineBinding(license, out _);
+    }
+
+    private static PromptForgeLicense NormalizeLicense(PromptForgeLicense license)
+    {
+        return new PromptForgeLicense
+        {
+            ProductName = license.ProductName.Trim(),
+            PurchaserEmail = license.PurchaserEmail.Trim(),
+            LicenseId = license.LicenseId.Trim(),
+            IssuedUtc = license.IssuedUtc.ToUniversalTime(),
+            LicenseMode = PromptForgeLicenseCodec.GetNormalizedLicenseMode(license),
+            MachineToken = PromptForgeMachineBindingService.NormalizeMachineToken(license.MachineToken),
+            EntitlementProfile = license.EntitlementProfile.Trim(),
+            AllowedLanes = (license.AllowedLanes ?? [])
+                .Where(lane => !string.IsNullOrWhiteSpace(lane))
+                .Select(lane => lane.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(lane => lane, StringComparer.OrdinalIgnoreCase)
+                .ToList(),
+            ValidationToken = license.ValidationToken.Trim(),
+        };
+    }
+
+    private static PromptForgeLicense CloneLicense(PromptForgeLicense license)
+    {
+        return new PromptForgeLicense
+        {
+            ProductName = license.ProductName,
+            PurchaserEmail = license.PurchaserEmail,
+            LicenseId = license.LicenseId,
+            IssuedUtc = license.IssuedUtc,
+            LicenseMode = license.LicenseMode,
+            MachineToken = license.MachineToken,
+            EntitlementProfile = license.EntitlementProfile,
+            AllowedLanes = license.AllowedLanes is null ? [] : [.. license.AllowedLanes],
+            ValidationToken = license.ValidationToken,
+        };
+    }
+
+    private static string ResolveEntitlementProfile(IReadOnlyList<PromptForgeLicense> signedLicenses)
+    {
+        return signedLicenses
+            .Select(license => license.EntitlementProfile)
+            .FirstOrDefault(profile => !string.IsNullOrWhiteSpace(profile)) ?? string.Empty;
     }
 
     private static bool ValidateMachineBinding(PromptForgeLicense license, out string message)
@@ -294,8 +412,8 @@ public sealed class LicenseService : ILicenseService
     private static string BuildSuccessfulImportMessage(UnlockState unlockState, bool cleanupSucceeded)
     {
         var modeLead = string.Equals(unlockState.LicenseMode, PromptForgeLicenseModes.MachineBound, StringComparison.Ordinal)
-            ? "Activation succeeded. Prompt Forge Full is now unlocked on this machine."
-            : "Activation succeeded. Prompt Forge Full is now unlocked.";
+            ? "Activation succeeded. Prompt Forge is now unlocked on this machine."
+            : "Activation succeeded. Prompt Forge is now unlocked.";
 
         if (cleanupSucceeded)
         {

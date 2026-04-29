@@ -1,0 +1,202 @@
+Purpose
+
+Safe seam work is exhausted in the main pressure zones, and additional containments have landed since the previous refresh. The next phase remains behavior-sensitive decomposition planning against the current workspace state, not opportunistic cleanup. This document tracks what has already been contained, what orchestration-sensitive cores still remain, and which planning target should be examined next before any new extraction is approved.
+
+
+Current pressure zones
+
+PromptForge.App/ViewModels/MainWindowViewModel.cs
+- This is now better understood as the intentional UI orchestration core rather than an active breakup target.
+- Multiple cohesive subdomains have been contained into partial files, and the remaining main-file responsibilities have now been reviewed as leave-unchanged orchestration ownership.
+- The file is still behavior-sensitive, but its remaining responsibilities are now treated as central call-order ownership rather than near-term decomposition candidates.
+
+PromptForge.Core/Services/PromptBuilderService.cs
+- This is now better understood as the intentional builder orchestration core rather than an active breakup target.
+- Multiple builder sub-workflows have been contained into partial files, and the remaining main-file shells have now been reviewed as leave-unchanged builder ownership.
+- The file is still behavior-sensitive, but its remaining responsibilities are now treated as central routing and final-ownership contracts rather than near-term decomposition candidates.
+
+PromptForge.Core/Services/SliderLanguageCatalog.cs
+- This is now better understood as the intentional shared routing core rather than an active breakup target.
+- Fallback sanitation / neutralization and phrase-pool selection have been contained, and the remaining main-file shells have now been reviewed as leave-unchanged shared ownership.
+- The file is still behavior-sensitive, but its remaining responsibilities are now treated as central resolver-precedence and final shared-selection ownership rather than near-term decomposition candidates.
+- `SliderLanguageCatalog.[Lane].cs` files remain lane-local phrase authority and are explicitly out of scope for shared-core redesign here.
+
+
+What has already been contained successfully
+
+Completed hardening / containment work
+- PromptForge.Core/Services/StandardLaneStateAdapter.cs
+  - helper centralization
+  - PromptConfiguration property cache
+  - ordinary-lane definition cache
+  - ordinary-lane lookup cache in `MergeInto(...)`
+  - selector-definition lookup cache in `MergeInto(...)`
+  - adapter-local ordinary-lane property binding validation
+- PromptForge.Core/Services/Lanes/LanePromptContributorRegistry.cs
+  - dictionary lookup refactor
+  - contributor uniqueness/equivalence audit completed
+- PromptForge.Core/Services/LaneRegistry.cs
+  - subtype helper cluster hardening with cached selector lookup
+- PromptForge.Core/Services/LaneRegistryValidator.cs
+  - property-validation hardening
+- PromptForge.App/ViewModels/MainWindowViewModel.cs
+  - blocked-preview duplicated state-sync seam in `RegeneratePrompt()` contained behind one helper
+- PromptForge.App/ViewModels/MainWindowViewModel.StandardLanePanels.cs
+  - standard-lane panel/state plumbing cluster contained into its own partial
+- PromptForge.App/ViewModels/MainWindowViewModel.AccessGating.cs
+  - pure access-gating / preview-gating reporting surface contained into its own partial
+- PromptForge.App/ViewModels/MainWindowViewModel.ArtistPhraseEditor.cs
+  - artist phrase editor / override coordination cluster contained into its own partial
+- PromptForge.App/ViewModels/MainWindowViewModel.SliderSuppressions.cs
+  - suppression coordination core contained into its own partial
+- PromptForge.App/ViewModels/MainWindowViewModel.ConfigurationMapping.cs
+  - VM <-> PromptConfiguration state-transfer mapping core contained into its own partial
+- PromptForge.App/ViewModels/MainWindowViewModel.Presets.cs
+  - preset CRUD coordination surface contained into its own partial
+- PromptForge.App/ViewModels/MainWindowViewModel.IntentTransitionDefaults.cs
+  - intent-transition defaulting workflow contained into its own partial
+- PromptForge.Core/Services/PromptBuilderService.cs
+  - first-fragment preserve wrapper pattern centralized for:
+    - `BuildFoodPhotographySection(...)`
+    - `BuildArchitectureArchvizSection(...)`
+    - `BuildLifestyleAdvertisingPhotographySection(...)`
+- PromptForge.Core/Services/PromptBuilderService.NegativePrompt.cs
+  - negative prompt policy/assembly cluster contained into its own partial
+- PromptForge.Core/Services/PromptBuilderService.PositivePromptFinalization.cs
+  - positive prompt finalization cluster contained into its own partial
+- PromptForge.Core/Services/PromptBuilderService.StandardSectionAccumulation.cs
+  - shared standard section accumulation block contained into its own partial
+- PromptForge.Core/Services/PromptBuilderService.EarlyDescriptorBranching.cs
+  - early descriptor branch execution cluster contained into its own partial
+- PromptForge.Core/Services/SliderLanguageCatalog.FallbackSanitation.cs
+  - fallback phrase sanitation and neutralization helpers contained into their own partial
+- PromptForge.Core/Services/SliderLanguageCatalog.PhrasePoolSelection.cs
+  - candidate pool shaping and bundle preference filtering contained into their own partial
+
+What remains unresolved
+- orchestration order fragility in `MainWindowViewModel.cs`
+- narrowed builder ownership fragility in `PromptBuilderService.cs`
+- shared resolver and fallback precedence fragility in `SliderLanguageCatalog.cs`
+
+
+Remaining responsibility clusters
+
+MainWindowViewModel.cs
+- intent-change ownership shell
+  - intentional orchestration ownership
+  - owns normalization, intent-dependent property notifications, locked-lane access update timing, macro-sync timing, regeneration trigger timing, and final intent-change ownership around the contained defaulting workflow
+- prompt regeneration orchestration
+  - intentional orchestration ownership
+  - owns preview gating, `CaptureConfiguration()` call timing, prompt build timing, preview assignment, and follow-on state updates
+- configuration apply/reset sequencing shell
+  - intentional orchestration ownership
+  - owns `HydrateConfiguration(...)` placement, `_isApplyingConfiguration` guard control, suppression clearing, post-apply resync order, and regeneration after apply
+- access-gating trigger path
+  - intentional orchestration ownership
+  - owns `RemainingDemoCopies`, `RefreshLicenseState()`, `UpdateLockedLaneAccessState(...)`, and the associated notification and regeneration timing
+
+PromptBuilderService.cs
+- build entry and intent decision cluster
+  - owns `Build(...)`, experimental fallback behavior, and standard vs experimental routing
+- standard prompt assembly ownership shell
+  - owns the standard-path working-state setup, stage handoff sequence, final debug timing, and final `PromptResult` ownership
+
+SliderLanguageCatalog.cs
+- shared phrase-dispatch entry
+  - owns route selection from intent mode to lane-specific resolver or standard resolver
+- shared prompt fallback precedence shell
+  - owns `ResolvePromptPhraseOrFallback(...)`, `ResolveFallbackPromptPhrase(...)`, and the precedence-owning call order around phrase-first fallback selection
+- standard shared phrase selection owner
+  - owns `ResolveStandardPhrase(...)` final ownership around band lookup, candidate-pool delegation, seed construction, and stable phrase choice
+- leave-unchanged reason
+  - the shared dispatch hub currently stays in place because resolver precedence, fallback precedence, and lane win-order are all behavior-sensitive cross-lane contracts
+
+
+Decomposition target classes
+
+MainWindowViewModel.cs
+- intent-change ownership shell: Keep in place for now
+- prompt regeneration orchestration: Keep in place for now
+- configuration apply/reset sequencing shell: Keep in place for now
+- access-gating trigger path: Keep in place for now
+
+PromptBuilderService.cs
+- build entry and intent decision cluster: Keep in place for now
+- standard prompt assembly ownership shell: Keep in place for now
+
+SliderLanguageCatalog.cs
+- shared phrase-dispatch entry: Keep in place for now
+- shared prompt fallback precedence shell: Keep in place for now
+- standard shared phrase selection owner: Keep in place for now
+
+
+Recommended extraction order
+
+No honest future extraction target is currently justified by the workspace evidence.
+Why this section is intentionally closed
+- The remaining `MainWindowViewModel.cs` shells, `PromptBuilderService.cs` shells, and `SliderLanguageCatalog.cs` shells have all now been reviewed and judged intentional ownership for now.
+- Inventing a ranked future target here would overstate confidence rather than reflect the current workspace.
+
+
+Non-goals
+
+- No broad cleanup for its own sake
+- No orchestration reordering
+- No semantic globalization through pressure-zone files
+- No moving lane-specific phrase authority into shared core
+- No forced abstraction just because a pattern exists
+- No redesign of contributor timing, compression timing, cleanup timing, resolver precedence, or persistence semantics
+
+
+Approval thresholds for future moves
+
+Any future containment or extraction move inside the pressure zones should require all of the following:
+
+Call-order equivalence
+- The proposal must identify the exact caller sites affected.
+- It must prove the moved logic runs in the same order relative to surrounding work.
+
+Notification timing
+- Any `OnPropertyChanged(...)` batch must remain identical in membership and order unless an explicit behavior change is approved.
+- Any command-state refresh must remain at the same timing boundary.
+
+Regeneration timing
+- Any `RegeneratePrompt()` call site must stay in the same location and under the same guard conditions unless an explicit behavior change is approved.
+
+Compression / cleanup timing
+- Any move touching `PromptBuilderService` must preserve when compression runs, when cleanup runs, and what fragment set reaches each phase.
+
+Resolver precedence
+- Any move touching `SliderLanguageCatalog` shared routing must prove that the same lane resolver or fallback path wins for the same configuration.
+
+Persistence semantics
+- Any move touching configuration capture/apply/reset or preset flow must preserve the same `PromptConfiguration` contents, replay order, and save/load/reset timing.
+
+Unchanged wording behavior
+- No move is acceptable if it changes emitted phrase text, fallback wording, or preserve-from-compression behavior unless that wording change is the explicit goal of the work.
+
+Scope proof
+- The proposed move must name the exact members involved.
+- It must state what remains in place.
+- It must avoid widening into nearby orchestration clusters unless separately approved.
+
+Verification proof
+- At minimum: successful `dotnet build PromptForge.sln --no-restore`
+- Plus a targeted code-review equivalence check against:
+  - call-order behavior
+  - notification timing
+  - regeneration timing
+  - compression/cleanup timing
+  - resolver precedence
+  - persistence semantics
+  - unchanged wording behavior
+
+
+Practical next step
+
+Recommended next planning pass
+- structural refactor pause / stabilization checkpoint
+
+Why this next
+- The structural decomposition phase has reached an honest stop point in the current workspace.
+- Revisit extraction planning only if the codebase changes materially later or a new pressure zone appears through feature work.

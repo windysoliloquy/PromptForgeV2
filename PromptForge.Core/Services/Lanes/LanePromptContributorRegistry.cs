@@ -10,11 +10,18 @@ internal static class LanePromptContributorRegistry
         GraphicDesignLane.Instance,
         TattooArtLane.Instance,
     ];
+    private static readonly IReadOnlyDictionary<string, ILanePromptContributor> ContributorsByIntentName =
+        Contributors.ToDictionary(static contributor => contributor.IntentName, StringComparer.OrdinalIgnoreCase);
 
     public static bool TryGet(string? intentName, out ILanePromptContributor contributor)
     {
-        contributor = Contributors.FirstOrDefault(item => string.Equals(item.IntentName, intentName, StringComparison.OrdinalIgnoreCase))!;
-        return contributor is not null;
+        if (!string.IsNullOrWhiteSpace(intentName) && ContributorsByIntentName.TryGetValue(intentName, out contributor!))
+        {
+            return true;
+        }
+
+        contributor = null!;
+        return false;
     }
 
 }

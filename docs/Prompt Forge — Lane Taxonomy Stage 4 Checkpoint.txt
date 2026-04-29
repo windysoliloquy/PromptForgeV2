@@ -1,0 +1,58 @@
+What was implemented
+
+- Stage 4 added one adjacent taxonomy metadata file:
+  - `PromptForge.Core/Services/LaneTaxonomyCatalog.cs`
+- The metadata stayed minimal:
+  - `LaneId`
+  - `Category`
+  - `BehaviorProfile`
+- It exposed one read-only lookup path by lane id and by intent name.
+- It added one display-only consumer:
+  - `PromptForge.App/Converters/IntentModePickerTextConverter.cs`
+  - used by the intent picker item template in `PromptForge.App/MainWindow.xaml`
+
+
+What remained unchanged
+
+- `PromptForge.Core/Services/PromptBuilderService.cs`
+- `PromptForge.Core/Services/SliderLanguageCatalog.cs`
+- `LaneDefinition` runtime behavior
+- `IntentMode` selection and persistence semantics
+- prompt generation behavior
+- resolver precedence
+- fallback behavior
+- save/load/apply/reset behavior
+- lock/unlock behavior
+- central ownership timing in the stabilized core files
+
+
+Did Stage 4 stay behavior-neutral?
+
+- Yes.
+- The implementation stayed behavior-neutral because taxonomy was added as adjacent metadata and consumed only by one picker display template.
+- No routing, resolver, fallback, persistence, or timing-owning surface was changed.
+
+
+Did the taxonomy prove useful enough to keep?
+
+- Yes, but only at a modest level so far.
+- It proved that the taxonomy can exist in the repo without disturbing current behavior.
+- It has not yet proved broad runtime value, but it did prove that a small read-only presentation use is feasible.
+
+
+Is there one additional safe read-only consumer later?
+
+- `One plausible later consumer exists`
+- Candidate:
+  - `IntentModeSummary` / `BuildIntentModeSummary()` presentation surface in `MainWindowViewModel`
+- Why it is still not approved yet
+  - that surface already mixes lane summaries, exact intent special-casing, and wording decisions
+  - a taxonomy read there would still be read-only, but it is closer to user-facing wording and summary composition than the picker surface
+  - it needs a separate proof pass to avoid accidental wording drift
+
+
+Recommendation
+
+- `Keep taxonomy and consider one later read-only expansion`
+- The current implementation stayed within the approved neutral boundary, so the taxonomy is worth keeping.
+- Expansion should still pause after this checkpoint unless a later pass explicitly approves one more read-only summary surface.

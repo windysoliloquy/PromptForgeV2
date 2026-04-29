@@ -22,6 +22,8 @@ public static partial class SliderLanguageCatalog
     public const string DetailDensity = "DetailDensity";
     public const string AtmosphericDepth = "AtmosphericDepth";
     public const string Chaos = "Chaos";
+    // The UI now presents this slider as "Levity", but the persisted/internal key
+    // remains "Whimsy" for compatibility with existing bindings, presets, and lane logic.
     public const string Whimsy = "Whimsy";
     public const string Tension = "Tension";
     public const string Awe = "Awe";
@@ -518,20 +520,20 @@ public static partial class SliderLanguageCatalog
                 "Controls how serious, playful, or outright comedic the prompt tone feels.",
                 [
                     Band("serious tone", "serious tone", "quiet serious mood", "solemn tone", "unsmiling tone", "severe tone"),
-                    Band("subtle whimsy", "subtle whimsy", "light playful touch", "gentle whimsical tone"),
+                    Band("subtle levity", "subtle levity", "light playful touch", "gentle playful tone"),
                     Band("playful tone", "playful tone", "clear sense of play", "lively playful tone"),
-                    Band("strong whimsical energy", "strong whimsical energy", "bold playful character", "mischievous visual energy"),
-                    Band("bold comedic whimsy", "bold comedic whimsy", "overtly playful comedy", "full comic whimsy"),
+                    Band("strong playful energy", "strong playful energy", "bold playful character", "mischievous visual energy"),
+                    Band("bold comic levity", "bold comic levity", "overtly playful comedy", "full comic whimsy"),
                 ],
                 new Dictionary<string, SliderBandDefinition[]>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["Stained Glass"] = [Band("serious tone", "serious tone", "plain devotional seriousness", "straight-faced sacred tone"), Band("subtle whimsy", "subtle folkloric whimsy", "light storybook playfulness", "gentle ornamental charm"), Band("playful tone", "playful iconographic tone", "clear folkloric play", "noticeably storybook mood"), Band("strong whimsical energy", "strong ornamental whimsy", "bold folkloric charm", "pronounced storybook playfulness"), Band("bold comedic whimsy", "bold storybook whimsy", "overtly playful sacred-pageantry", "full folkloric comic charm")],
-                    ["Surreal Symbolic"] = [Band("serious tone", "serious tone", "plain surreal seriousness", "straight-faced oneiric tone"), Band("subtle whimsy", "subtle surreal playfulness", "light dreamlike play", "gentle uncanny whimsy"), Band("playful tone", "playful dream logic", "clear surreal playfulness", "noticeably whimsical strangeness"), Band("strong whimsical energy", "strong whimsical strangeness", "bold absurdist play", "pronounced dreamlike whimsy"), Band("bold comedic whimsy", "bold absurdist whimsy", "overt surreal comedy", "full dreamlike comic energy")],
+                    ["Stained Glass"] = [Band("serious tone", "serious tone", "plain devotional seriousness", "straight-faced sacred tone"), Band("subtle levity", "subtle folkloric levity", "light storybook playfulness", "gentle ornamental charm"), Band("playful tone", "playful iconographic tone", "clear folkloric play", "noticeably storybook mood"), Band("strong playful energy", "strong ornamental playfulness", "bold folkloric charm", "pronounced storybook playfulness"), Band("bold comic levity", "bold storybook play", "overtly playful sacred-pageantry", "full folkloric comic charm")],
+                    ["Surreal Symbolic"] = [Band("serious tone", "serious tone", "plain surreal seriousness", "straight-faced oneiric tone"), Band("subtle levity", "subtle surreal playfulness", "light dreamlike play", "gentle uncanny levity"), Band("playful tone", "playful dream logic", "clear surreal playfulness", "noticeably playful strangeness"), Band("strong playful energy", "strong playful strangeness", "bold absurdist play", "pronounced dreamlike levity"), Band("bold comic levity", "bold absurdist play", "overt surreal comedy", "full dreamlike comic energy")],
                 },
                 [],
                 [],
                 ["mood clause"],
-                "Whimsy affects tone quickly. Keep it clean so the special whimsy+tension interaction can still stand out."),
+                "Displayed in the UI as Levity. Internal key remains Whimsy for compatibility; keep tone language clean so the special whimsy+tension interaction can still stand out."),
             [Tension] = new(
                 "Controls how much dramatic, interpersonal, or psychological strain the prompt carries.",
                 [
@@ -695,6 +697,11 @@ public static partial class SliderLanguageCatalog
             return ResolveGraphicDesignPhrase(sliderKey, value, configuration);
         }
 
+        if (IntentModeCatalog.IsInfographicDataVisualization(configuration.IntentMode))
+        {
+            return ResolveInfographicDataVisualizationPhrase(sliderKey, value, configuration);
+        }
+
         if (IntentModeCatalog.IsTattooArt(configuration.IntentMode))
         {
             return ResolveTattooArtPhrase(sliderKey, value, configuration);
@@ -753,19 +760,8 @@ public static partial class SliderLanguageCatalog
         }
 
         var bandIndex = GetBandIndex(value);
-        var candidates = new List<string>();
-
-        AddCandidates(candidates, GetVariant(definition.StyleMaterialVariants, $"{configuration.ArtStyle}|{configuration.Material}"), bandIndex);
-        AddCandidates(candidates, GetVariant(definition.MaterialVariants, configuration.Material), bandIndex);
-        AddCandidates(candidates, GetVariant(definition.StyleVariants, configuration.ArtStyle), bandIndex);
-        AddCandidates(candidates, definition.Bands, bandIndex);
-
-        var deduped = candidates
-            .Where(static phrase => !string.IsNullOrWhiteSpace(phrase))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-
-        if (deduped.Length == 0)
+        var resolvedPool = BuildResolvedPhrasePool(definition, sliderKey, bandIndex, configuration);
+        if (resolvedPool.Length == 0)
         {
             return string.Empty;
         }
@@ -784,7 +780,6 @@ public static partial class SliderLanguageCatalog
             configuration.ArtistInfluencePrimary,
             configuration.ArtistInfluenceSecondary);
 
-        var resolvedPool = ApplyBundlePreference(configuration.IntentMode, sliderKey, deduped);
         return resolvedPool[Math.Abs(GetStableHash(seed)) % resolvedPool.Length];
     }
 
@@ -828,44 +823,6 @@ public static partial class SliderLanguageCatalog
         return ResolveNeutralFallbackPhrase(sliderKey, value);
     }
 
-    private static bool IsUsablePromptPhrase(string? phrase)
-    {
-        if (string.IsNullOrWhiteSpace(phrase))
-        {
-            return false;
-        }
-
-        return !IsPlaceholderPromptPhrase(phrase);
-    }
-
-    private static bool IsPlaceholderPromptPhrase(string phrase)
-    {
-        var cleaned = phrase.Trim();
-        return cleaned.Equals("off", StringComparison.OrdinalIgnoreCase)
-            || cleaned.Equals("omit explicit realism", StringComparison.OrdinalIgnoreCase)
-            || cleaned.Equals("omit artist language", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string NormalizeFallbackInterpretation(string sliderKey, string interpretation)
-    {
-        if (IsPlaceholderPromptPhrase(interpretation))
-        {
-            return ResolveNeutralFallbackPhrase(sliderKey, 0);
-        }
-
-        return interpretation.Trim();
-    }
-
-    private static string ResolveNeutralFallbackPhrase(string sliderKey, int value)
-    {
-        return sliderKey switch
-        {
-            Realism => value <= 20 ? "minimal realism emphasis" : string.Empty,
-            ArtistInfluenceStrength => value <= 20 ? "no direct artist citation" : string.Empty,
-            _ => string.Empty,
-        };
-    }
-
     public static string ResolveArtistInfluenceDescriptor(int strength, string artistName, string? intentMode = null)
     {
         if (string.IsNullOrWhiteSpace(artistName) || !Definitions.TryGetValue(ArtistInfluenceStrength, out var definition))
@@ -893,86 +850,6 @@ public static partial class SliderLanguageCatalog
         return Definitions.TryGetValue(sliderKey, out var definition)
             ? string.Join("  |  ", definition.Bands.Select(band => band.Interpretation))
             : string.Empty;
-    }
-
-    private static SliderBandDefinition[] GetVariant(Dictionary<string, SliderBandDefinition[]> variants, string key)
-    {
-        if (string.IsNullOrWhiteSpace(key))
-        {
-            return [];
-        }
-
-        return variants.TryGetValue(key, out var bands) ? bands : [];
-    }
-
-    private static void AddCandidates(ICollection<string> phrases, SliderBandDefinition[] bands, int bandIndex)
-    {
-        if (bands.Length != 5)
-        {
-            return;
-        }
-
-        foreach (var phrase in bands[bandIndex].Phrases)
-        {
-            if (!string.IsNullOrWhiteSpace(phrase))
-            {
-                phrases.Add(phrase);
-            }
-        }
-    }
-
-    private static string[] ApplyBundlePreference(string? intentMode, string sliderKey, string[] candidates)
-    {
-        if (candidates.Length == 0
-            || string.IsNullOrWhiteSpace(intentMode)
-            || !IntentModeCatalog.TryGet(intentMode, out _)
-            || !BundlePhrasePreferences.TryGetValue(intentMode, out var preference))
-        {
-            return candidates;
-        }
-
-        var preferred = TryFilter(candidates, preference.PreferredBySlider, sliderKey);
-        if (preferred.Length > 0)
-        {
-            return preferred;
-        }
-
-        var avoided = GetPhraseSet(preference.AvoidedBySlider, sliderKey);
-        if (avoided.Count == 0)
-        {
-            return candidates;
-        }
-
-        var filtered = candidates
-            .Where(candidate => !avoided.Contains(candidate))
-            .ToArray();
-
-        return filtered.Length > 0 ? filtered : candidates;
-    }
-
-    private static string[] TryFilter(string[] candidates, IReadOnlyDictionary<string, string[]> phraseLookup, string sliderKey)
-    {
-        var allowed = GetPhraseSet(phraseLookup, sliderKey);
-        if (allowed.Count == 0)
-        {
-            return [];
-        }
-
-        return candidates
-            .Where(candidate => allowed.Contains(candidate))
-            .ToArray();
-    }
-
-    private static HashSet<string> GetPhraseSet(IReadOnlyDictionary<string, string[]> phraseLookup, string sliderKey)
-    {
-        if (!phraseLookup.TryGetValue(sliderKey, out var phrases) || phrases.Length == 0)
-        {
-            return [];
-        }
-
-        return new HashSet<string>(
-            phrases.Where(static phrase => !string.IsNullOrWhiteSpace(phrase)),
-            StringComparer.OrdinalIgnoreCase);
     }
 
     private static int GetBandIndex(int value)

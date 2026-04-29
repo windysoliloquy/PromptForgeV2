@@ -1,0 +1,362 @@
+<UserControl x:Class="PromptForge.App.Views.LaneReplacements.Shared.ThreeDRenderCompactManualStack"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:PromptForge.App.Controls"
+             Focusable="False">
+    <UserControl.Resources>
+        <Style x:Key="ThreeDRenderCompactManualShellStyle" TargetType="Border" BasedOn="{StaticResource SectionCardStyle}">
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Background" Value="{DynamicResource SubtleSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}" />
+        </Style>
+        <Style x:Key="ThreeDRenderCompactCollapsedShellStyle" TargetType="Border" BasedOn="{StaticResource ThreeDRenderCompactManualShellStyle}">
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="MinHeight" Value="38" />
+        </Style>
+        <Style x:Key="ThreeDRenderCompactRowLabelTextStyle" TargetType="TextBlock" BasedOn="{StaticResource FieldLabelTextStyle}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="TextTrimming" Value="None" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="ThreeDRenderCompactGateButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+            <Setter Property="MinWidth" Value="52" />
+            <Setter Property="Height" Value="26" />
+            <Setter Property="Padding" Value="8,1" />
+            <Setter Property="FontSize" Value="10.5" />
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Grid>
+                            <TextBlock x:Name="GateText"
+                                       Text="{Binding}"
+                                       FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=Button}}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <TextBlock x:Name="GateSparkText"
+                                       Text="***"
+                                       Style="{StaticResource OnboardingAccentTextStyle}"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed" />
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding}" Value="Show">
+                                <Setter TargetName="GateText" Property="Visibility" Value="Collapsed" />
+                                <Setter TargetName="GateSparkText" Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- Rollout note: 3D Render follows the proven shared-standard compact rhythm and reuses the standard manual state path.
+         Keep section identities lane-local and namespaced instead of widening shared compact ownership. -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="12" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="12" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="12" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="12" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border x:Name="LightingCard"
+                Grid.Row="0"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Style="{StaticResource ThreeDRenderCompactManualShellStyle}">
+            <StackPanel>
+                <TextBlock Text="Lighting" Style="{StaticResource SectionTitleTextStyle}" />
+                <ComboBox ItemsSource="{Binding Lightings}"
+                          SelectedItem="{Binding Lighting}"
+                          Style="{StaticResource AppComboBoxStyle}"
+                          HorizontalAlignment="Stretch"
+                          Margin="0,6,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="StyleControlsCard" Grid.Row="2" Grid.Column="0" Style="{StaticResource ThreeDRenderCompactManualShellStyle}">
+            <StackPanel>
+                <TextBlock Text="Style Controls" Style="{StaticResource SectionTitleTextStyle}" />
+                <Grid Margin="0,2,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Stylization" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Stylization" Value="{Binding Stylization}" ValueText="{Binding StylizationValueText}" GuideText="{Binding StylizationGuideText}" HelperText="{Binding StylizationHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeStylizationFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Realism" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Realism" Value="{Binding Realism}" ValueText="{Binding RealismValueText}" GuideText="{Binding RealismGuideText}" HelperText="{Binding RealismHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeRealismFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Texture Depth" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Texture Depth" Value="{Binding TextureDepth}" ValueText="{Binding TextureDepthValueText}" GuideText="{Binding TextureDepthGuideText}" HelperText="{Binding TextureDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeTextureDepthFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Narrative Density" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="3" Grid.Column="1" Label="Narrative Density" Value="{Binding NarrativeDensity}" ValueText="{Binding NarrativeDensityValueText}" GuideText="{Binding NarrativeDensityGuideText}" HelperText="{Binding NarrativeDensityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeNarrativeDensityFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Symbolism" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="4" Grid.Column="1" Label="Symbolism" Value="{Binding Symbolism}" ValueText="{Binding SymbolismValueText}" GuideText="{Binding SymbolismGuideText}" HelperText="{Binding SymbolismHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeSymbolismFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Surface Age" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,0" />
+                    <controls:SliderFlyout Grid.Row="5" Grid.Column="1" Label="Surface Age" Value="{Binding SurfaceAge}" ValueText="{Binding SurfaceAgeValueText}" GuideText="{Binding SurfaceAgeGuideText}" HelperText="{Binding SurfaceAgeHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeSurfaceAgeFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="MoodCard" Grid.Row="2" Grid.Column="2" Style="{StaticResource ThreeDRenderCompactManualShellStyle}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Mood" Style="{StaticResource SectionTitleTextStyle}" />
+                    <Button x:Name="StyleMoodGateButton"
+                            Grid.Column="1"
+                            Style="{StaticResource ThreeDRenderCompactGateButtonStyle}"
+                            Click="OnStyleMoodGateClick" />
+                </Grid>
+                <Grid Margin="0,2,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Levity" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Levity" Value="{Binding Whimsy}" ValueText="{Binding WhimsyValueText}" GuideText="{Binding WhimsyGuideText}" HelperText="{Binding WhimsyHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeWhimsyFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Tension" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Tension" Value="{Binding Tension}" ValueText="{Binding TensionValueText}" GuideText="{Binding TensionGuideText}" HelperText="{Binding TensionHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeTensionFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Awe" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,0" />
+                    <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Awe" Value="{Binding Awe}" ValueText="{Binding AweValueText}" GuideText="{Binding AweGuideText}" HelperText="{Binding AweHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeAweFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                </Grid>
+                <StackPanel Margin="0,10,0,0">
+                    <TextBlock Text="Aspect Ratio" Style="{StaticResource FieldLabelTextStyle}" Margin="0,0,0,4" />
+                    <ComboBox ItemsSource="{Binding AspectRatios}"
+                              SelectedItem="{Binding AspectRatio}"
+                              Style="{StaticResource AppComboBoxStyle}"
+                              Margin="0,0,0,4" />
+                    <CheckBox Content="Print-ready"
+                              IsChecked="{Binding PrintReady}"
+                              Style="{StaticResource AppCheckBoxStyle}" />
+                    <CheckBox Content="Transparent background"
+                              IsChecked="{Binding TransparentBackground}"
+                              Style="{StaticResource AppCheckBoxStyle}" />
+                    <CheckBox Content="Include negative prompt"
+                              IsChecked="{Binding UseNegativePrompt}"
+                              Style="{StaticResource AppCheckBoxStyle}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="StyleMoodCollapsedCard"
+                Grid.Row="2"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Style="{StaticResource ThreeDRenderCompactCollapsedShellStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Style Controls/Mood" Style="{StaticResource SectionTitleTextStyle}" />
+                <Button x:Name="StyleMoodCollapsedGateButton"
+                        Grid.Column="1"
+                        Style="{StaticResource ThreeDRenderCompactGateButtonStyle}"
+                        Click="OnStyleMoodGateClick" />
+            </Grid>
+        </Border>
+
+        <Border x:Name="ControlLightingCard" Grid.Row="4" Grid.Column="0" Style="{StaticResource ThreeDRenderCompactManualShellStyle}">
+            <StackPanel>
+                <TextBlock Text="Control Lighting" Style="{StaticResource SectionTitleTextStyle}" />
+                <Grid Margin="0,2,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Temperature" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Temperature" Value="{Binding Temperature}" ValueText="{Binding TemperatureValueText}" GuideText="{Binding TemperatureGuideText}" HelperText="{Binding TemperatureHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeTemperatureFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Lighting Intensity" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Lighting Intensity" Value="{Binding LightingIntensity}" ValueText="{Binding LightingIntensityValueText}" GuideText="{Binding LightingIntensityGuideText}" HelperText="{Binding LightingIntensityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeLightingIntensityFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Saturation" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Saturation" Value="{Binding Saturation}" ValueText="{Binding SaturationValueText}" GuideText="{Binding SaturationGuideText}" HelperText="{Binding SaturationHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeSaturationFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Contrast" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,0" />
+                    <controls:SliderFlyout Grid.Row="3" Grid.Column="1" Label="Contrast" Value="{Binding Contrast}" ValueText="{Binding ContrastValueText}" GuideText="{Binding ContrastGuideText}" HelperText="{Binding ContrastHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeContrastFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="ImageFinishCard" Grid.Row="4" Grid.Column="2" Style="{StaticResource ThreeDRenderCompactManualShellStyle}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Image Finish" Style="{StaticResource SectionTitleTextStyle}" />
+                    <Button x:Name="ImageFinishGateButton"
+                            Grid.Column="1"
+                            Style="{StaticResource ThreeDRenderCompactGateButtonStyle}"
+                            Click="OnControlLightingImageFinishGateClick" />
+                </Grid>
+                <Grid Margin="0,2,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Focus / Depth of Field" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Focus / Depth of Field" Value="{Binding FocusDepth}" ValueText="{Binding FocusDepthValueText}" GuideText="{Binding FocusDepthGuideText}" HelperText="{Binding FocusDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeFocusDepthFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Image Cleanliness" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                    <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Image Cleanliness" Value="{Binding ImageCleanliness}" ValueText="{Binding ImageCleanlinessValueText}" GuideText="{Binding ImageCleanlinessGuideText}" HelperText="{Binding ImageCleanlinessHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeImageCleanlinessFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Detail Density" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,0" />
+                    <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Detail Density" Value="{Binding DetailDensity}" ValueText="{Binding DetailDensityValueText}" GuideText="{Binding DetailDensityGuideText}" HelperText="{Binding DetailDensityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeDetailDensityFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="ControlLightingImageFinishCollapsedCard"
+                Grid.Row="4"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Style="{StaticResource ThreeDRenderCompactCollapsedShellStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Control Lighting/Image Finish" Style="{StaticResource SectionTitleTextStyle}" />
+                <Button x:Name="ControlLightingImageFinishCollapsedGateButton"
+                        Grid.Column="1"
+                        Style="{StaticResource ThreeDRenderCompactGateButtonStyle}"
+                        Click="OnControlLightingImageFinishGateClick" />
+            </Grid>
+        </Border>
+
+        <Border x:Name="SceneCompositionCard"
+                Grid.Row="6"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Style="{StaticResource ThreeDRenderCompactManualShellStyle}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Scene Composition" Style="{StaticResource SectionTitleTextStyle}" />
+                    <Button x:Name="SceneCompositionGateButton"
+                            Grid.Column="1"
+                            Style="{StaticResource ThreeDRenderCompactGateButtonStyle}"
+                            Click="OnSceneCompositionGateClick" />
+                </Grid>
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="18" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Composition" Style="{StaticResource FieldLabelTextStyle}" />
+                        <Grid Margin="0,8,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Framing" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Framing" Value="{Binding Framing}" ValueText="{Binding FramingValueText}" GuideText="{Binding FramingGuideText}" HelperText="{Binding FramingHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeFramingFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Camera Distance" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Camera Distance" Value="{Binding CameraDistance}" ValueText="{Binding CameraDistanceValueText}" GuideText="{Binding CameraDistanceGuideText}" HelperText="{Binding CameraDistanceHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeCameraDistanceFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Camera Angle" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Camera Angle" Value="{Binding CameraAngle}" ValueText="{Binding CameraAngleValueText}" GuideText="{Binding CameraAngleGuideText}" HelperText="{Binding CameraAngleHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeCameraAngleFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Background Complexity" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,0" />
+                            <controls:SliderFlyout Grid.Row="3" Grid.Column="1" Label="Background Complexity" Value="{Binding BackgroundComplexity}" ValueText="{Binding BackgroundComplexityValueText}" GuideText="{Binding BackgroundComplexityGuideText}" HelperText="{Binding BackgroundComplexityHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeBackgroundComplexityFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Output Controls" Style="{StaticResource FieldLabelTextStyle}" />
+                        <Grid Margin="0,8,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Motion Energy" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="0" Grid.Column="1" Label="Motion Energy" Value="{Binding MotionEnergy}" ValueText="{Binding MotionEnergyValueText}" GuideText="{Binding MotionEnergyGuideText}" HelperText="{Binding MotionEnergyHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeMotionEnergyFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Atmospheric Depth" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,4" />
+                            <controls:SliderFlyout Grid.Row="1" Grid.Column="1" Label="Atmospheric Depth" Value="{Binding AtmosphericDepth}" ValueText="{Binding AtmosphericDepthValueText}" GuideText="{Binding AtmosphericDepthGuideText}" HelperText="{Binding AtmosphericDepthHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeAtmosphericDepthFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Chaos" Style="{StaticResource ThreeDRenderCompactRowLabelTextStyle}" Margin="0,0,10,0" />
+                            <controls:SliderFlyout Grid.Row="2" Grid.Column="1" Label="Chaos" Value="{Binding Chaos}" ValueText="{Binding ChaosValueText}" GuideText="{Binding ChaosGuideText}" HelperText="{Binding ChaosHelper}" ShowExcludeFromPrompt="True" IsExcludedFromPrompt="{Binding ExcludeChaosFromPrompt}" UseCompactChipTrigger="True" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="SceneCompositionCollapsedCard"
+                Grid.Row="6"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Style="{StaticResource ThreeDRenderCompactCollapsedShellStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Scene Composition" Style="{StaticResource SectionTitleTextStyle}" />
+                <Button x:Name="SceneCompositionCollapsedGateButton"
+                        Grid.Column="1"
+                        Style="{StaticResource ThreeDRenderCompactGateButtonStyle}"
+                        Click="OnSceneCompositionGateClick" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

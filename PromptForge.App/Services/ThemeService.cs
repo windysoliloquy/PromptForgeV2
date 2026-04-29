@@ -13,6 +13,9 @@ public sealed class ThemeService : IThemeService
         ["Blueprint"] = "Styles/Skins/Blueprint.xaml",
         ["Atelier"] = "Styles/Skins/Atelier.xaml",
         ["Midnight Workshop"] = "Styles/Skins/MidnightWorkshop.xaml",
+        ["Harbor Mist"] = "Styles/Skins/HarborMist.xaml",
+        ["Copper Desk"] = "Styles/Skins/CopperDesk.xaml",
+        ["Forest Ledger"] = "Styles/Skins/ForestLedger.xaml",
     };
 
     private static readonly string[] ColorKeys =
@@ -34,6 +37,7 @@ public sealed class ThemeService : IThemeService
         "PopupBorderColor",
         "SemanticChipSurfaceColor",
         "SemanticChipBorderColor",
+        "OnboardingAccentColor",
         "ShadowColor",
     };
 
@@ -56,11 +60,15 @@ public sealed class ThemeService : IThemeService
         "PopupBorderBrush",
         "SemanticChipSurfaceBrush",
         "SemanticChipBorderBrush",
+        "OnboardingAccentBrush",
         "SliderFlyoutCollapseCamouflageBrush",
         "ComboBoxBackgroundBrush",
         "ComboBoxForegroundBrush",
         "ComboBoxDropDownBackgroundBrush",
         "ComboBoxDropDownForegroundBrush",
+        "SelectorRadiantHoverBrush",
+        "SelectorRadiantFocusBrush",
+        "SelectorRadiantGlintBrush",
     };
 
     private readonly string _settingsPath;

@@ -14,9 +14,7 @@ internal sealed class TattooArtLane : ILanePromptContributor
 
     public IEnumerable<PromptFragment> BuildEarlyDescriptors(PromptConfiguration configuration)
     {
-        foreach (var phrase in SliderLanguageCatalog.ResolveTattooArtDescriptors(configuration))
-        {
-            yield return new PromptFragment(phrase);
-        }
+        return SliderLanguageCatalog.ResolveTattooArtDescriptors(configuration)
+            .Select(static phrase => new PromptFragment(phrase));
     }
 }

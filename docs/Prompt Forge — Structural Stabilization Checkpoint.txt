@@ -1,0 +1,72 @@
+Current status
+
+- The structural decomposition phase is paused.
+- `MainWindowViewModel.cs` is now treated as intentional UI orchestration ownership for its remaining shells.
+- `PromptBuilderService.cs` is now treated as intentional builder ownership for its remaining shells.
+- `SliderLanguageCatalog.cs` is now treated as intentional shared routing ownership for its remaining shells.
+
+
+Operating baseline
+
+- Treat these docs as the current structural baseline:
+  - `docs/Prompt Forge — Pressure-Zone Decomposition Plan.txt`
+  - `docs/Prompt Forge — Target Structure From Current State.txt`
+  - `docs/Prompt Forge — Structural Stabilization Checkpoint.txt`
+- Preserve the contained partial boundaries already established.
+- Prefer feature implementation, bug fixing, and product work over structural cleanup.
+- If requested work pushes against one of the stabilized boundaries, implement the smallest safe change first and note the pressure point rather than expanding scope casually.
+
+
+Do not reopen without new evidence
+
+- `MainWindowViewModel.cs`
+- `PromptBuilderService.cs`
+- `SliderLanguageCatalog.cs`
+
+Do not reopen extraction planning for these files unless there is either:
+
+- a material code change
+- a newly emerged pressure zone
+- or fresh evidence that one of the current boundaries is failing
+
+
+Preserve these boundaries during feature work
+
+- `PromptForge.App/ViewModels/MainWindowViewModel.StandardLanePanels.cs`
+- `PromptForge.App/ViewModels/MainWindowViewModel.AccessGating.cs`
+- `PromptForge.App/ViewModels/MainWindowViewModel.ArtistPhraseEditor.cs`
+- `PromptForge.App/ViewModels/MainWindowViewModel.SliderSuppressions.cs`
+- `PromptForge.App/ViewModels/MainWindowViewModel.ConfigurationMapping.cs`
+- `PromptForge.App/ViewModels/MainWindowViewModel.Presets.cs`
+- `PromptForge.App/ViewModels/MainWindowViewModel.IntentTransitionDefaults.cs`
+- `PromptForge.Core/Services/PromptBuilderService.NegativePrompt.cs`
+- `PromptForge.Core/Services/PromptBuilderService.PositivePromptFinalization.cs`
+- `PromptForge.Core/Services/PromptBuilderService.StandardSectionAccumulation.cs`
+- `PromptForge.Core/Services/PromptBuilderService.EarlyDescriptorBranching.cs`
+- `PromptForge.Core/Services/SliderLanguageCatalog.FallbackSanitation.cs`
+- `PromptForge.Core/Services/SliderLanguageCatalog.PhrasePoolSelection.cs`
+
+
+When to revisit architecture
+
+- after a material feature expansion
+- after a new mixed-responsibility cluster appears
+- after a regression shows a current boundary is failing
+
+
+Feature-work default
+
+When handling feature or bug tasks:
+
+- identify the smallest safe implementation surface
+- avoid opportunistic refactors
+- preserve current call-order ownership unless behavior change is explicitly requested
+- only flag a structural concern if it is directly blocking the requested work
+
+
+Default next mode
+
+- feature implementation
+- bug fixing
+- product work
+- not structural decomposition

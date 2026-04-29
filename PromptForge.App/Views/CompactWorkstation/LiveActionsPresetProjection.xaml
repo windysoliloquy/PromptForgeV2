@@ -1,0 +1,438 @@
+<UserControl x:Class="PromptForge.App.Views.CompactWorkstation.LiveActionsPresetProjection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="False">
+    <Grid>
+        <Grid.Resources>
+            <SolidColorBrush x:Key="HoverDeckActionsProjectionShellBackgroundBrush" Color="#D0111316" />
+            <SolidColorBrush x:Key="HoverDeckActionsProjectionShellBorderBrush" Color="#667F6331" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryNormalLeftImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_n_l.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryNormalCenterImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_n_c.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryNormalRightImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_n_r.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryHoverLeftImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_h_l.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryHoverCenterImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_h_c.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryHoverRightImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_h_r.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryPressedLeftImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_p_l.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryPressedCenterImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_p_c.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryPressedRightImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_p_r.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryDisabledLeftImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_d_l.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryDisabledCenterImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_d_c.png" />
+            <BitmapImage x:Key="ActionsCompanionPrimaryDisabledRightImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_primary_d_r.png" />
+
+            <BitmapImage x:Key="ActionsCompanionSecondaryNormalLeftImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_n_l.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryNormalCenterImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_n_c.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryNormalRightImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_n_r.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryHoverLeftImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_h_l.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryHoverCenterImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_h_c.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryHoverRightImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_h_r.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryPressedLeftImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_p_l.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryPressedCenterImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_p_c.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryPressedRightImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_p_r.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryDisabledLeftImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_d_l.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryDisabledCenterImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_d_c.png" />
+            <BitmapImage x:Key="ActionsCompanionSecondaryDisabledRightImage"
+                         UriSource="pack://application:,,,/Assets/HoverDeck/Companion/Actions/hd_companion_action_secondary_d_r.png" />
+
+            <Style x:Key="ActionsUtilityButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+                <Setter Property="MinHeight" Value="32" />
+                <Setter Property="Padding" Value="14,7" />
+                <Setter Property="FontSize" Value="12.5" />
+            </Style>
+            <Style x:Key="ActionsCompactPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+                <Setter Property="MinHeight" Value="42" />
+                <Setter Property="Padding" Value="16,10" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+            <Style x:Key="ActionsCompactEmphasisButtonStyle" TargetType="Button" BasedOn="{StaticResource EmphasisSecondaryButtonStyle}">
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="Padding" Value="14,8" />
+                <Setter Property="FontSize" Value="12.5" />
+            </Style>
+            <Style x:Key="ActionsCompactSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="Padding" Value="14,8" />
+                <Setter Property="FontSize" Value="12.5" />
+            </Style>
+            <Style x:Key="ActionsCompactTertiaryButtonStyle" TargetType="Button" BasedOn="{StaticResource TertiaryButtonStyle}">
+                <Setter Property="MinHeight" Value="34" />
+                <Setter Property="Padding" Value="12,7" />
+                <Setter Property="FontSize" Value="12.5" />
+                <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+            </Style>
+            <Style x:Key="ActionsCompanionPrimaryPlateButtonStyle"
+                   TargetType="Button">
+                <Setter Property="MinHeight" Value="42" />
+                <Setter Property="Padding" Value="18,10" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="#FFF9EFD8" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid MinHeight="{TemplateBinding MinHeight}"
+                                  Background="Transparent"
+                                  SnapsToDevicePixels="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="128" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="128" />
+                                </Grid.ColumnDefinitions>
+                                <Image x:Name="PrimaryLeftPlate"
+                                       Grid.Column="0"
+                                       Width="128"
+                                       Height="42"
+                                       Source="{StaticResource ActionsCompanionPrimaryNormalLeftImage}"
+                                       Stretch="Fill" />
+                                <Image x:Name="PrimaryCenterPlate"
+                                       Grid.Column="1"
+                                       Height="42"
+                                       Source="{StaticResource ActionsCompanionPrimaryNormalCenterImage}"
+                                       Stretch="Fill" />
+                                <Image x:Name="PrimaryRightPlate"
+                                       Grid.Column="2"
+                                       Width="128"
+                                       Height="42"
+                                       Source="{StaticResource ActionsCompanionPrimaryNormalRightImage}"
+                                       Stretch="Fill" />
+                                <Border Grid.ColumnSpan="3"
+                                        Background="Transparent"
+                                        Padding="{TemplateBinding Padding}"
+                                        IsHitTestVisible="False"
+                                        Panel.ZIndex="5">
+                                    <TextBlock x:Name="PrimaryButtonLabel"
+                                               Text="{TemplateBinding Content}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               TextAlignment="Center"
+                                               TextWrapping="NoWrap"
+                                               FontSize="{TemplateBinding FontSize}"
+                                               FontWeight="{TemplateBinding FontWeight}"
+                                               Foreground="{TemplateBinding Foreground}">
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect BlurRadius="1.4"
+                                                              ShadowDepth="0"
+                                                              Opacity="0.72"
+                                                              Color="#D8040506" />
+                                        </TextBlock.Effect>
+                                    </TextBlock>
+                                </Border>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="PrimaryLeftPlate" Property="Source" Value="{StaticResource ActionsCompanionPrimaryDisabledLeftImage}" />
+                                    <Setter TargetName="PrimaryCenterPlate" Property="Source" Value="{StaticResource ActionsCompanionPrimaryDisabledCenterImage}" />
+                                    <Setter TargetName="PrimaryRightPlate" Property="Source" Value="{StaticResource ActionsCompanionPrimaryDisabledRightImage}" />
+                                    <Setter TargetName="PrimaryButtonLabel" Property="Foreground" Value="#C9D7C8AE" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="PrimaryLeftPlate" Property="Source" Value="{StaticResource ActionsCompanionPrimaryPressedLeftImage}" />
+                                    <Setter TargetName="PrimaryCenterPlate" Property="Source" Value="{StaticResource ActionsCompanionPrimaryPressedCenterImage}" />
+                                    <Setter TargetName="PrimaryRightPlate" Property="Source" Value="{StaticResource ActionsCompanionPrimaryPressedRightImage}" />
+                                    <Setter TargetName="PrimaryButtonLabel" Property="Foreground" Value="#FFFFF1D2" />
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True" />
+                                        <Condition Property="IsPressed" Value="False" />
+                                        <Condition Property="IsEnabled" Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="PrimaryLeftPlate" Property="Source" Value="{StaticResource ActionsCompanionPrimaryHoverLeftImage}" />
+                                    <Setter TargetName="PrimaryCenterPlate" Property="Source" Value="{StaticResource ActionsCompanionPrimaryHoverCenterImage}" />
+                                    <Setter TargetName="PrimaryRightPlate" Property="Source" Value="{StaticResource ActionsCompanionPrimaryHoverRightImage}" />
+                                    <Setter TargetName="PrimaryButtonLabel" Property="Foreground" Value="#FFFFF3D8" />
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="ActionsCompanionSecondaryPlateButtonStyle"
+                   TargetType="Button">
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="Padding" Value="18,8" />
+                <Setter Property="FontSize" Value="12.5" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="#FFF0E2C3" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid MinHeight="{TemplateBinding MinHeight}"
+                                  Background="Transparent"
+                                  SnapsToDevicePixels="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="128" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="128" />
+                                </Grid.ColumnDefinitions>
+                                <Image x:Name="SecondaryLeftPlate"
+                                       Grid.Column="0"
+                                       Width="128"
+                                       Height="36"
+                                       Source="{StaticResource ActionsCompanionSecondaryNormalLeftImage}"
+                                       Stretch="Fill" />
+                                <Image x:Name="SecondaryCenterPlate"
+                                       Grid.Column="1"
+                                       Height="36"
+                                       Source="{StaticResource ActionsCompanionSecondaryNormalCenterImage}"
+                                       Stretch="Fill" />
+                                <Image x:Name="SecondaryRightPlate"
+                                       Grid.Column="2"
+                                       Width="128"
+                                       Height="36"
+                                       Source="{StaticResource ActionsCompanionSecondaryNormalRightImage}"
+                                       Stretch="Fill" />
+                                <Border Grid.ColumnSpan="3"
+                                        Background="Transparent"
+                                        Padding="{TemplateBinding Padding}"
+                                        IsHitTestVisible="False"
+                                        Panel.ZIndex="5">
+                                    <TextBlock x:Name="SecondaryButtonLabel"
+                                               Text="{TemplateBinding Content}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               TextAlignment="Center"
+                                               TextWrapping="NoWrap"
+                                               FontSize="{TemplateBinding FontSize}"
+                                               FontWeight="{TemplateBinding FontWeight}"
+                                               Foreground="{TemplateBinding Foreground}">
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect BlurRadius="1.4"
+                                                              ShadowDepth="0"
+                                                              Opacity="0.72"
+                                                              Color="#D8040506" />
+                                        </TextBlock.Effect>
+                                    </TextBlock>
+                                </Border>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="SecondaryLeftPlate" Property="Source" Value="{StaticResource ActionsCompanionSecondaryDisabledLeftImage}" />
+                                    <Setter TargetName="SecondaryCenterPlate" Property="Source" Value="{StaticResource ActionsCompanionSecondaryDisabledCenterImage}" />
+                                    <Setter TargetName="SecondaryRightPlate" Property="Source" Value="{StaticResource ActionsCompanionSecondaryDisabledRightImage}" />
+                                    <Setter TargetName="SecondaryButtonLabel" Property="Foreground" Value="#BFC8BCA9" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="SecondaryLeftPlate" Property="Source" Value="{StaticResource ActionsCompanionSecondaryPressedLeftImage}" />
+                                    <Setter TargetName="SecondaryCenterPlate" Property="Source" Value="{StaticResource ActionsCompanionSecondaryPressedCenterImage}" />
+                                    <Setter TargetName="SecondaryRightPlate" Property="Source" Value="{StaticResource ActionsCompanionSecondaryPressedRightImage}" />
+                                    <Setter TargetName="SecondaryButtonLabel" Property="Foreground" Value="#FFF7E7C8" />
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True" />
+                                        <Condition Property="IsPressed" Value="False" />
+                                        <Condition Property="IsEnabled" Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="SecondaryLeftPlate" Property="Source" Value="{StaticResource ActionsCompanionSecondaryHoverLeftImage}" />
+                                    <Setter TargetName="SecondaryCenterPlate" Property="Source" Value="{StaticResource ActionsCompanionSecondaryHoverCenterImage}" />
+                                    <Setter TargetName="SecondaryRightPlate" Property="Source" Value="{StaticResource ActionsCompanionSecondaryHoverRightImage}" />
+                                    <Setter TargetName="SecondaryButtonLabel" Property="Foreground" Value="#FFFFECD0" />
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="8" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="2" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock Text="Actions and Presets"
+                       Style="{StaticResource SectionTitleTextStyle}"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center" />
+            <Border Style="{StaticResource InfoChipBorderStyle}"
+                    Visibility="{Binding ShowDemoModeBanner, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="{Binding DemoModeHeadline}" Style="{StaticResource ChipValueTextStyle}" Margin="0" />
+                    <TextBlock Text="{Binding DemoModeBody}" Style="{StaticResource BodyMutedTextStyle}" TextWrapping="Wrap" Margin="0,5,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <Grid Grid.Row="2" Margin="0,2,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0"
+                    Content="Copy Prompt"
+                    Command="{Binding CopyPromptCommand}"
+                    Style="{StaticResource ActionsCompanionPrimaryPlateButtonStyle}" />
+            <TextBlock Grid.Column="0"
+                       Text="{Binding CopyPromptRemainingText}"
+                       Style="{StaticResource BodyMutedTextStyle}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Margin="0,0,12,0"
+                       IsHitTestVisible="False"
+                       Visibility="{Binding ShowDemoModeBanner, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <Button Grid.Column="2"
+                    Content="Copy Negative Prompt"
+                    Command="{Binding CopyNegativePromptCommand}"
+                    Style="{StaticResource ActionsCompanionSecondaryPlateButtonStyle}" />
+        </Grid>
+
+        <Border Grid.Row="4"
+                Margin="-8,0,-8,0"
+                Padding="10"
+                CornerRadius="12"
+                BorderThickness="1"
+                BorderBrush="{StaticResource HoverDeckActionsProjectionShellBorderBrush}"
+                Background="{StaticResource HoverDeckActionsProjectionShellBackgroundBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="6" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.7*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="1.15*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Row="0" Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.05*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Preset Name" Style="{StaticResource FieldLabelTextStyle}" />
+                        <TextBox Text="{Binding PresetName, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource AppTextBoxStyle}" />
+                        <TextBlock Text="Preset names must be unique."
+                                   Style="{StaticResource BodyMutedTextStyle}"
+                                   Margin="0,3,0,0"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Saved Presets" Style="{StaticResource FieldLabelTextStyle}" />
+                        <ComboBox ItemsSource="{Binding PresetNames}"
+                                  SelectedItem="{Binding SelectedPresetName}"
+                                  Style="{StaticResource AppComboBoxStyle}" />
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Grid.Row="0" Grid.Column="2">
+                    <TextBlock Text="Savestate Folder" Style="{StaticResource FieldLabelTextStyle}" />
+                    <ComboBox ItemsSource="{Binding SavestateFolders}"
+                              SelectedItem="{Binding SelectedSavestateFolder}"
+                              DisplayMemberPath="DisplayName"
+                              Style="{StaticResource AppComboBoxStyle}" />
+                </StackPanel>
+
+                <Grid Grid.Row="2" Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.05*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <UniformGrid Grid.Column="0" Columns="2">
+                        <Button Content="Save Preset"
+                                Command="{Binding SavePresetCommand}"
+                                Style="{StaticResource ActionsCompactEmphasisButtonStyle}" />
+                        <Button Content="Rename Preset"
+                                Command="{Binding RenamePresetCommand}"
+                                Style="{StaticResource ActionsCompactSecondaryButtonStyle}" />
+                    </UniformGrid>
+                    <UniformGrid Grid.Column="2" Columns="2">
+                        <Button Content="Load Preset"
+                                Command="{Binding LoadPresetCommand}"
+                                Style="{StaticResource ActionsCompactSecondaryButtonStyle}" />
+                        <Button Content="Delete Preset"
+                                Command="{Binding DeletePresetCommand}"
+                                Style="{StaticResource ActionsCompactTertiaryButtonStyle}" />
+                    </UniformGrid>
+                </Grid>
+
+                <Grid Grid.Row="2" Grid.Column="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <TextBox x:Name="SavestateFolderNameTextBox"
+                                 Text="{Binding NewSavestateFolderName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource AppTextBoxStyle}" />
+                        <TextBlock Text="Type here to create a savestate folder name."
+                                   Margin="14,0,10,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Text, ElementName=SavestateFolderNameTextBox}" Value="" />
+                                                <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=SavestateFolderNameTextBox}" Value="False" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                    <Button Grid.Column="2"
+                            Content="Create"
+                            Command="{Binding CreateSavestateFolderCommand}"
+                            Style="{StaticResource ActionsCompactEmphasisButtonStyle}"
+                            MinWidth="70" />
+                    <Button Grid.Column="4"
+                            Content="Delete"
+                            Command="{Binding DeleteSavestateFolderCommand}"
+                            Style="{StaticResource ActionsCompactTertiaryButtonStyle}"
+                            MinWidth="70"
+                            ToolTip="Type the name of the folder you wish to delete, exactly as it's written in the savestate folder dropdown." />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

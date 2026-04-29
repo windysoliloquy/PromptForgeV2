@@ -1,0 +1,286 @@
+Purpose
+
+This document describes the target structure for Prompt Forge from its current state, not from a blank-slate redesign. It uses the current workspace and the current pressure-zone decomposition plan to identify which files should remain orchestration cores, which responsibilities should continue moving into contained partials or narrow modules, which files should remain shared dispatch only, and which files should remain lane-local authority.
+
+
+Current structural reality
+
+Prompt Forge already has the right basic split, but it is unevenly matured.
+
+Current strengths
+- `PromptForge.App/ViewModels/MainWindowViewModel.*.cs` is already moving toward a partial-based subdomain structure.
+- `PromptForge.Core/Services/PromptBuilderService.*.cs` is already moving toward a staged builder shape.
+- `PromptForge.Core/Services/SliderLanguageCatalog.[Lane].cs` already preserves lane-local phrase authority.
+- `PromptForge.Core/Services/LaneRegistry.cs` and `PromptForge.Core/Services/StandardLaneStateAdapter.cs` already act like shared metadata / adapter infrastructure rather than orchestration dumps.
+
+Current pressure zones
+- `PromptForge.App/ViewModels/MainWindowViewModel.cs`
+  - still owns live UI orchestration and timing-sensitive state transitions
+- `PromptForge.Core/Services/PromptBuilderService.cs`
+  - still owns build entry, routing ownership, and final builder ownership
+- `PromptForge.Core/Services/SliderLanguageCatalog.cs`
+  - still owns shared dispatch and fallback precedence
+
+Current structural pattern that should be preserved
+- partial containment for cohesive subdomains inside `MainWindowViewModel`
+- partial containment for cohesive late-stage or policy-local builder stages inside `PromptBuilderService`
+- lane-local phrase and resolver authority staying in `SliderLanguageCatalog.[Lane].cs`
+- shared-core files owning routing, metadata, and fallback contracts only
+
+
+What should remain orchestration cores
+
+These files should stay central even in the target structure, because they own order-sensitive behavior rather than just reusable logic.
+
+`PromptForge.App/ViewModels/MainWindowViewModel.cs`
+- should remain the intentional live UI orchestration core
+- should keep:
+  - remaining intent-change ownership shell
+  - prompt regeneration orchestration
+  - configuration apply/reset sequencing shell
+  - access-gating trigger path
+- target shape:
+  - smaller than its historical god-file state, but intentionally central
+  - explicit owner of timing-sensitive state transitions
+  - explicit owner of notification timing, regeneration timing, apply/reset timing, and access-gating trigger timing
+  - not split just because a block is long if that block is fundamentally orchestration
+
+`PromptForge.Core/Services/PromptBuilderService.cs`
+- should remain the build orchestration core
+- should keep:
+  - `Build(...)`
+  - `BuildStandardPrompt(...)` ownership
+  - `BuildExperimentalPrompt(...)` ownership
+  - standard-vs-experimental routing
+  - final `PromptResult` ownership
+- target shape:
+  - thin orchestration shell over contained builder stages
+  - still the place where build-entry routing, branch ownership, and final assembly ownership are visible
+
+`PromptForge.Core/Services/SliderLanguageCatalog.cs`
+- should remain the shared dispatch core
+- should keep:
+  - shared phrase-dispatch entry
+  - shared fallback precedence
+  - shared phrase-pool selection rules
+- target shape:
+  - explicit shared router/fallback core
+  - explicit owner of resolver-precedence, fallback-precedence, and final shared-selection boundaries
+  - not a new phrase-authority file
+
+
+What should become contained partials or modules
+
+These are the subdomains that should continue to exist as contained units rather than being pushed back into orchestration files.
+
+Already in the right direction and should stay that way
+- `PromptForge.App/ViewModels/MainWindowViewModel.StandardLanePanels.cs`
+  - standard-lane panel/state plumbing
+- `PromptForge.App/ViewModels/MainWindowViewModel.AccessGating.cs`
+  - access-gating / preview-gating reporting surface
+- `PromptForge.App/ViewModels/MainWindowViewModel.ArtistPhraseEditor.cs`
+  - artist phrase editor / override coordination
+- `PromptForge.App/ViewModels/MainWindowViewModel.SliderSuppressions.cs`
+  - suppression coordination core
+- `PromptForge.App/ViewModels/MainWindowViewModel.ConfigurationMapping.cs`
+  - VM <-> `PromptConfiguration` mapping core
+- `PromptForge.App/ViewModels/MainWindowViewModel.Presets.cs`
+  - preset CRUD coordination
+- `PromptForge.Core/Services/PromptBuilderService.NegativePrompt.cs`
+  - negative prompt policy/assembly
+- `PromptForge.Core/Services/PromptBuilderService.PositivePromptFinalization.cs`
+  - positive prompt finalization
+- `PromptForge.Core/Services/PromptBuilderService.StandardSectionAccumulation.cs`
+  - shared standard section accumulation
+- `PromptForge.Core/Services/PromptBuilderService.EarlyDescriptorBranching.cs`
+  - early descriptor branch execution
+- `PromptForge.Core/Services/SliderLanguageCatalog.PhrasePoolSelection.cs`
+  - candidate pool shaping and bundle preference filtering
+
+Likely future contained units, if later proof justifies them
+- `PromptForge.App/ViewModels/MainWindowViewModel.ExperimentalMacros.cs`
+  - should remain a dedicated partial and may become the home for all experimental-macro coordination if that cluster keeps proving cohesive
+- a future contained partial inside `PromptBuilderService`
+  - only if the remaining standard prompt assembly ownership can be split without changing branch ownership or final result timing
+- a future narrow helper/partial around shared fallback behavior in `SliderLanguageCatalog.cs`
+  - only if fallback precedence can be preserved exactly
+
+What should not happen
+- do not turn every helper-sized block into its own file
+- do not split orchestration ownership into many tiny files that obscure call order
+
+
+What should remain shared dispatch only
+
+These files should stay narrow and shared, not become dumping grounds for lane-local semantics.
+
+`PromptForge.Core/Services/SliderLanguageCatalog.cs`
+- should remain shared dispatch only
+- should own:
+  - resolver selection
+  - fallback precedence ownership
+  - final standard shared phrase-selection ownership
+  - the call-order boundary between dispatch, fallback, and final selection
+- should not absorb:
+  - lane-local wording authority
+  - lane-specific semantic authoring rules that already live in lane partials
+
+`PromptForge.Core/Services/LaneRegistry.cs`
+- should remain shared metadata / lookup only
+- should own lane definition and selector metadata, not prompt wording or UI orchestration
+
+`PromptForge.Core/Services/StandardLaneStateAdapter.cs`
+- should remain shared adapter logic only
+- should own state transfer and lane-state hydration mechanics, not UI sequencing
+
+`PromptForge.Core/Services/Lanes/LanePromptContributorRegistry.cs`
+- should remain a narrow contributor dispatch registry
+- should not grow into a second builder or a second catalog
+
+
+What should remain lane-local authority
+
+These files should continue to own lane-local phrase authority and lane-local authoring semantics.
+
+`PromptForge.Core/Services/SliderLanguageCatalog.[Lane].cs`
+- examples:
+  - `SliderLanguageCatalog.Anime.cs`
+  - `SliderLanguageCatalog.Watercolor.cs`
+  - `SliderLanguageCatalog.ChildrensBook.cs`
+  - `SliderLanguageCatalog.Cinematic.cs`
+  - `SliderLanguageCatalog.ConceptArt.cs`
+  - `SliderLanguageCatalog.PixelArt.cs`
+  - `SliderLanguageCatalog.Photography.cs`
+  - `SliderLanguageCatalog.ProductPhotography.cs`
+  - `SliderLanguageCatalog.FoodPhotography.cs`
+  - `SliderLanguageCatalog.LifestyleAdvertisingPhotography.cs`
+  - `SliderLanguageCatalog.ArchitectureArchviz.cs`
+  - `SliderLanguageCatalog.FantasyIllustration.cs`
+  - `SliderLanguageCatalog.EditorialIllustration.cs`
+  - `SliderLanguageCatalog.GraphicDesign.cs`
+  - `SliderLanguageCatalog.InfographicDataVisualization.cs`
+  - `SliderLanguageCatalog.TattooArt.cs`
+  - `SliderLanguageCatalog.ComicBook.cs`
+  - `SliderLanguageCatalog.ThreeDRender.cs`
+  - `SliderLanguageCatalog.VintageBend.cs`
+- should continue to own:
+  - lane-specific descriptors
+  - lane-specific guide text
+  - lane-specific phrase selection helpers
+  - lane-specific fallback nuances that are genuinely local
+
+`PromptForge.Core/Services/Lanes/*.cs`
+- examples:
+  - `FantasyIllustrationLane.cs`
+  - `EditorialIllustrationLane.cs`
+  - `GraphicDesignLane.cs`
+  - `ComicBookLane.cs`
+  - `TattooArtLane.cs`
+- should continue to own:
+  - contributor overlays
+  - suppression-provider behavior
+  - lane-specific early descriptor construction where contributor lanes are the authority
+
+
+What should not be split further for now
+
+`PromptForge.App/ViewModels/MainWindowViewModel.cs`
+- do not split the remaining intent-change ownership shell further for now
+- do not split prompt regeneration orchestration further for now
+- do not split the remaining configuration apply/reset sequencing shell further for now
+- do not split access-gating trigger timing further for now
+- the remaining `MainWindowViewModel.cs` shells are now intentional orchestration ownership, not active near-term extraction targets
+
+`PromptForge.Core/Services/PromptBuilderService.cs`
+- do not split the remaining build entry and intent decision cluster further for now
+- do not split the remaining standard prompt assembly ownership shell further for now
+- do not split `Build(...)` ownership
+- do not split standard-vs-experimental routing
+- do not split final `PromptResult` ownership casually
+- do not flatten the remaining orchestration shell into generic helper layers that hide branch timing
+
+`PromptForge.Core/Services/SliderLanguageCatalog.cs`
+- do not split the remaining shared phrase-dispatch entry further for now
+- do not split the remaining shared prompt fallback precedence shell further for now
+- do not split the remaining standard shared phrase-selection owner further for now
+- do not split shared dispatch precedence casually
+- do not move lane-local wording into it
+- do not try to normalize every fallback path into generic helpers unless resolver precedence proof exists first
+
+`PromptForge.Core/Models/PromptConfiguration.cs` and `PromptForge.App/Models/PromptConfiguration.cs`
+- do not treat these as easy cleanup just because they are parallel model surfaces
+- any change here is structural and persistence-sensitive
+
+
+Target structure sketch
+
+This is the target structure from the current repo shape, not an abstract ideal.
+
+App layer
+- `PromptForge.App/ViewModels/MainWindowViewModel.cs`
+  - orchestration core
+  - intent changes
+  - regeneration ownership
+  - apply/reset sequencing shell
+  - access-gating triggers
+- `PromptForge.App/ViewModels/MainWindowViewModel.StandardLanePanels.cs`
+  - lane panel/state plumbing
+- `PromptForge.App/ViewModels/MainWindowViewModel.AccessGating.cs`
+  - access/reporting surface only
+- `PromptForge.App/ViewModels/MainWindowViewModel.ArtistPhraseEditor.cs`
+  - artist phrase editor subdomain
+- `PromptForge.App/ViewModels/MainWindowViewModel.SliderSuppressions.cs`
+  - suppression coordination core
+- `PromptForge.App/ViewModels/MainWindowViewModel.ConfigurationMapping.cs`
+  - config mapping core
+- `PromptForge.App/ViewModels/MainWindowViewModel.Presets.cs`
+  - preset CRUD surface
+- `PromptForge.App/ViewModels/MainWindowViewModel.ExperimentalMacros.cs`
+  - experimental macro support cluster
+
+Core builder layer
+- `PromptForge.Core/Services/PromptBuilderService.cs`
+  - build orchestration core
+  - route standard vs experimental
+  - own final result timing
+- `PromptForge.Core/Services/PromptBuilderService.EarlyDescriptorBranching.cs`
+  - early branch execution
+- `PromptForge.Core/Services/PromptBuilderService.StandardSectionAccumulation.cs`
+  - shared standard section accumulation
+- `PromptForge.Core/Services/PromptBuilderService.PositivePromptFinalization.cs`
+  - positive prompt finalization
+- `PromptForge.Core/Services/PromptBuilderService.NegativePrompt.cs`
+  - negative prompt assembly/policy
+
+Core shared routing layer
+- `PromptForge.Core/Services/SliderLanguageCatalog.cs`
+  - shared dispatch and fallback core only
+- `PromptForge.Core/Services/SliderLanguageCatalog.[Lane].cs`
+  - lane-local phrase authority
+- `PromptForge.Core/Services/Lanes/*.cs`
+  - lane-local contributor / suppression / overlay authority
+
+Core metadata / adaptation layer
+- `PromptForge.Core/Services/LaneRegistry.cs`
+  - lane metadata and lookup
+- `PromptForge.Core/Services/StandardLaneStateAdapter.cs`
+  - lane-state/config adaptation
+- `PromptForge.Core/Services/Lanes/LanePromptContributorRegistry.cs`
+  - contributor dispatch registry
+
+Model layer
+- `PromptForge.Core/Models/*.cs`
+  - core data contracts
+- `PromptForge.App/Models/*.cs`
+  - app-facing model surfaces that still exist for current app ownership reasons
+
+
+Next 3 architecture moves
+
+No further honest near-term architecture move is currently justified by the workspace evidence.
+
+Structural pause
+- the remaining `MainWindowViewModel.cs`, `PromptBuilderService.cs`, and `SliderLanguageCatalog.cs` shells are now intentional central ownership for now
+
+Revisit condition
+- reopen architecture planning only if the codebase changes materially later or a new pressure zone appears through feature work

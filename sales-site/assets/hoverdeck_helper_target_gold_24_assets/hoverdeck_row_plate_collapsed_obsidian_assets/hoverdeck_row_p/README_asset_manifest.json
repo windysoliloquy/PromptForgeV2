@@ -1,0 +1,19 @@
+{
+  "asset_family": "HoverDeck collapsed row plate",
+  "states": {
+    "n": "normal",
+    "h": "hover",
+    "a": "active/open"
+  },
+  "production_size": "486x46",
+  "slice_plan": {
+    "left": 64,
+    "center": 358,
+    "right": 64
+  },
+  "notes": [
+    "Text is not baked into assets; WPF should render labels over the center-safe plate.",
+    "Use slices_486x46_cap64 for WPF 3-part stretch template.",
+    "full_486x52 is included as an alternate if runtime row height needs slightly more vertical body."
+  ]
+}

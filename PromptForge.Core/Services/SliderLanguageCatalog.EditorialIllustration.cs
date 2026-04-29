@@ -47,7 +47,7 @@ public static partial class SliderLanguageCatalog
             MotionEnergy => ["still conceptual staging", "gentle implied movement", "active idea-driven energy", "dynamic visual momentum", "high-velocity visual argument"],
             AtmosphericDepth => ["flat poster-like depth", "slight spatial recession", "air-shaped illustration depth", "layered feature-scene depth", "deep atmospheric staging"],
             Chaos => ["controlled visual order", "light conceptual tension", "active compositional friction", "orchestrated visual unrest", "high conceptual instability"],
-            Whimsy => ["serious tone", "dry wit", "playful editorial wit", "strong whimsical commentary", "bold satirical play"],
+            Whimsy => ["serious tone", "dry wit", "playful editorial wit", "strong playful commentary", "bold satirical play"],
             Tension => ["low tension", "light argumentative tension", "noticeable conceptual tension", "strong editorial pressure", "intense polemical tension"],
             Awe => ["grounded scale", "slight wonder", "atmosphere of significance", "strong sense of consequence", "overwhelming thematic grandeur"],
             LightingIntensity => ["subdued light presence", "soft restrained illumination", "balanced illustration lighting", "assertive feature-light emphasis", "bright attention-commanding illumination"],

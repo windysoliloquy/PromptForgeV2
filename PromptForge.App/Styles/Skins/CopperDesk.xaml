@@ -1,0 +1,49 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="AppBackgroundColor">#FFE2D2C0</Color>
+    <Color x:Key="CardColor">#FFF4E6D6</Color>
+    <Color x:Key="BorderColor">#FFB88760</Color>
+    <Color x:Key="InputBorderColor">#FFAE7B55</Color>
+    <Color x:Key="InputBorderHoverColor">#FF965F39</Color>
+    <Color x:Key="InputBorderFocusColor">#FFB35C2E</Color>
+    <Color x:Key="AccentColor">#FFB35C2E</Color>
+    <Color x:Key="AccentColorHover">#FF8F4321</Color>
+    <Color x:Key="AccentSoftColor">#FFE8C7AF</Color>
+    <Color x:Key="TextPrimaryColor">#FF271A12</Color>
+    <Color x:Key="TextMutedColor">#FF664836</Color>
+    <Color x:Key="InputBackgroundColor">#FFF0DEC9</Color>
+    <Color x:Key="SubtleSurfaceColor">#FFD8C1AD</Color>
+    <Color x:Key="PopupSurfaceColor">#FFF7EADD</Color>
+    <Color x:Key="PopupBorderColor">#FFB88760</Color>
+    <Color x:Key="SemanticChipSurfaceColor">#FFE3C3AA</Color>
+    <Color x:Key="SemanticChipBorderColor">#FFC08B62</Color>
+    <Color x:Key="OnboardingAccentColor">#FF9C5229</Color>
+    <Color x:Key="ShadowColor">#FF271A12</Color>
+
+    <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}" />
+    <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}" />
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+    <SolidColorBrush x:Key="InputBorderBrush" Color="{StaticResource InputBorderColor}" />
+    <SolidColorBrush x:Key="InputBorderHoverBrush" Color="{StaticResource InputBorderHoverColor}" />
+    <SolidColorBrush x:Key="InputBorderFocusBrush" Color="{StaticResource InputBorderFocusColor}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentColorHover}" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="{StaticResource AccentSoftColor}" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}" />
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="{StaticResource InputBackgroundColor}" />
+    <SolidColorBrush x:Key="SubtleSurfaceBrush" Color="{StaticResource SubtleSurfaceColor}" />
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{StaticResource PopupSurfaceColor}" />
+    <SolidColorBrush x:Key="PopupBorderBrush" Color="{StaticResource PopupBorderColor}" />
+    <SolidColorBrush x:Key="SemanticChipSurfaceBrush" Color="{StaticResource SemanticChipSurfaceColor}" />
+    <SolidColorBrush x:Key="SemanticChipBorderBrush" Color="{StaticResource SemanticChipBorderColor}" />
+    <SolidColorBrush x:Key="OnboardingAccentBrush" Color="{StaticResource OnboardingAccentColor}" />
+    <SolidColorBrush x:Key="SliderFlyoutCollapseCamouflageBrush" Color="{StaticResource CardColor}" />
+    <SolidColorBrush x:Key="ComboBoxBackgroundBrush" Color="{StaticResource InputBackgroundColor}" />
+    <SolidColorBrush x:Key="ComboBoxForegroundBrush" Color="{StaticResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="ComboBoxDropDownBackgroundBrush" Color="{StaticResource PopupSurfaceColor}" />
+    <SolidColorBrush x:Key="ComboBoxDropDownForegroundBrush" Color="{StaticResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="SelectorRadiantHoverBrush" Color="#A6C06B35" />
+    <SolidColorBrush x:Key="SelectorRadiantFocusBrush" Color="#B8B35C2E" />
+    <SolidColorBrush x:Key="SelectorRadiantGlintBrush" Color="#FFFFB347" />
+</ResourceDictionary>
